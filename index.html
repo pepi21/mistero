@@ -197,9 +197,11 @@ function PageC({ system, cnt, question, onResult, onBack }) {
       const ci = idx;
       setRev(p => [...p, ci]);
       idx++;
-      tmr.current = setTimeout(next, idx === 1 ? 500 : 1200);
+      // 修改處：所有後續間隔固定 0.5 秒
+      tmr.current = setTimeout(next, 500);
     }
-    tmr.current = setTimeout(next, 900);
+    // 修改處：初始延遲 1.2 秒才翻第一張牌
+    tmr.current = setTimeout(next, 1200);
     return () => { if (tmr.current) clearTimeout(tmr.current); };
   }, []);
 
