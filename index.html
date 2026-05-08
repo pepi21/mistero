@@ -1,406 +1,1017 @@
-import { useState, useEffect, useRef } from "react";
-
-const TAROT_MAJOR = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
-const ALL_TAROT = [...TAROT_MAJOR,"權杖王牌","權杖二","權杖三","權杖四","權杖五","權杖六","權杖七","權杖八","權杖九","權杖十","權杖侍者","權杖騎士","權杖王后","權杖國王","聖杯王牌","聖杯二","聖杯三","聖杯四","聖杯五","聖杯六","聖杯七","聖杯八","聖杯九","聖杯十","聖杯侍者","聖杯騎士","聖杯王后","聖杯國王","寶劍王牌","寶劍二","寶劍三","寶劍四","寶劍五","寶劍六","寶劍七","寶劍八","寶劍九","寶劍十","寶劍侍者","寶劍騎士","寶劍王后","寶劍國王","錢幣王牌","錢幣二","錢幣三","錢幣四","錢幣五","錢幣六","錢幣七","錢幣八","錢幣九","錢幣十","錢幣侍者","錢幣騎士","錢幣王后","錢幣國王"];
-const LENORMAND = ["1 騎士","2 幸運草","3 船","4 房屋","5 樹","6 雲","7 蛇","8 棺材","9 花束","10 鐮刀","11 鞭子","12 鳥","13 孩子","14 狐狸","15 熊","16 星星","17 鸛","18 狗","19 塔","20 花園","21 山","22 道路","23 老鼠","24 心","25 戒指","26 書","27 信","28 紳士","29 淑女","30 百合","31 太陽","32 月亮","33 鑰匙","34 魚","35 錨","36 十字架"];
-const BAGUA_LINES = {"乾":[1,1,1],"兌":[1,1,0],"離":[1,0,1],"震":[1,0,0],"巽":[0,1,1],"坎":[0,1,0],"艮":[0,0,1],"坤":[0,0,0]};
-const HEX_T = {"乾乾":"乾","乾兌":"夬","乾離":"大有","乾震":"大壯","乾巽":"小畜","乾坎":"需","乾艮":"大畜","乾坤":"泰","兌乾":"履","兌兌":"兌","兌離":"睽","兌震":"歸妹","兌巽":"中孚","兌坎":"節","兌艮":"損","兌坤":"臨","離乾":"同人","離兌":"革","離離":"離","離震":"豐","離巽":"家人","離坎":"既濟","離艮":"賁","離坤":"明夷","震乾":"無妄","震兌":"隨","震離":"噬嗑","震震":"震","震巽":"益","震坎":"屯","震艮":"頤","震坤":"復","巽乾":"姤","巽兌":"大過","巽離":"鼎","巽震":"恆","巽巽":"巽","巽坎":"井","巽艮":"蠱","巽坤":"升","坎乾":"訟","坎兌":"困","坎離":"未濟","坎震":"解","坎巽":"渙","坎坎":"坎","坎艮":"蒙","坎坤":"師","艮乾":"遁","艮兌":"咸","艮離":"旅","艮震":"小過","艮巽":"漸","艮坎":"蹇","艮艮":"艮","艮坤":"謙","坤乾":"否","坤兌":"萃","坤離":"晉","坤震":"豫","坤巽":"觀","坤坎":"比","坤艮":"剝","坤坤":"坤"};
-const HEX_N = {"乾":1,"坤":2,"屯":3,"蒙":4,"需":5,"訟":6,"師":7,"比":8,"小畜":9,"履":10,"泰":11,"否":12,"同人":13,"大有":14,"謙":15,"豫":16,"隨":17,"蠱":18,"臨":19,"觀":20,"噬嗑":21,"賁":22,"剝":23,"復":24,"無妄":25,"大畜":26,"頤":27,"大過":28,"坎":29,"離":30,"咸":31,"恆":32,"遁":33,"大壯":34,"晉":35,"明夷":36,"家人":37,"睽":38,"蹇":39,"解":40,"損":41,"益":42,"夬":43,"姤":44,"萃":45,"升":46,"困":47,"井":48,"革":49,"鼎":50,"震":51,"艮":52,"漸":53,"歸妹":54,"豐":55,"旅":56,"巽":57,"兌":58,"渙":59,"節":60,"中孚":61,"小過":62,"既濟":63,"未濟":64};
-const YN = ["初爻","二爻","三爻","四爻","五爻","上爻"];
-
-function suggest(q) {
-  const lk = ["該不該","要不要","是不是","會不會","還是","選","可不可以","有沒有","能不能","好不好","對不對","值不值"];
-  const yk = ["會怎樣","怎麼樣","最後","結果","成不成","發展","走向","未來會","能不能成","後來","結局","下場"];
-  if (lk.some(k => q.includes(k))) return "lenormand";
-  if (yk.some(k => q.includes(k))) return "liuyao";
-  return "tarot";
-}
-
-function shuf(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
-function drawT(n) { return shuf(ALL_TAROT).slice(0, n).map(c => ({ name: c, rev: Math.random() < 0.5 })); }
-function drawL(n) { return shuf(LENORMAND).slice(0, n).map(c => ({ name: c })); }
-
-function tossYao() {
-  const c = [Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反"];
-  const h = c.filter(x => x === "正").length;
-  if (h === 3) return { c, v: 9, t: "老陽（動）", l: 1, m: true };
-  if (h === 2) return { c, v: 8, t: "少陰", l: 0, m: false };
-  if (h === 1) return { c, v: 7, t: "少陽", l: 1, m: false };
-  return { c, v: 6, t: "老陰（動）", l: 0, m: true };
-}
-
-function getTri(l) { for (const [n, p] of Object.entries(BAGUA_LINES)) if (p[0] === l[0] && p[1] === l[1] && p[2] === l[2]) return n; return ""; }
-
-function compHex(yaos) {
-  const ls = yaos.map(y => y.l);
-  const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
-  const lo = getTri(ls.slice(0, 3)), up = getTri(ls.slice(3, 6));
-  const lc = getTri(ch.slice(0, 3)), uc = getTri(ch.slice(3, 6));
-  const on = HEX_T[up + lo] || "?", cn = HEX_T[uc + lc] || "?";
-  const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
-  return { o: on, oN: HEX_N[on] || 0, c: cn, cN: HEX_N[cn] || 0, mv, hasM: mv.length > 0 };
-}
-
-const G = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500;600&display=swap');
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#f3f0ea; font-family:'Noto Serif TC',serif; color:#2c2c2c; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
-.it { font-family:'Cormorant Garamond','Noto Serif TC',serif; }
-@keyframes fu { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
-@keyframes sd { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-@keyframes cspin { 0%{transform:rotateY(0) scale(1)} 40%{transform:rotateY(360deg) scale(0.88)} 100%{transform:rotateY(720deg) scale(1)} }
-textarea:focus { outline:none; border-color:#6b8f71!important; box-shadow:0 0 0 3px rgba(107,143,113,0.08)!important; }
-button { cursor:pointer; font-family:'Noto Serif TC',serif; -webkit-tap-highlight-color:transparent; }
-::selection { background:#c5d8c7; color:#4a6b4e; }
-.coin { width:38px; height:38px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 35%,#e8d5a8,#c9a96e 50%,#a07840); box-shadow:0 2px 6px rgba(160,120,64,0.3),inset 0 1px 2px rgba(255,255,255,0.35); position:relative; }
-.coin::after { content:''; width:8px; height:8px; border:1.5px solid rgba(255,255,255,0.22); position:absolute; border-radius:1px; }
-.coin.spin { animation:cspin 0.55s cubic-bezier(0.4,0,0.2,1); }
-`;
-
-function Wrap({ children }) {
-  return (
-    <><style>{G}</style>
-    <div style={{ minHeight:"100vh", background:"#f3f0ea", display:"flex", justifyContent:"center" }}>
-      <div style={{ width:"100%", maxWidth:420, minHeight:"100vh", position:"relative" }}>{children}</div>
-    </div></>
-  );
-}
-
-function BkBtn({ onClick }) {
-  return <button onClick={onClick} style={{ position:"absolute", top:18, left:20, zIndex:10, background:"none", border:"none", color:"#888", fontSize:13, letterSpacing:2, padding:"8px 0" }}>← 返回</button>;
-}
-
-function PBtn({ children, onClick, disabled, style: s }) {
-  return <button onClick={onClick} disabled={disabled} style={{ width:"100%", padding:"15px 0", background:disabled?"#ddd9d2":"#6b8f71", color:disabled?"#aaa":"#fff", border:"none", borderRadius:8, fontSize:14, letterSpacing:5, fontWeight:400, boxShadow:disabled?"none":"0 2px 10px rgba(107,143,113,0.18)", opacity:disabled?0.6:1, ...(s||{}) }}>{children}</button>;
-}
-
-function GBtn({ children, onClick, style: s }) {
-  return <button onClick={onClick} style={{ padding:"14px 0", width:"100%", background:"none", color:"#888", border:"1px solid #ddd9d2", borderRadius:8, fontSize:13, letterSpacing:3, ...(s||{}) }}>{children}</button>;
-}
-
-function Dv() { return <div style={{ width:36, height:1, background:"#ccc8c0", margin:"0 auto" }} />; }
-
-/* ═══ QUESTION ═══ */
-function PageQ({ onNext }) {
-  const [q, setQ] = useState("");
-  const ex = ["她現在對我什麼感覺？", "我們還有機會嗎？", "該不該跟她告白？", "我跟她最後會怎樣？"];
-  return (
-    <Wrap><div style={{ padding:"80px 24px 40px", animation:"fu 0.7s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:44 }}>
-        <div style={{ fontSize:11, color:"#aaa", letterSpacing:6, marginBottom:18 }}>愛之謎</div>
-        <h1 className="it" style={{ fontSize:32, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:16, lineHeight:1.3 }}>
-          Mistero d&#39;Amore
-        </h1>
-        <Dv />
-        <p style={{ fontSize:12.5, color:"#888", lineHeight:2.2, marginTop:16, letterSpacing:1 }}>將心中所念化為文字<br/>天地自有感應</p>
-      </div>
-      <div style={{ background:"#fff", borderRadius:14, padding:"20px 20px 14px", boxShadow:"0 1px 10px rgba(0,0,0,0.04)", marginBottom:12, border:"1px solid #ddd9d2" }}>
-        <textarea value={q} onChange={e => setQ(e.target.value.slice(0, 200))} placeholder="輸入你想問的事⋯⋯" rows={4} style={{ width:"100%", border:"1px solid #ddd9d2", borderRadius:8, padding:"14px 16px", fontSize:15, lineHeight:1.9, color:"#2c2c2c", fontFamily:"'Noto Serif TC',serif", resize:"none", background:"#faf8f5", transition:"all 0.3s" }} />
-        <div style={{ textAlign:"right", fontSize:10, color:"#aaa", marginTop:6 }}>{q.length}/200</div>
-      </div>
-      <div style={{ display:"flex", gap:7, flexWrap:"wrap", marginBottom:30 }}>
-        {ex.map(e => <button key={e} onClick={() => setQ(e)} style={{ background:"#eaf1eb", border:"none", borderRadius:20, padding:"6px 13px", fontSize:11, color:"#4a6b4e", letterSpacing:0.3 }}>{e}</button>)}
-      </div>
-      <PBtn onClick={() => onNext(q)} disabled={!q.trim()}>開 始 占 卜</PBtn>
-    </div></Wrap>
-  );
-}
-
-/* ═══ SYSTEM ═══ */
-function PageS({ question, onNext, onBack }) {
-  const sg = suggest(question);
-  const [sel, setSel] = useState(null);
-  const [cnt, setCnt] = useState(3);
-  const sys = [
-    { id:"tarot", n:"塔 羅", sub:"78張完整牌組・正逆位", ic:"✦" },
-    { id:"lenormand", n:"雷 諾 曼", sub:"36張指引牌", ic:"◇" },
-    { id:"liuyao", n:"六 爻", sub:"銅錢起卦・本卦變卦", ic:"☰" },
-  ];
-  return (
-    <Wrap><BkBtn onClick={onBack} />
-    <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:36 }}>
-        <h1 className="it" style={{ fontSize:26, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 }}>Metodo</h1>
-        <Dv />
-      </div>
-      <div style={{ background:"#fff", borderRadius:10, padding:"12px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
-        「{question.length > 35 ? question.slice(0, 35) + "⋯" : question}」
-      </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:9, marginBottom:24 }}>
-        {sys.map(s => {
-          const a = sel === s.id, r = sg === s.id;
-          return (
-            <button key={s.id} onClick={() => setSel(s.id)} style={{ display:"flex", alignItems:"center", gap:14, width:"100%", padding:"16px 18px", background:a?"#eaf1eb":"#fff", border:a?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:10, textAlign:"left", position:"relative", boxShadow:a?"0 2px 12px rgba(107,143,113,0.1)":"0 1px 3px rgba(0,0,0,0.04)", transition:"all 0.2s" }}>
-              <span style={{ fontSize:18, width:38, height:38, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:8, background:a?"#6b8f71":"#faf8f5", color:a?"#fff":"#888", transition:"all 0.2s", flexShrink:0 }}>{s.ic}</span>
-              <div>
-                <div style={{ fontSize:14, letterSpacing:3, color:a?"#4a6b4e":"#2c2c2c", fontWeight:500 }}>{s.n}</div>
-                <div style={{ fontSize:11, color:"#888", marginTop:2 }}>{s.sub}</div>
-              </div>
-              {r && <span style={{ position:"absolute", top:10, right:14, fontSize:9.5, color:"#b8956a", border:"1px solid #d4b896", padding:"2px 9px", borderRadius:4, letterSpacing:1 }}>推薦</span>}
-            </button>
-          );
-        })}
-      </div>
-      {(sel === "tarot" || sel === "lenormand") && (
-        <div style={{ marginBottom:24, animation:"sd 0.3s ease" }}>
-          <div style={{ fontSize:11, color:"#888", letterSpacing:3, marginBottom:10 }}>抽 牌 數 量</div>
-          <div style={{ display:"flex", gap:10 }}>
-            {[3, 5].map(n => (
-              <button key={n} onClick={() => setCnt(n)} style={{ flex:1, padding:"13px 0", background:cnt===n?"#eaf1eb":"#fff", border:cnt===n?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:8, textAlign:"center", boxShadow:"0 1px 3px rgba(0,0,0,0.04)", transition:"all 0.2s" }}>
-                <div style={{ fontSize:18, color:cnt===n?"#4a6b4e":"#2c2c2c", fontWeight:500 }}>{n}</div>
-                <div style={{ fontSize:10, color:"#888", marginTop:3 }}>{n===3?"快速解讀":"深入分析"}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      <PBtn onClick={() => onNext(sel, cnt)} disabled={!sel}>下 一 步</PBtn>
-    </div></Wrap>
-  );
-}
-
-/* ═══ CARD DRAW ═══ */
-function PageC({ system, cnt, question, onResult, onBack }) {
-  const [cards, setCards] = useState([]);
-  const [rev, setRev] = useState([]);
-  const [done, setDone] = useState(false);
-  const started = useRef(false);
-  const tmr = useRef(null);
-
-  useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    const drawn = system === "tarot" ? drawT(cnt) : drawL(cnt);
-    setCards(drawn);
-    let idx = 0;
-    function next() {
-      if (idx >= drawn.length) { setDone(true); return; }
-      const ci = idx;
-      setRev(p => [...p, ci]);
-      idx++;
-      tmr.current = setTimeout(next, idx === 1 ? 500 : 1200);
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f3f0ea" />
+  <title>愛之謎</title>
+  <style>
+    :root {
+      --bg: #f3f0ea;
+      --card: #ffffff;
+      --text: #2c2c2c;
+      --muted: #888888;
+      --line: #ddd9d2;
+      --green: #6b8f71;
+      --green-weak: #eaf1eb;
+      --green-deep: #4a6b4e;
+      --gold: #b8956a;
+      --shadow: 0 1px 10px rgba(0,0,0,.04);
     }
-    tmr.current = setTimeout(next, 900);
-    return () => { if (tmr.current) clearTimeout(tmr.current); };
-  }, []);
 
-  function fmt() {
-    const sn = system === "tarot" ? "塔羅" : "雷諾曼";
-    const cs = cards.map(c => system === "tarot" ? `${c.rev ? "逆位" : "正位"}${c.name}` : c.name);
-    return `【${sn}${cnt}張牌結果】\n占問：${question}\n\n牌面：${cs.join("、")}`;
-  }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; height: 100%; }
+    html { overscroll-behavior-y: none; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      overscroll-behavior-y: none;
+    }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    ::selection { background: #c5d8c7; color: #4a6b4e; }
 
-  // Mobile-first sizing: 3 cards fit in ~330px, 5 cards fit too
-  const cw = cnt <= 3 ? 98 : 60;
-  const ch = cnt <= 3 ? 152 : 96;
+    .app-shell {
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      background: var(--bg);
+    }
+    .app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100dvh;
+      position: relative;
+    }
+    .page {
+      min-height: 100dvh;
+      padding: 76px 24px 40px;
+      animation: fu .55s ease;
+    }
+    .page-tight { padding: 76px 20px 40px; }
+    .it {
+      font-family: "Cormorant Garamond", "Iowan Old Style", "Baskerville", "Palatino Linotype", "Times New Roman", serif;
+      letter-spacing: 2px;
+      font-style: italic;
+      font-weight: 300;
+    }
+    .title { text-align: center; margin-bottom: 44px; }
+    .title.small { margin-bottom: 36px; }
+    .eyebrow {
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 6px;
+      margin-bottom: 18px;
+    }
+    .subtext {
+      font-size: 12.5px;
+      color: #888;
+      line-height: 2.2;
+      margin-top: 16px;
+      letter-spacing: 1px;
+    }
+    .divider {
+      width: 36px;
+      height: 1px;
+      background: #ccc8c0;
+      margin: 0 auto;
+    }
+    .panel {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px 20px 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+    }
+    .textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 15px;
+      line-height: 1.9;
+      color: var(--text);
+      resize: none;
+      background: #faf8f5;
+      transition: all .25s;
+      outline: none;
+    }
+    .textarea:focus {
+      border-color: var(--green) !important;
+      box-shadow: 0 0 0 3px rgba(107,143,113,.08) !important;
+    }
+    .count {
+      text-align: right;
+      font-size: 10px;
+      color: #aaa;
+      margin-top: 6px;
+    }
+    .chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 30px; }
+    .chip {
+      background: var(--green-weak);
+      border: none;
+      border-radius: 20px;
+      padding: 6px 13px;
+      font-size: 11px;
+      color: var(--green-deep);
+      letter-spacing: .3px;
+    }
+    .btn-row { display: flex; gap: 10px; }
+    .primary-btn, .ghost-btn, .back-btn, .sys-btn, .count-btn, .chip, .choice-btn, .small-btn {
+      user-select: none;
+    }
+    .primary-btn,
+    .ghost-btn,
+    .count-btn,
+    .choice-btn,
+    .sys-btn {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 15px 0;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      letter-spacing: 5px;
+      font-weight: 400;
+      box-shadow: 0 2px 10px rgba(107,143,113,.18);
+    }
+    .primary-btn:disabled {
+      background: #ddd9d2;
+      color: #aaa;
+      box-shadow: none;
+      opacity: .7;
+    }
+    .ghost-btn {
+      padding: 14px 0;
+      width: 100%;
+      background: none;
+      color: #888;
+      font-size: 13px;
+      letter-spacing: 3px;
+    }
+    .back-btn {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      z-index: 10;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 13px;
+      letter-spacing: 2px;
+      padding: 8px 0;
+    }
+    .hint-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.8;
+      border-left: 3px solid #c5d8c7;
+      box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    }
+    .sys-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
+    .sys-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 16px 18px;
+      background: #fff;
+      text-align: left;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      transition: all .2s;
+    }
+    .sys-btn.active {
+      background: var(--green-weak);
+      border: 1.5px solid var(--green);
+      box-shadow: 0 2px 12px rgba(107,143,113,.1);
+    }
+    .sys-ic {
+      font-size: 18px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: #faf8f5;
+      color: #888;
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+    .sys-btn.active .sys-ic { background: var(--green); color: #fff; }
+    .sys-name {
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .sys-btn.active .sys-name { color: var(--green-deep); }
+    .sys-sub { font-size: 11px; color: #888; margin-top: 2px; }
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 9.5px;
+      color: var(--gold);
+      border: 1px solid #d4b896;
+      padding: 2px 9px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      background: #fff;
+    }
+    .count-wrap { margin-bottom: 24px; animation: sd .3s ease; }
+    .count-label { font-size: 11px; color: #888; letter-spacing: 3px; margin-bottom: 10px; }
+    .count-grid { display: flex; gap: 10px; }
+    .count-btn {
+      flex: 1;
+      padding: 13px 0;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      transition: all .2s;
+    }
+    .count-btn.active {
+      background: var(--green-weak);
+      border: 1.5px solid var(--green);
+    }
+    .count-num { font-size: 18px; font-weight: 500; }
+    .count-note { font-size: 10px; color: #888; margin-top: 3px; }
 
-  return (
-    <Wrap><BkBtn onClick={onBack} />
-    <div style={{ padding:"76px 20px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:28 }}>
-        <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>
-          {system === "tarot" ? "Tarocchi" : "Lenormand"}
-        </h1>
-        <div style={{ fontSize:11, color:"#aaa", marginTop:8, letterSpacing:2 }}>
-          {rev.length < cnt ? `${rev.length} / ${cnt}` : "牌面已開"}
+    .draw-title { text-align: center; margin-bottom: 28px; }
+    .draw-sub { font-size: 11px; color: #aaa; margin-top: 8px; letter-spacing: 2px; }
+    .draw-area {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      min-height: 162px;
+      flex-wrap: nowrap;
+    }
+    .card-shell {
+      perspective: 600px;
+      flex-shrink: 0;
+    }
+    .card-flip {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      transition: transform .65s cubic-bezier(.4,0,.2,1);
+    }
+    .card-flip.show { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute;
+      width: 100%; height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 10px;
+    }
+    .card-back {
+      background: linear-gradient(155deg, #6b8f71, #4a6b4e);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    }
+    .card-back-inner {
+      width: 68%; height: 78%; border: 1px solid rgba(255,255,255,.15); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .star-mark { color: rgba(255,255,255,.2); }
+    .card-front {
+      transform: rotateY(180deg);
+      background: #fff;
+      border: 1px solid var(--line);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 10px;
+      box-shadow: 0 3px 14px rgba(0,0,0,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-rank {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .card-rank.rev { transform: rotate(180deg); }
+    .card-meta-top, .card-meta-bottom {
+      position: absolute;
+      left: 0; right: 0;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    .card-meta-top { top: 7px; font-size: 9px; font-weight: 500; }
+    .card-meta-bottom { bottom: 7px; font-size: 8px; color: var(--gold); letter-spacing: 1px; }
+    .card-meta-top.rev { color: #c07070; }
+    .card-meta-top.fwd { color: var(--green); }
+
+    .liux-title { text-align: center; margin-bottom: 28px; }
+    .liux-title .t1 { font-size: 24px; }
+    .liux-title .t2 { font-size: 12px; color: #888; margin-top: 6px; letter-spacing: 3px; }
+    .liux-title .t3 { font-size: 11px; color: #aaa; margin-top: 5px; letter-spacing: 2px; }
+    .coins { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; }
+    .coin {
+      width: 38px; height: 38px; border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center;
+      background: radial-gradient(circle at 35% 35%, #e8d5a8, #c9a96e 50%, #a07840);
+      box-shadow: 0 2px 6px rgba(160,120,64,.3), inset 0 1px 2px rgba(255,255,255,.35);
+      position: relative;
+    }
+    .coin::after {
+      content: '';
+      width: 8px; height: 8px;
+      border: 1.5px solid rgba(255,255,255,.22);
+      position: absolute; border-radius: 1px;
+    }
+    .coin.spin { animation: cspin .55s cubic-bezier(.4,0,.2,1); }
+    .liux-actions { display: flex; gap: 10px; }
+    .liux-reset {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 11px;
+      margin-top: 12px;
+      letter-spacing: 1px;
+      font-family: inherit;
+    }
+    .line-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.04);
+      border: 1px solid var(--line);
+    }
+    .line-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 0;
+      animation: sd .3s ease;
+      border-bottom: 1px solid #eae6df;
+      flex-wrap: nowrap;
+    }
+    .line-row:last-child { border-bottom: none; }
+    .line-label {
+      font-size: 11px;
+      color: #888;
+      width: 30px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .line-symbols { display: flex; gap: 3px; align-items: center; flex-shrink: 0; }
+    .line-text {
+      font-size: 10px;
+      color: #aaa;
+      flex-shrink: 0;
+    }
+    .line-tag {
+      font-size: 10px;
+      color: #888;
+      white-space: nowrap;
+    }
+    .line-tag.moving { color: var(--gold); font-weight: 500; }
+    .res-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 22px;
+      text-align: center;
+      border: 1px solid #c5d8c7;
+      box-shadow: 0 2px 14px rgba(107,143,113,.08);
+    }
+    .res-kicker {
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+    .res-main { font-size: 26px; letter-spacing: 6px; color: var(--text); font-weight: 500; }
+    .res-sub { font-size: 12px; color: #888; margin-top: 4px; }
+    .res-sep { width: 1px; height: 20px; background: #ddd9d2; margin: 12px auto; }
+    .res-badge {
+      margin-top: 16px;
+      padding: 7px 16px;
+      background: var(--green-weak);
+      border-radius: 6px;
+      display: inline-block;
+      font-size: 11px;
+      color: var(--green-deep);
+      letter-spacing: 2px;
+    }
+    .result-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 2;
+      color: #555;
+      user-select: text;
+    }
+    .hidden { display: none !important; }
+
+    @keyframes fu { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes sd { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cspin { 0% { transform: rotateY(0) scale(1); } 40% { transform: rotateY(360deg) scale(.88); } 100% { transform: rotateY(720deg) scale(1); } }
+
+    @media (max-width: 420px) {
+      .page { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app" id="app"></div>
+  </div>
+
+  <script>
+    const TAROT_MAJOR = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
+    const ALL_TAROT = [...TAROT_MAJOR,"權杖王牌","權杖二","權杖三","權杖四","權杖五","權杖六","權杖七","權杖八","權杖九","權杖十","權杖侍者","權杖騎士","權杖王后","權杖國王","聖杯王牌","聖杯二","聖杯三","聖杯四","聖杯五","聖杯六","聖杯七","聖杯八","聖杯九","聖杯十","聖杯侍者","聖杯騎士","聖杯王后","聖杯國王","寶劍王牌","寶劍二","寶劍三","寶劍四","寶劍五","寶劍六","寶劍七","寶劍八","寶劍九","寶劍十","寶劍侍者","寶劍騎士","寶劍王后","寶劍國王","錢幣王牌","錢幣二","錢幣三","錢幣四","錢幣五","錢幣六","錢幣七","錢幣八","錢幣九","錢幣十","錢幣侍者","錢幣騎士","錢幣王后","錢幣國王"];
+    const LENORMAND = ["1 騎士","2 幸運草","3 船","4 房屋","5 樹","6 雲","7 蛇","8 棺材","9 花束","10 鐮刀","11 鞭子","12 鳥","13 孩子","14 狐狸","15 熊","16 星星","17 鸛","18 狗","19 塔","20 花園","21 山","22 道路","23 老鼠","24 心","25 戒指","26 書","27 信","28 紳士","29 淑女","30 百合","31 太陽","32 月亮","33 鑰匙","34 魚","35 錨","36 十字架"];
+    const BAGUA_LINES = {"乾":[1,1,1],"兌":[1,1,0],"離":[1,0,1],"震":[1,0,0],"巽":[0,1,1],"坎":[0,1,0],"艮":[0,0,1],"坤":[0,0,0]};
+    const HEX_T = {"乾乾":"乾","乾兌":"夬","乾離":"大有","乾震":"大壯","乾巽":"小畜","乾坎":"需","乾艮":"大畜","乾坤":"泰","兌乾":"履","兌兌":"兌","兌離":"睽","兌震":"歸妹","兌巽":"中孚","兌坎":"節","兌艮":"損","兌坤":"臨","離乾":"同人","離兌":"革","離離":"離","離震":"豐","離巽":"家人","離坎":"既濟","離艮":"賁","離坤":"明夷","震乾":"無妄","震兌":"隨","震離":"噬嗑","震震":"震","震巽":"益","震坎":"屯","震艮":"頤","震坤":"復","巽乾":"姤","巽兌":"大過","巽離":"鼎","巽震":"恆","巽巽":"巽","巽坎":"井","巽艮":"蠱","巽坤":"升","坎乾":"訟","坎兌":"困","坎離":"未濟","坎震":"解","坎巽":"渙","坎坎":"坎","坎艮":"蒙","坎坤":"師","艮乾":"遁","艮兌":"咸","艮離":"旅","艮震":"小過","艮巽":"漸","艮坎":"蹇","艮艮":"艮","艮坤":"謙","坤乾":"否","坤兌":"萃","坤離":"晉","坤震":"豫","坤巽":"觀","坤坎":"比","坤艮":"剝","坤坤":"坤"};
+    const HEX_N = {"乾":1,"坤":2,"屯":3,"蒙":4,"需":5,"訟":6,"師":7,"比":8,"小畜":9,"履":10,"泰":11,"否":12,"同人":13,"大有":14,"謙":15,"豫":16,"隨":17,"蠱":18,"臨":19,"觀":20,"噬嗑":21,"賁":22,"剝":23,"復":24,"無妄":25,"大畜":26,"頤":27,"大過":28,"坎":29,"離":30,"咸":31,"恆":32,"遁":33,"大壯":34,"晉":35,"明夷":36,"家人":37,"睽":38,"蹇":39,"解":40,"損":41,"益":42,"夬":43,"姤":44,"萃":45,"升":46,"困":47,"井":48,"革":49,"鼎":50,"震":51,"艮":52,"漸":53,"歸妹":54,"豐":55,"旅":56,"巽":57,"兌":58,"渙":59,"節":60,"中孚":61,"小過":62,"既濟":63,"未濟":64};
+    const YN = ["初爻","二爻","三爻","四爻","五爻","上爻"];
+
+    const root = document.getElementById('app');
+    const state = {
+      page: 'q',
+      q: '',
+      sys: null,
+      cnt: 3,
+      res: '',
+      sel: null,
+      cards: [],
+      revealed: [],
+      done: false,
+      drawStarted: false,
+      yaos: [],
+      busy: false,
+      cur: 0,
+      hex: null,
+      spin: false,
+      copyOk: false,
+    };
+
+    let timers = [];
+    let liuTimer = null;
+
+    function clearTimers() {
+      timers.forEach(t => clearTimeout(t));
+      timers = [];
+      if (liuTimer) {
+        clearTimeout(liuTimer);
+        liuTimer = null;
+      }
+    }
+
+    function esc(v) {
+      return String(v ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function suggest(q) {
+      const lk = ["該不該","要不要","是不是","會不會","還是","選","可不可以","有沒有","能不能","好不好","對不對","值不值"];
+      const yk = ["會怎樣","怎麼樣","最後","結果","成不成","發展","走向","未來會","能不能成","後來","結局","下場"];
+      if (lk.some(k => q.includes(k))) return 'lenormand';
+      if (yk.some(k => q.includes(k))) return 'liuyao';
+      return 'tarot';
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function drawT(n) {
+      return shuffle(ALL_TAROT).slice(0, n).map(name => ({ name, rev: Math.random() < 0.5 }));
+    }
+
+    function drawL(n) {
+      return shuffle(LENORMAND).slice(0, n).map(name => ({ name }));
+    }
+
+    function tossYao() {
+      const c = [Math.random() < 0.5 ? '正' : '反', Math.random() < 0.5 ? '正' : '反', Math.random() < 0.5 ? '正' : '反'];
+      const h = c.filter(x => x === '正').length;
+      if (h === 3) return { c, v: 9, t: '老陽（動）', l: 1, m: true };
+      if (h === 2) return { c, v: 8, t: '少陰', l: 0, m: false };
+      if (h === 1) return { c, v: 7, t: '少陽', l: 1, m: false };
+      return { c, v: 6, t: '老陰（動）', l: 0, m: true };
+    }
+
+    function getTri(lines) {
+      for (const [n, p] of Object.entries(BAGUA_LINES)) {
+        if (p[0] === lines[0] && p[1] === lines[1] && p[2] === lines[2]) return n;
+      }
+      return '';
+    }
+
+    function compHex(yaos) {
+      const ls = yaos.map(y => y.l);
+      const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
+      const lo = getTri(ls.slice(0, 3));
+      const up = getTri(ls.slice(3, 6));
+      const lc = getTri(ch.slice(0, 3));
+      const uc = getTri(ch.slice(3, 6));
+      const on = HEX_T[up + lo] || '?';
+      const cn = HEX_T[uc + lc] || '?';
+      const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
+      return { o: on, oN: HEX_N[on] || 0, c: cn, cN: HEX_N[cn] || 0, mv, hasM: mv.length > 0 };
+    }
+
+    function nav(page) {
+      if (state.page !== page) {
+        clearTimers();
+        if (state.page === 'd') state.drawStarted = false;
+      }
+      state.page = page;
+      render();
+    }
+
+    function updateQuestionUI() {
+      const counter = document.getElementById('questionCount');
+      if (counter) counter.textContent = `${state.q.length}/200`;
+      const startBtn = document.getElementById('startBtn');
+      if (startBtn) startBtn.disabled = !state.q.trim();
+    }
+
+    function setQ(v) {
+      state.q = String(v).slice(0, 200);
+      const input = document.getElementById('questionInput');
+      if (input && input.value !== state.q) input.value = state.q;
+      updateQuestionUI();
+    }
+    function setSys(v) { state.sys = v; state.sel = v; render(); }
+    function setCnt(v) { state.cnt = v; render(); }
+
+    function beginDraw() {
+      clearTimers();
+      const drawn = state.sys === 'tarot' ? drawT(state.cnt) : drawL(state.cnt);
+      state.cards = drawn;
+      state.revealed = [];
+      state.done = false;
+      state.drawStarted = true;
+      render();
+
+      let idx = 0;
+      const next = () => {
+        if (state.page !== 'd') return;
+        if (idx >= drawn.length) {
+          state.done = true;
+          render();
+          return;
+        }
+        state.revealed.push(idx);
+        render();
+        idx += 1;
+        timers.push(setTimeout(next, idx === 1 ? 500 : 1200));
+      };
+      timers.push(setTimeout(next, 900));
+    }
+
+    function drawOne() {
+      if (state.cur >= 6 || state.busy) return;
+      state.busy = true;
+      state.spin = true;
+      render();
+      liuTimer = setTimeout(() => {
+        state.spin = false;
+        const y = tossYao();
+        state.yaos = [...state.yaos, y];
+        state.cur += 1;
+        state.busy = false;
+        if (state.yaos.length === 6) state.hex = compHex(state.yaos);
+        render();
+      }, 700);
+    }
+
+    function drawAll() {
+      if (state.busy) return;
+      clearTimers();
+      state.busy = true;
+      state.spin = false;
+      state.yaos = [];
+      state.cur = 0;
+      state.hex = null;
+      render();
+
+      const all = [];
+      let i = 0;
+      const next = () => {
+        if (state.page !== 'd') return;
+        if (i >= 6) {
+          state.busy = false;
+          state.spin = false;
+          state.hex = compHex(all);
+          render();
+          return;
+        }
+        state.spin = true;
+        render();
+        liuTimer = setTimeout(() => {
+          all.push(tossYao());
+          state.yaos = [...all];
+          state.cur = all.length;
+          state.spin = false;
+          i += 1;
+          render();
+          liuTimer = setTimeout(next, 250);
+        }, 500);
+      };
+      next();
+    }
+
+    function resetLiu() {
+      clearTimers();
+      state.yaos = [];
+      state.cur = 0;
+      state.hex = null;
+      state.busy = false;
+      state.spin = false;
+      render();
+    }
+
+    function makeResultText() {
+      if (state.sys === 'liuyao') {
+        const ms = state.hex.mv.length > 0 ? state.hex.mv.map(i => YN[i]).join('、') : '無';
+        let t = `【六爻起卦結果】\n占問：${state.q}\n\n本卦：${state.hex.o}（第${state.hex.oN}卦）\n`;
+        if (state.hex.hasM) t += `變卦：${state.hex.c}（第${state.hex.cN}卦）\n`;
+        t += `動爻：${ms}\n\n各爻詳情（初爻→上爻）：\n`;
+        state.yaos.forEach((y, i) => { t += `  ${YN[i]}：${y.c.join('·')} = ${y.v} → ${y.t}\n`; });
+        return t;
+      }
+      const sn = state.sys === 'tarot' ? '塔羅' : '雷諾曼';
+      const cs = state.cards.map(c => state.sys === 'tarot' ? `${c.rev ? '逆位' : '正位'}${c.name}` : c.name);
+      return `【${sn}${state.cnt}張牌結果】\n占問：${state.q}\n\n牌面：${cs.join('、')}`;
+    }
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(String(text));
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = String(text);
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          ta.style.top = '0';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        state.copyOk = true;
+        render();
+        setTimeout(() => { state.copyOk = false; render(); }, 2500);
+      } catch (err) {
+        console.error(err);
+        alert('複製失敗，請手動選取內容。');
+      }
+    }
+
+    function pageQuestion() {
+      return `
+        <div class="page">
+          <div class="title">
+            <div class="eyebrow">愛之謎</div>
+            <h1 class="it" style="font-size:32px; font-weight:300; font-style:italic; margin:0 0 16px; line-height:1.3;">Mistero d&#39;Amore</h1>
+            <div class="divider"></div>
+            <div class="subtext">將心中所念化為文字<br/>天地自有感應</div>
+          </div>
+
+          <div class="panel">
+            <textarea id="questionInput" class="textarea" placeholder="輸入你想問的事⋯⋯" rows="4">${esc(state.q)}</textarea>
+            <div class="count" id="questionCount">${state.q.length}/200</div>
+          </div>
+
+          <div class="chips">
+            <button type="button" class="chip" data-chip="她現在對我什麼感覺？">她現在對我什麼感覺？</button>
+            <button type="button" class="chip" data-chip="我們還有機會嗎？">我們還有機會嗎？</button>
+            <button type="button" class="chip" data-chip="該不該跟她告白？">該不該跟她告白？</button>
+            <button type="button" class="chip" data-chip="我跟她最後會怎樣？">我跟她最後會怎樣？</button>
+          </div>
+
+          <button type="button" class="primary-btn" id="startBtn" ${state.q.trim() ? '' : 'disabled'}>開 始 占 卜</button>
         </div>
-      </div>
+      `;
+    }
 
-      <div style={{ display:"flex", gap:cnt<=3?10:7, justifyContent:"center", marginBottom:32, minHeight:ch+10, flexWrap:"nowrap" }}>
-        {Array.from({ length: cnt }).map((_, i) => {
-          const show = rev.includes(i);
-          const c = cards[i];
-          return (
-            <div key={i} style={{ width:cw, height:ch, perspective:600, flexShrink:0 }}>
-              <div style={{
-                width:"100%", height:"100%", position:"relative",
-                transformStyle:"preserve-3d",
-                transition:"transform 0.65s cubic-bezier(0.4,0,0.2,1)",
-                transform: show ? "rotateY(180deg)" : "rotateY(0deg)",
-              }}>
-                {/* BACK */}
-                <div style={{ position:"absolute", width:"100%", height:"100%", backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", borderRadius:10, background:"linear-gradient(155deg,#6b8f71,#4a6b4e)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
-                  <div style={{ width:"68%", height:"78%", border:"1px solid rgba(255,255,255,0.15)", borderRadius:6, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <span style={{ fontSize:cnt<=3?14:10, color:"rgba(255,255,255,0.2)" }}>✦</span>
-                  </div>
-                </div>
-                {/* FRONT */}
-                <div style={{ position:"absolute", width:"100%", height:"100%", backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", transform:"rotateY(180deg)", borderRadius:10, background:"#fff", border:"1px solid #ddd9d2", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:cnt<=3?10:6, boxShadow:"0 3px 14px rgba(0,0,0,0.08)" }}>
-                  {c && (<>
-                    {system === "tarot" && (
-                      <div style={{ position:"absolute", top:cnt<=3?7:4, fontSize:cnt<=3?9:7, letterSpacing:2, color:c.rev?"#c07070":"#6b8f71", fontWeight:500 }}>
-                        {c.rev ? "逆位" : "正位"}
-                      </div>
-                    )}
-                    <div style={{ fontSize:cnt<=3?14:10, fontWeight:500, color:"#2c2c2c", letterSpacing:cnt<=3?2:1, textAlign:"center", lineHeight:1.6, transform:system==="tarot"&&c.rev?"rotate(180deg)":"none" }}>
-                      {c.name}
-                    </div>
-                    {system === "tarot" && TAROT_MAJOR.includes(c.name) && (
-                      <div style={{ position:"absolute", bottom:cnt<=3?7:4, fontSize:cnt<=3?8:6, color:"#b8956a", letterSpacing:1 }}>大秘儀</div>
-                    )}
-                  </>)}
-                </div>
+    function pageSystem() {
+      const sg = suggest(state.q);
+      const sys = [
+        { id:'tarot', n:'塔 羅', sub:'78張完整牌組・正逆位', ic:'✦' },
+        { id:'lenormand', n:'雷 諾 曼', sub:'36張指引牌', ic:'◇' },
+        { id:'liuyao', n:'六 爻', sub:'銅錢起卦・本卦變卦', ic:'☰' },
+      ];
+      return `
+        <button type="button" class="back-btn" id="backToQ">← 返回</button>
+        <div class="page">
+          <div class="title small">
+            <h1 class="it" style="font-size:26px; font-weight:300; font-style:italic; margin:0 0 14px;">Metodo</h1>
+            <div class="divider"></div>
+          </div>
+
+          <div class="hint-box">「${esc(state.q.length > 35 ? state.q.slice(0, 35) + '⋯' : state.q)}」</div>
+
+          <div class="sys-list">
+            ${sys.map(s => `
+              <button type="button" class="sys-btn ${state.sel === s.id ? 'active' : ''}" data-system="${s.id}">
+                <span class="sys-ic">${s.ic}</span>
+                <span>
+                  <div class="sys-name">${s.n}</div>
+                  <div class="sys-sub">${s.sub}</div>
+                </span>
+                ${sg === s.id ? '<span class="badge">推薦</span>' : ''}
+              </button>
+            `).join('')}
+          </div>
+
+          ${state.sel === 'tarot' || state.sel === 'lenormand' ? `
+            <div class="count-wrap">
+              <div class="count-label">抽 牌 數 量</div>
+              <div class="count-grid">
+                <button type="button" class="count-btn ${state.cnt === 3 ? 'active' : ''}" data-cnt="3">
+                  <div class="count-num">3</div>
+                  <div class="count-note">快速解讀</div>
+                </button>
+                <button type="button" class="count-btn ${state.cnt === 5 ? 'active' : ''}" data-cnt="5">
+                  <div class="count-num">5</div>
+                  <div class="count-note">深入分析</div>
+                </button>
               </div>
             </div>
-          );
-        })}
-      </div>
+          ` : ''}
 
-      {done && <div style={{ animation:"fu 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult(fmt())}>Risultato</PBtn></div>}
-    </div></Wrap>
-  );
-}
-
-/* ═══ LIU YAO ═══ */
-function PageY({ question, onResult, onBack }) {
-  const [yaos, setYaos] = useState([]);
-  const [busy, setBusy] = useState(false);
-  const [cur, setCur] = useState(0);
-  const [hex, setHex] = useState(null);
-  const [spin, setSpin] = useState(false);
-
-  function doOne() {
-    if (cur >= 6 || busy) return;
-    setBusy(true); setSpin(true);
-    setTimeout(() => {
-      setSpin(false);
-      const y = tossYao();
-      const ny = [...yaos, y];
-      setYaos(ny); setCur(p => p + 1); setBusy(false);
-      if (ny.length === 6) setHex(compHex(ny));
-    }, 700);
-  }
-
-  function doAll() {
-    if (busy) return;
-    setBusy(true);
-    const all = []; let i = 0;
-    function next() {
-      if (i >= 6) { setBusy(false); setSpin(false); setHex(compHex(all)); return; }
-      setSpin(true);
-      setTimeout(() => {
-        all.push(tossYao());
-        setYaos([...all]); setCur(all.length);
-        setSpin(false); i++;
-        setTimeout(next, 250);
-      }, 500);
+          <button type="button" class="primary-btn" id="nextBtn" ${state.sel ? '' : 'disabled'}>下 一 步</button>
+        </div>
+      `;
     }
-    next();
-  }
 
-  function reset() { setYaos([]); setCur(0); setHex(null); }
-
-  function fmt() {
-    const ms = hex.mv.length > 0 ? hex.mv.map(i => YN[i]).join("、") : "無";
-    let t = `【六爻起卦結果】\n占問：${question}\n\n本卦：${hex.o}（第${hex.oN}卦）\n`;
-    if (hex.hasM) t += `變卦：${hex.c}（第${hex.cN}卦）\n`;
-    t += `動爻：${ms}\n\n各爻詳情（初爻→上爻）：\n`;
-    yaos.forEach((y, i) => { t += `  ${YN[i]}：${y.c.join("·")} = ${y.v} → ${y.t}\n`; });
-    return t;
-  }
-
-  return (
-    <Wrap><BkBtn onClick={onBack} />
-    <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:28 }}>
-        <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Sei Linee</h1>
-        <div style={{ fontSize:12, color:"#888", marginTop:6, letterSpacing:3 }}>六 爻 起 卦</div>
-        <div style={{ fontSize:11, color:"#aaa", marginTop:5, letterSpacing:2 }}>
-          {cur < 6 ? `第 ${cur+1} 爻 / 共 6 爻` : "卦象已成"}
-        </div>
-      </div>
-
-      {cur < 6 && (
-        <div style={{ textAlign:"center", marginBottom:24 }}>
-          <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:22 }}>
-            {[0,1,2].map(ci => (
-              <div key={ci} className={`coin${spin?" spin":""}`} style={{ animationDelay:`${ci*0.08}s` }} />
-            ))}
+    function pageDraw() {
+      if (!state.drawStarted) {
+        beginDraw();
+        return '';
+      }
+      const title = state.sys === 'tarot' ? 'Tarocchi' : 'Lenormand';
+      const cw = state.cnt <= 3 ? 98 : 60;
+      const ch = state.cnt <= 3 ? 152 : 96;
+      const drawCount = state.revealed.length < state.cnt ? `${state.revealed.length} / ${state.cnt}` : '牌面已開';
+      return `
+        <button type="button" class="back-btn" id="backToS">← 返回</button>
+        <div class="page ${state.sys === 'liuyao' ? '' : 'page-tight'}">
+          <div class="draw-title">
+            <h1 class="it" style="font-size:24px; font-weight:300; font-style:italic; letter-spacing:2px; margin:0;">${title}</h1>
+            <div class="draw-sub">${drawCount}</div>
           </div>
-          <div style={{ display:"flex", gap:10 }}>
-            <PBtn onClick={doOne} disabled={busy} style={{ flex:1 }}>擲 銅 錢</PBtn>
-            <GBtn onClick={doAll} style={{ flex:1 }}>一 鍵 六 爻</GBtn>
-          </div>
-          {cur > 0 && <button onClick={reset} style={{ background:"none", border:"none", color:"#aaa", fontSize:11, marginTop:12, letterSpacing:1, fontFamily:"'Noto Serif TC',serif" }}>← 重擲</button>}
-        </div>
-      )}
 
-      {yaos.length > 0 && (
-        <div style={{ background:"#fff", borderRadius:12, padding:"18px 18px", marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2" }}>
-          {[...yaos].reverse().map((y, ri) => {
-            const i = yaos.length - 1 - ri;
-            return (
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 0", animation:"sd 0.3s ease", borderBottom:ri<yaos.length-1?"1px solid #eae6df":"none", flexWrap:"nowrap" }}>
-                <span style={{ fontSize:11, color:"#888", width:30, textAlign:"right", flexShrink:0 }}>{YN[i]}</span>
-                <div style={{ display:"flex", gap:3, alignItems:"center", flexShrink:0 }}>
-                  {y.l === 1
-                    ? <div style={{ width:56, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} />
-                    : <><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /><div style={{ width:5 }} /><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /></>
-                  }
+          <div class="draw-area" style="gap:${state.cnt <= 3 ? 10 : 7}px; min-height:${ch + 10}px;">
+            ${Array.from({ length: state.cnt }).map((_, i) => {
+              const show = state.revealed.includes(i);
+              const c = state.cards[i];
+              return `
+                <div class="card-shell" style="width:${cw}px; height:${ch}px;">
+                  <div class="card-flip ${show ? 'show' : ''}">
+                    <div class="card-face card-back">
+                      <div class="card-back-inner"><span class="star-mark" style="font-size:${state.cnt <= 3 ? 14 : 10}px;">✦</span></div>
+                    </div>
+                    <div class="card-face card-front" style="padding:${state.cnt <= 3 ? 10 : 6}px;">
+                      ${c ? `
+                        ${state.sys === 'tarot' ? `<div class="card-meta-top ${c.rev ? 'rev' : 'fwd'}" style="font-size:${state.cnt <= 3 ? 9 : 7}px;">${c.rev ? '逆位' : '正位'}</div>` : ''}
+                        <div class="card-rank ${state.sys === 'tarot' && c.rev ? 'rev' : ''}" style="font-size:${state.cnt <= 3 ? 14 : 10}px; letter-spacing:${state.cnt <= 3 ? 2 : 1}px;">${esc(c.name)}</div>
+                        ${state.sys === 'tarot' && TAROT_MAJOR.includes(c.name) ? `<div class="card-meta-bottom" style="font-size:${state.cnt <= 3 ? 8 : 6}px;">大秘儀</div>` : ''}
+                      ` : ''}
+                    </div>
+                  </div>
                 </div>
-                <span style={{ fontSize:10, color:"#aaa", flexShrink:0 }}>{y.c.join("·")}={y.v}</span>
-                <span style={{ fontSize:10, color:y.m?"#b8956a":"#888", fontWeight:y.m?500:400, whiteSpace:"nowrap" }}>{y.t}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {hex && (
-        <div style={{ animation:"fu 0.6s ease" }}>
-          <div style={{ background:"#fff", borderRadius:12, padding:24, marginBottom:22, textAlign:"center", border:"1px solid #c5d8c7", boxShadow:"0 2px 14px rgba(107,143,113,0.08)" }}>
-            <div className="it" style={{ fontSize:11, color:"#aaa", letterSpacing:4, marginBottom:16, fontStyle:"italic" }}>Responso</div>
-            <div style={{ fontSize:26, letterSpacing:6, color:"#2c2c2c", fontWeight:500 }}>{hex.o}</div>
-            <div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.oN}卦</div>
-            {hex.hasM && (<>
-              <div style={{ width:1, height:20, background:"#ddd9d2", margin:"12px auto" }} />
-              <div style={{ fontSize:10, color:"#aaa", letterSpacing:3, marginBottom:6 }}>變 卦</div>
-              <div style={{ fontSize:26, letterSpacing:6, color:"#b8956a", fontWeight:500 }}>{hex.c}</div>
-              <div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.cN}卦</div>
-              <div style={{ marginTop:16, padding:"7px 16px", background:"#eaf1eb", borderRadius:6, display:"inline-block", fontSize:11, color:"#4a6b4e", letterSpacing:2 }}>
-                動爻：{hex.mv.map(i => YN[i]).join("、")}
-              </div>
-            </>)}
+              `;
+            }).join('')}
           </div>
-          <PBtn onClick={() => onResult(fmt())}>Risultato</PBtn>
+
+          ${state.done ? `<button type="button" class="primary-btn" id="resultBtn">Risultato</button>` : ''}
         </div>
-      )}
-    </div></Wrap>
-  );
-}
+      `;
+    }
 
-/* ═══ RESULT ═══ */
-function PageR({ result, onRestart }) {
-  const [cp, setCp] = useState(false);
-  function copy() { navigator.clipboard.writeText(result).then(() => { setCp(true); setTimeout(() => setCp(false), 2500); }); }
-  return (
-    <Wrap>
-    <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:28 }}>
-        <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Responso</h1>
-        <Dv />
-      </div>
-      <div style={{ background:"#fff", borderRadius:12, padding:22, marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2", whiteSpace:"pre-wrap", fontSize:13, lineHeight:2, color:"#555" }}>{result}</div>
-      <div style={{ display:"flex", gap:10 }}>
-        <PBtn onClick={copy} style={{ flex:1 }}>{cp ? "Copiato ✓" : "Copia"}</PBtn>
-        <GBtn onClick={onRestart} style={{ flex:1 }}>Di Nuovo</GBtn>
-      </div>
-    </div></Wrap>
-  );
-}
+    function pageLiuyao() {
+      return `
+        <button type="button" class="back-btn" id="backToS">← 返回</button>
+        <div class="page">
+          <div class="liux-title">
+            <h1 class="it t1">Sei Linee</h1>
+            <div class="t2">六 爻 起 卦</div>
+            <div class="t3">${state.cur < 6 ? `第 ${state.cur + 1} 爻 / 共 6 爻` : '卦象已成'}</div>
+          </div>
 
-/* ═══ APP ═══ */
-export default function App() {
-  const [pg, setPg] = useState("q");
-  const [q, setQ] = useState("");
-  const [sys, setSys] = useState(null);
-  const [cnt, setCnt] = useState(3);
-  const [res, setRes] = useState("");
-  return (<>
-    {pg === "q" && <PageQ onNext={v => { setQ(v); setPg("s"); }} />}
-    {pg === "s" && <PageS question={q} onNext={(s, c) => { setSys(s); setCnt(c); setPg("d"); }} onBack={() => setPg("q")} />}
-    {pg === "d" && sys === "liuyao" && <PageY question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
-    {pg === "d" && sys !== "liuyao" && <PageC system={sys} cnt={cnt} question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
-    {pg === "r" && <PageR result={res} onRestart={() => { setPg("q"); setQ(""); setSys(null); setRes(""); }} />}
-  </>);
-}
+          ${state.cur < 6 ? `
+            <div style="text-align:center; margin-bottom:24px;">
+              <div class="coins">
+                ${[0,1,2].map(i => `<div class="coin ${state.spin ? 'spin' : ''}" style="animation-delay:${i * 0.08}s"></div>`).join('')}
+              </div>
+              <div class="liux-actions">
+                <button type="button" class="primary-btn" id="oneBtn" style="flex:1;">擲 銅 錢</button>
+                <button type="button" class="ghost-btn" id="allBtn" style="flex:1;">一 鍵 六 爻</button>
+              </div>
+              ${state.cur > 0 ? `<button type="button" class="liux-reset" id="resetBtn">← 重擲</button>` : ''}
+            </div>
+          ` : ''}
+
+          ${state.yaos.length > 0 ? `
+            <div class="line-box">
+              ${[...state.yaos].reverse().map((y, ri) => {
+                const i = state.yaos.length - 1 - ri;
+                return `
+                  <div class="line-row" style="border-bottom:${ri < state.yaos.length - 1 ? '1px solid #eae6df' : 'none'}">
+                    <span class="line-label">${YN[i]}</span>
+                    <div class="line-symbols">
+                      ${y.l === 1
+                        ? `<div style="width:56px;height:8px;background:${y.m ? '#b8956a' : '#6b8f71'};border-radius:2.5px;"></div>`
+                        : `<div style="width:24px;height:8px;background:${y.m ? '#b8956a' : '#6b8f71'};border-radius:2.5px;"></div><div style="width:5px"></div><div style="width:24px;height:8px;background:${y.m ? '#b8956a' : '#6b8f71'};border-radius:2.5px;"></div>`
+                      }
+                    </div>
+                    <span class="line-text">${y.c.join('·')}=${y.v}</span>
+                    <span class="line-tag ${y.m ? 'moving' : ''}">${y.t}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : ''}
+
+          ${state.hex ? `
+            <div style="animation:fu .6s ease;">
+              <div class="res-box">
+                <div class="res-kicker">Responso</div>
+                <div class="res-main">${esc(state.hex.o)}</div>
+                <div class="res-sub">第${state.hex.oN}卦</div>
+                ${state.hex.hasM ? `
+                  <div class="res-sep"></div>
+                  <div style="font-size:10px;color:#aaa;letter-spacing:3px;margin-bottom:6px;">變 卦</div>
+                  <div class="res-main" style="color:var(--gold);">${esc(state.hex.c)}</div>
+                  <div class="res-sub">第${state.hex.cN}卦</div>
+                  <div class="res-badge">動爻：${state.hex.mv.map(i => YN[i]).join('、')}</div>
+                ` : ''}
+              </div>
+              <button type="button" class="primary-btn" id="resultBtn">Risultato</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function pageResult() {
+      return `
+        <div class="page">
+          <div class="title small">
+            <h1 class="it" style="font-size:24px; font-weight:300; font-style:italic; margin:0;">Responso</h1>
+            <div class="divider" style="margin-top:16px;"></div>
+          </div>
+          <div class="result-box" id="resultText">${esc(state.res)}</div>
+          <div class="btn-row">
+            <button type="button" class="primary-btn" id="copyBtn" style="flex:1;">${state.copyOk ? 'Copiato ✓' : 'Copia'}</button>
+            <button type="button" class="ghost-btn" id="restartBtn" style="flex:1;">Di Nuovo</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      if (state.page === 'd' && !state.drawStarted) {
+        beginDraw();
+        return;
+      }
+
+      if (state.page !== 'd') state.drawStarted = false;
+
+      let html = '';
+      if (state.page === 'q') html = pageQuestion();
+      if (state.page === 's') html = pageSystem();
+      if (state.page === 'd' && state.sys === 'liuyao') html = pageLiuyao();
+      if (state.page === 'd' && state.sys !== 'liuyao') html = pageDraw();
+      if (state.page === 'r') html = pageResult();
+      root.innerHTML = html;
+      bind();
+    }
+
+    function bind() {
+      const input = document.getElementById('questionInput');
+      if (input) {
+        input.addEventListener('input', e => setQ(e.target.value));
+      }
+
+      const startBtn = document.getElementById('startBtn');
+      if (startBtn) {
+        startBtn.addEventListener('click', () => { if (state.q.trim()) nav('s'); });
+      }
+
+      document.querySelectorAll('[data-chip]').forEach(btn => {
+        btn.addEventListener('click', () => setQ(btn.getAttribute('data-chip')));
+      });
+
+      const backToQ = document.getElementById('backToQ');
+      if (backToQ) backToQ.addEventListener('click', () => nav('q'));
+
+      document.querySelectorAll('[data-system]').forEach(btn => {
+        btn.addEventListener('click', () => setSys(btn.getAttribute('data-system')));
+      });
+
+      document.querySelectorAll('[data-cnt]').forEach(btn => {
+        btn.addEventListener('click', () => setCnt(Number(btn.getAttribute('data-cnt'))));
+      });
+
+      const nextBtn = document.getElementById('nextBtn');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (state.sel === 'liuyao') {
+            state.yaos = [];
+            state.cur = 0;
+            state.hex = null;
+            state.busy = false;
+            state.spin = false;
+          } else {
+            state.cards = [];
+            state.revealed = [];
+            state.done = false;
+          }
+          nav('d');
+        });
+      }
+
+      const backToS = document.getElementById('backToS');
+      if (backToS) backToS.addEventListener('click', () => nav('s'));
+
+      const resultBtn = document.getElementById('resultBtn');
+      if (resultBtn) {
+        resultBtn.addEventListener('click', () => {
+          state.res = makeResultText();
+          nav('r');
+        });
+      }
+
+      const oneBtn = document.getElementById('oneBtn');
+      if (oneBtn) oneBtn.addEventListener('click', drawOne);
+
+      const allBtn = document.getElementById('allBtn');
+      if (allBtn) allBtn.addEventListener('click', drawAll);
+
+      const resetBtn = document.getElementById('resetBtn');
+      if (resetBtn) resetBtn.addEventListener('click', resetLiu);
+
+      const copyBtn = document.getElementById('copyBtn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => copyText(state.res));
+      }
+
+      const restartBtn = document.getElementById('restartBtn');
+      if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+          clearTimers();
+          state.page = 'q';
+          state.q = '';
+          state.sys = null;
+          state.cnt = 3;
+          state.res = '';
+          state.sel = null;
+          state.cards = [];
+          state.revealed = [];
+          state.done = false;
+          state.drawStarted = false;
+          state.yaos = [];
+          state.busy = false;
+          state.cur = 0;
+          state.hex = null;
+          state.spin = false;
+          render();
+        });
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
