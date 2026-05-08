@@ -63,13 +63,16 @@ body { background:#f3f0ea; font-family:'Noto Serif TC',serif; color:#2c2c2c; -we
 .it { font-family:'Cormorant Garamond','Noto Serif TC',serif; }
 @keyframes fu { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 @keyframes sd { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes cspin { 0%{transform:rotateY(0) scale(1)} 40%{transform:rotateY(360deg) scale(0.88)} 100%{transform:rotateY(720deg) scale(1)} }
+@keyframes coinDrop { 0%{transform:scale(0.7); opacity:0} 50%{transform:scale(1.08)} 100%{transform:scale(1); opacity:1} }
 textarea:focus { outline:none; border-color:#6b8f71!important; box-shadow:0 0 0 3px rgba(107,143,113,0.08)!important; }
-button { cursor:pointer; font-family:'Noto Serif TC',serif; -webkit-tap-highlight-color:transparent; }
+button { cursor:pointer; font-family:'Noto Serif TC',serif; -webkit-tap-highlight-color:transparent; transition: transform 0.15s ease; }
+button:active { transform: scale(0.96); }
 ::selection { background:#c5d8c7; color:#4a6b4e; }
-.coin { width:38px; height:38px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 35%,#e8d5a8,#c9a96e 50%,#a07840); box-shadow:0 2px 6px rgba(160,120,64,0.3),inset 0 1px 2px rgba(255,255,255,0.35); position:relative; }
+.coin { width:38px; height:38px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 35%,#e8d5a8,#c9a96e 50%,#a07840); box-shadow:0 2px 6px rgba(160,120,64,0.3),inset 0 1px 2px rgba(255,255,255,0.35); position:relative; animation: coinDrop 0.35s ease both; }
 .coin::after { content:''; width:8px; height:8px; border:1.5px solid rgba(255,255,255,0.22); position:absolute; border-radius:1px; }
-.coin.spin { animation:cspin 0.55s cubic-bezier(0.4,0,0.2,1); }
+.coin.spin { animation: cspin 0.55s cubic-bezier(0.4,0,0.2,1); }
 `;
 
 function Wrap({ children }) {
@@ -193,11 +196,11 @@ function PageC({ system, cnt, question, onResult, onBack }) {
       const ci = idx;
       setRev(p => [...p, ci]);
       idx++;
-      // 修改處：後續間隔 0.9 秒
-      tmr.current = setTimeout(next, 900);
+      // 修改處：每一張間隔 1 秒
+      tmr.current = setTimeout(next, 1000);
     }
-    // 修改處：初始延遲 1.2 秒
-    tmr.current = setTimeout(next, 1200);
+    // 修改處：初始延遲也是 1 秒
+    tmr.current = setTimeout(next, 1000);
     return () => { if (tmr.current) clearTimeout(tmr.current); };
   }, []);
 
@@ -227,7 +230,11 @@ function PageC({ system, cnt, question, onResult, onBack }) {
           const show = rev.includes(i);
           const c = cards[i];
           return (
-            <div key={i} style={{ width:cw, height:ch, perspective:600, flexShrink:0 }}>
+            <div key={i} style={{ width:cw, height:ch, perspective:600, flexShrink:0,
+              // 微調：翻開後微微浮起
+              transform: show ? 'translateY(-4px)' : 'translateY(0)',
+              transition: 'transform 0.4s ease'
+            }}>
               <div style={{
                 width:"100%", height:"100%", position:"relative",
                 transformStyle:"preserve-3d",
@@ -262,7 +269,8 @@ function PageC({ system, cnt, question, onResult, onBack }) {
         })}
       </div>
 
-      {done && <div style={{ animation:"fu 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult(fmt())}>Risultato</PBtn></div>}
+      {/* 微調：結果按鈕滑入 */}
+      {done && <div style={{ animation:"slideUp 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult(fmt())}>Risultato</PBtn></div>}
     </div></Wrap>
   );
 }
@@ -354,6 +362,7 @@ function PageY({ question, onResult, onBack }) {
                     : <><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /><div style={{ width:5 }} /><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /></>
                   }
                 </div>
+                {/* 微調：銅錢 key 包含爻序，讓新銅錢有落地動畫 */}
                 <span style={{ fontSize:10, color:"#aaa", flexShrink:0 }}>{y.c.join("·")}={y.v}</span>
                 <span style={{ fontSize:10, color:y.m?"#b8956a":"#888", fontWeight:y.m?500:400, whiteSpace:"nowrap" }}>{y.t}</span>
               </div>
@@ -363,7 +372,7 @@ function PageY({ question, onResult, onBack }) {
       )}
 
       {hex && (
-        <div style={{ animation:"fu 0.6s ease" }}>
+        <div style={{ animation:"slideUp 0.6s ease" }}>
           <div style={{ background:"#fff", borderRadius:12, padding:24, marginBottom:22, textAlign:"center", border:"1px solid #c5d8c7", boxShadow:"0 2px 14px rgba(107,143,113,0.08)" }}>
             <div className="it" style={{ fontSize:11, color:"#aaa", letterSpacing:4, marginBottom:16, fontStyle:"italic" }}>Responso</div>
             <div style={{ fontSize:26, letterSpacing:6, color:"#2c2c2c", fontWeight:500 }}>{hex.o}</div>
