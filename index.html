@@ -8,14 +8,10 @@
 <body>
 <div id="root"></div>
 
-<!-- 1. 先載入 React -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-
-<!-- 2. 再載入 Babel（讓瀏覽器看懂 JSX） -->
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<!-- 3. 你的完整程式碼，用 babel 編譯 -->
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
@@ -197,10 +193,10 @@ function PageC({ system, cnt, question, onResult, onBack }) {
       const ci = idx;
       setRev(p => [...p, ci]);
       idx++;
-      // 修改處：所有後續間隔固定 0.5 秒
-      tmr.current = setTimeout(next, 500);
+      // 修改處：後續間隔 0.9 秒
+      tmr.current = setTimeout(next, 900);
     }
-    // 修改處：初始延遲 1.2 秒才翻第一張牌
+    // 修改處：初始延遲 1.2 秒
     tmr.current = setTimeout(next, 1200);
     return () => { if (tmr.current) clearTimeout(tmr.current); };
   }, []);
@@ -425,7 +421,6 @@ function App() {
   </>);
 }
 
-// 渲染
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 </body>
