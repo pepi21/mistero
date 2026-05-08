@@ -125,4 +125,235 @@ function PageS({ question, onNext, onBack }) {
     React.createElement(BkBtn, { onClick:onBack }),
     React.createElement("div", { style: { padding:"76px 24px 40px", animation:"fu 0.6s ease" } },
       React.createElement("div", { style: { textAlign:"center", marginBottom:36 } },
-        React.createElement("h1", { className:"it", styl
+        React.createElement("h1", { className:"it", style: { fontSize:26, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 } }, "Metodo"),
+        React.createElement(Dv, null)
+      ),
+      React.createElement("div", { style: { background:"#fff", borderRadius:10, padding:"12px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" } }, "「" + (question.length > 35 ? question.slice(0, 35) + "⋯" : question) + "」"),
+      React.createElement("div", { style: { display:"flex", flexDirection:"column", gap:9, marginBottom:24 } },
+        sys.map(s => {
+          const a = sel === s.id, r = sg === s.id;
+          return React.createElement("button", { key:s.id, onClick:() => setSel(s.id), style: { display:"flex", alignItems:"center", gap:14, width:"100%", padding:"16px 18px", background:a?"#eaf1eb":"#fff", border:a?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:10, textAlign:"left", position:"relative", boxShadow:a?"0 2px 12px rgba(107,143,113,0.1)":"0 1px 4px rgba(0,0,0,0.03)" } },
+            React.createElement("span", { style: { fontSize:22, width:36, textAlign:"center", color:a?"#6b8f71":"#aaa" } }, s.ic),
+            React.createElement("div", { style: { flex:1 } },
+              React.createElement("div", { style: { fontSize:15, fontWeight:500, color:a?"#4a6b4e":"#2c2c2c", letterSpacing:2 } }, s.n),
+              React.createElement("div", { style: { fontSize:11, color:"#999", marginTop:2 } }, s.sub)
+            ),
+            r && React.createElement("span", { style: { fontSize:9, color:"#c5d8c7", position:"absolute", right:14, top:8, letterSpacing:1 } }, "推薦"),
+            a && React.createElement("span", { style: { fontSize:16, color:"#6b8f71", position:"absolute", right:14, top:"50%", transform:"translateY(-50%)" } }, "✓")
+          );
+        })
+      ),
+      React.createElement(PBtn, { onClick:() => onNext(sel || sg), disabled:!sel && !sg }, "繼 續")
+    )
+  );
+}
+
+function PageTarot({ question, onDone, onBack }) {
+  const [cards, setCards] = useState(null);
+  const [revealed, setRevealed] = useState([false, false, false]);
+  useEffect(() => { setCards(drawT(3)); }, []);
+  const reveal = (i) => { const r = [...revealed]; r[i] = true; setRevealed(r); };
+  const allRev = revealed.every(r => r);
+  return React.createElement(Wrap, null,
+    React.createElement(BkBtn, { onClick:onBack }),
+    React.createElement("div", { style: { padding:"76px 24px 40px", animation:"fu 0.6s ease" } },
+      React.createElement("div", { style: { textAlign:"center", marginBottom:30 } },
+        React.createElement("h1", { className:"it", style: { fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:10 } }, "Tarocchi"),
+        React.createElement("p", { style: { fontSize:12, color:"#888", letterSpacing:1 } }, "靜心凝神，點擊翻開牌卡")
+      ),
+      React.createElement("div", { style: { display:"flex", justifyContent:"center", gap:12, marginBottom:32, flexWrap:"wrap" } },
+        cards && cards.map((c, i) =>
+          React.createElement("button", { key:i, onClick:() => reveal(i), disabled:revealed[i], style: { width:90, height:140, borderRadius:8, border:revealed[i]?"1px solid #c5d8c7":"1px dashed #ccc8c0", background:revealed[i]?"#fff":"#eae6df", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:revealed[i]?"default":"pointer", padding:8, boxShadow:revealed[i]?"0 4px 16px rgba(0,0,0,0.08)":"none", transition:"all 0.4s" } },
+            revealed[i] ?
+              React.createElement("div", { className:"card-reveal", style: { textAlign:"center" } },
+                React.createElement("div", { style: { fontSize:28, marginBottom:4 } }, "🃏"),
+                React.createElement("div", { style: { fontSize:12, fontWeight:500, color:"#2c2c2c", lineHeight:1.4 } }, c.name),
+                React.createElement("div", { style: { fontSize:10, color:c.rev?"#c97a7a":"#6b8f71", marginTop:4, letterSpacing:1 } }, c.rev ? "逆位" : "正位")
+              ) :
+              React.createElement("div", { style: { fontSize:36, color:"#ccc8c0" } }, "?")
+          )
+        )
+      ),
+      allRev ? React.createElement(PBtn, { onClick:() => onDone(cards) }, "查 看 解 讀") : React.createElement("p", { style: { textAlign:"center", fontSize:11, color:"#aaa" } }, "請翻開全部牌卡")
+    )
+  );
+}
+
+function PageLen({ question, onDone, onBack }) {
+  const [cards, setCards] = useState(null);
+  const [revealed, setRevealed] = useState([false, false, false]);
+  useEffect(() => { setCards(drawL(3)); }, []);
+  const reveal = (i) => { const r = [...revealed]; r[i] = true; setRevealed(r); };
+  const allRev = revealed.every(r => r);
+  return React.createElement(Wrap, null,
+    React.createElement(BkBtn, { onClick:onBack }),
+    React.createElement("div", { style: { padding:"76px 24px 40px", animation:"fu 0.6s ease" } },
+      React.createElement("div", { style: { textAlign:"center", marginBottom:30 } },
+        React.createElement("h1", { className:"it", style: { fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:10 } }, "Lenormand"),
+        React.createElement("p", { style: { fontSize:12, color:"#888", letterSpacing:1 } }, "點擊翻開雷諾曼牌卡")
+      ),
+      React.createElement("div", { style: { display:"flex", justifyContent:"center", gap:12, marginBottom:32, flexWrap:"wrap" } },
+        cards && cards.map((c, i) =>
+          React.createElement("button", { key:i, onClick:() => reveal(i), disabled:revealed[i], style: { width:90, height:130, borderRadius:8, border:revealed[i]?"1px solid #c5d8c7":"1px dashed #ccc8c0", background:revealed[i]?"#fff":"#eae6df", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", cursor:revealed[i]?"default":"pointer", padding:8, boxShadow:revealed[i]?"0 4px 16px rgba(0,0,0,0.08)":"none", transition:"all 0.4s" } },
+            revealed[i] ?
+              React.createElement("div", { className:"card-reveal", style: { textAlign:"center" } },
+                React.createElement("div", { style: { fontSize:26, marginBottom:4 } }, "🃜"),
+                React.createElement("div", { style: { fontSize:11, fontWeight:500, color:"#2c2c2c", lineHeight:1.4 } }, c.name)
+              ) :
+              React.createElement("div", { style: { fontSize:32, color:"#ccc8c0" } }, "?")
+          )
+        )
+      ),
+      allRev ? React.createElement(PBtn, { onClick:() => onDone(cards) }, "查 看 解 讀") : React.createElement("p", { style: { textAlign:"center", fontSize:11, color:"#aaa" } }, "請翻開全部牌卡")
+    )
+  );
+}
+
+function PageLiu({ question, onDone, onBack }) {
+  const [yaos, setYaos] = useState(Array(6).fill(null));
+  const [step, setStep] = useState(0);
+  const [tossing, setTossing] = useState(false);
+  const [hex, setHex] = useState(null);
+
+  const toss = () => {
+    if (tossing || step >= 6) return;
+    setTossing(true);
+    setTimeout(() => {
+      const y = tossYao();
+      const ny = [...yaos];
+      ny[step] = y;
+      setYaos(ny);
+      setStep(step + 1);
+      setTossing(false);
+      if (step === 5) {
+        setTimeout(() => {
+          const h = compHex(ny);
+          setHex(h);
+        }, 300);
+      }
+    }, 600);
+  };
+
+  return React.createElement(Wrap, null,
+    React.createElement(BkBtn, { onClick:onBack }),
+    React.createElement("div", { style: { padding:"76px 24px 40px", animation:"fu 0.6s ease" } },
+      React.createElement("div", { style: { textAlign:"center", marginBottom:30 } },
+        React.createElement("h1", { className:"it", style: { fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:10 } }, "六爻起卦"),
+        React.createElement("p", { style: { fontSize:12, color:"#888", letterSpacing:1 } }, "誠心默念問題，擲銅錢六次")
+      ),
+      React.createElement("div", { style: { background:"#fff", borderRadius:12, padding:"20px", marginBottom:20, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2" } },
+        yaos.map((y, i) =>
+          React.createElement("div", { key:i, style: { display:"flex", alignItems:"center", justifyContent:"space-between", padding:"10px 0", borderBottom:i<5?"1px solid #f0ede6":"none", opacity:y?1:0.3 } },
+            React.createElement("span", { style: { fontSize:12, color:"#888", width:40 } }, YN[i]),
+            y ? React.createElement(React.Fragment, null,
+                React.createElement("div", { style: { display:"flex", gap:6 } },
+                  y.c.map((cc, j) => React.createElement("span", { key:j, className:"coin", style: { fontSize:10, color:"#fff" } }, cc))
+                ),
+                React.createElement("span", { style: { fontSize:12, color:y.m?"#c97a7a":"#6b8f71", width:70, textAlign:"right" } }, y.t)
+              ) :
+              React.createElement("span", { style: { fontSize:11, color:"#ccc" } }, "等待擲出⋯")
+          )
+        )
+      ),
+      step < 6 && React.createElement(PBtn, { onClick:toss, disabled:tossing, style: { marginBottom:16 } }, tossing ? "擲銅錢中⋯" : "擲第 " + (step + 1) + " 次銅錢"),
+      hex && React.createElement("div", { style: { background:"#fff", borderRadius:12, padding:"20px", marginBottom:20, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #c5d8c7", animation:"fu 0.5s ease" } },
+        React.createElement("div", { style: { textAlign:"center", marginBottom:12 } },
+          React.createElement("div", { style: { fontSize:20, fontWeight:500, color:"#4a6b4e", letterSpacing:2 } }, "本卦：" + hex.o),
+          hex.hasM && React.createElement("div", { style: { fontSize:14, color:"#c97a7a", marginTop:4 } }, "變卦：" + hex.c),
+          !hex.hasM && React.createElement("div", { style: { fontSize:12, color:"#888", marginTop:4 } }, "靜卦（無動爻）")
+        ),
+        hex.hasM && React.createElement("div", { style: { fontSize:11, color:"#888", textAlign:"center" } }, "動爻：" + hex.mv.map(i => YN[i]).join("、"))
+      ),
+      hex && React.createElement(PBtn, { onClick:() => onDone({ type:"liuyao", hex }) }, "查 看 解 讀")
+    )
+  );
+}
+
+function PageR({ question, system, data, onRestart }) {
+  return React.createElement(Wrap, null,
+    React.createElement("div", { style: { padding:"76px 24px 40px", animation:"fu 0.7s ease" } },
+      React.createElement("div", { style: { textAlign:"center", marginBottom:36 } },
+        React.createElement("h1", { className:"it", style: { fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 } }, "Rivelazione"),
+        React.createElement(Dv, null)
+      ),
+      React.createElement("div", { style: { background:"#fff", borderRadius:10, padding:"12px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" } }, "「" + (question.length > 35 ? question.slice(0, 35) + "⋯" : question) + "」"),
+
+      system === "tarot" && data && React.createElement("div", { style: { marginBottom:28 } },
+        React.createElement("div", { style: { display:"flex", justifyContent:"center", gap:12, flexWrap:"wrap", marginBottom:24 } },
+          data.map((c, i) =>
+            React.createElement("div", { key:i, style: { width:90, padding:"16px 8px", borderRadius:8, background:"#fff", border:"1px solid #ddd9d2", textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" } },
+              React.createElement("div", { style: { fontSize:28, marginBottom:6 } }, "🃏"),
+              React.createElement("div", { style: { fontSize:12, fontWeight:500, lineHeight:1.4 } }, c.name),
+              React.createElement("div", { style: { fontSize:10, color:c.rev?"#c97a7a":"#6b8f71", marginTop:4 } }, c.rev ? "逆位" : "正位")
+            )
+          )
+        ),
+        React.createElement("div", { style: { background:"#faf8f5", borderRadius:10, padding:"20px", border:"1px solid #ddd9d2", lineHeight:2.1, fontSize:13, color:"#555" } },
+          React.createElement("p", { style: { fontWeight:500, color:"#4a6b4e", marginBottom:8, letterSpacing:1 } }, "✨ 牌陣解讀"),
+          React.createElement("p", null, "第一張牌代表", React.createElement("strong", null, "過去"), "的影響：", data[0].name, data[0].rev ? "（逆位）提醒你該放下的執著" : "（正位）帶給你穩固的基礎", "。"),
+          React.createElement("p", { style: { marginTop:8 } }, "第二張牌代表", React.createElement("strong", null, "現在"), "的狀態：", data[1].name, data[1].rev ? "（逆位）暗示內心有未解的困惑" : "（正位）顯示你正走在對的方向", "。"),
+          React.createElement("p", { style: { marginTop:8 } }, "第三張牌代表", React.createElement("strong", null, "未來"), "的指引：", data[2].name, data[2].rev ? "（逆位）提醒需謹慎面對轉變" : "（正位）預示美好的可能性正在展開", "。"),
+          React.createElement("p", { style: { marginTop:14, fontSize:11, color:"#aaa", fontStyle:"italic" } }, "※ 牌卡僅供反思與指引，真正的答案在你心中。")
+        )
+      ),
+
+      system === "lenormand" && data && React.createElement("div", { style: { marginBottom:28 } },
+        React.createElement("div", { style: { display:"flex", justifyContent:"center", gap:12, flexWrap:"wrap", marginBottom:24 } },
+          data.map((c, i) =>
+            React.createElement("div", { key:i, style: { width:90, padding:"14px 8px", borderRadius:8, background:"#fff", border:"1px solid #ddd9d2", textAlign:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" } },
+              React.createElement("div", { style: { fontSize:24, marginBottom:6 } }, "🃜"),
+              React.createElement("div", { style: { fontSize:11, fontWeight:500, lineHeight:1.4 } }, c.name)
+            )
+          )
+        ),
+        React.createElement("div", { style: { background:"#faf8f5", borderRadius:10, padding:"20px", border:"1px solid #ddd9d2", lineHeight:2.1, fontSize:13, color:"#555" } },
+          React.createElement("p", { style: { fontWeight:500, color:"#4a6b4e", marginBottom:8, letterSpacing:1 } }, "✨ 雷諾曼指引"),
+          React.createElement("p", null, "三張牌共同描繪了你的感情圖景。", React.createElement("strong", null, data[0].name), " 點出核心主題，", React.createElement("strong", null, data[1].name), " 顯示當下的能量流動，", React.createElement("strong", null, data[2].name), " 則揭示了可能的發展方向。"),
+          React.createElement("p", { style: { marginTop:10 } }, "靜下心來感受牌卡之間的連結，它們彼此呼應，為你照亮前行的路。"),
+          React.createElement("p", { style: { marginTop:14, fontSize:11, color:"#aaa", fontStyle:"italic" } }, "※ 牌卡僅供反思與指引，真正的答案在你心中。")
+        )
+      ),
+
+      system === "liuyao" && data && data.hex && React.createElement("div", { style: { marginBottom:28 } },
+        React.createElement("div", { style: { background:"#fff", borderRadius:12, padding:"20px", marginBottom:20, textAlign:"center", border:"1px solid #ddd9d2", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" } },
+          React.createElement("div", { style: { fontSize:28, fontWeight:500, color:"#4a6b4e", letterSpacing:3, marginBottom:4 } }, "☰ " + data.hex.o),
+          React.createElement("div", { style: { fontSize:12, color:"#888" } }, "第 " + data.hex.oN + " 卦"),
+          data.hex.hasM && React.createElement(React.Fragment, null,
+            React.createElement("div", { style: { marginTop:10, paddingTop:10, borderTop:"1px dashed #ddd9d2" } },
+              React.createElement("div", { style: { fontSize:18, color:"#c97a7a", letterSpacing:2 } }, "變卦：" + data.hex.c),
+              React.createElement("div", { style: { fontSize:11, color:"#888", marginTop:4 } }, "動爻：" + data.hex.mv.map(i => YN[i]).join("、"))
+            )
+          )
+        ),
+        React.createElement("div", { style: { background:"#faf8f5", borderRadius:10, padding:"20px", border:"1px solid #ddd9d2", lineHeight:2.1, fontSize:13, color:"#555" } },
+          React.createElement("p", { style: { fontWeight:500, color:"#4a6b4e", marginBottom:8, letterSpacing:1 } }, "✨ 卦象解讀"),
+          React.createElement("p", null, "本卦", React.createElement("strong", null, data.hex.o), "揭示了當前感情局勢的本質。", data.hex.hasM ? "動爻落在" + data.hex.mv.map(i => YN[i]).join("、") + "，顯示變化的關鍵所在，變卦" + data.hex.c + "則指出了事情可能演變的方向。" : "此為靜卦，顯示局勢暫時穩定，短期內不會有太大變化。"),
+          React.createElement("p", { style: { marginTop:10 } }, "易經的道理在於順應天時，了解卦象的智慧，你便能更從容地面對感情的起伏。"),
+          React.createElement("p", { style: { marginTop:14, fontSize:11, color:"#aaa", fontStyle:"italic" } }, "※ 卦象僅供反思與指引，真正的答案在你心中。")
+        )
+      ),
+
+      React.createElement(GBtn, { onClick:onRestart }, "重 新 占 卜")
+    )
+  );
+}
+
+/* ═══ APP ═══ */
+function App() {
+  const [page, setPage] = useState("q");
+  const [question, setQuestion] = useState("");
+  const [system, setSystem] = useState("");
+  const [data, setData] = useState(null);
+
+  if (page === "q") return React.createElement(PageQ, { onNext:(q) => { setQuestion(q); setPage("s"); } });
+  if (page === "s") return React.createElement(PageS, { question, onBack:() => setPage("q"), onNext:(sys) => { setSystem(sys); setPage(sys); } });
+  if (page === "tarot") return React.createElement(PageTarot, { question, onBack:() => setPage("s"), onDone:(d) => { setData(d); setPage("r"); } });
+  if (page === "lenormand") return React.createElement(PageLen, { question, onBack:() => setPage("s"), onDone:(d) => { setData(d); setPage("r"); } });
+  if (page === "liuyao") return React.createElement(PageLiu, { question, onBack:() => setPage("s"), onDone:(d) => { setData(d); setPage("r"); } });
+  if (page === "r") return React.createElement(PageR, { question, system, data, onRestart:() => { setPage("q"); setQuestion(""); setSystem(""); setData(null); } });
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
