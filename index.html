@@ -7,39 +7,40 @@
 </head>
 <body>
 <div id="root"></div>
-
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
 const TAROT_MAJOR = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
 const ALL_TAROT = [...TAROT_MAJOR,"權杖王牌","權杖二","權杖三","權杖四","權杖五","權杖六","權杖七","權杖八","權杖九","權杖十","權杖侍者","權杖騎士","權杖王后","權杖國王","聖杯王牌","聖杯二","聖杯三","聖杯四","聖杯五","聖杯六","聖杯七","聖杯八","聖杯九","聖杯十","聖杯侍者","聖杯騎士","聖杯王后","聖杯國王","寶劍王牌","寶劍二","寶劍三","寶劍四","寶劍五","寶劍六","寶劍七","寶劍八","寶劍九","寶劍十","寶劍侍者","寶劍騎士","寶劍王后","寶劍國王","錢幣王牌","錢幣二","錢幣三","錢幣四","錢幣五","錢幣六","錢幣七","錢幣八","錢幣九","錢幣十","錢幣侍者","錢幣騎士","錢幣王后","錢幣國王"];
 const LENORMAND = ["1 騎士","2 幸運草","3 船","4 房屋","5 樹","6 雲","7 蛇","8 棺材","9 花束","10 鐮刀","11 鞭子","12 鳥","13 孩子","14 狐狸","15 熊","16 星星","17 鸛","18 狗","19 塔","20 花園","21 山","22 道路","23 老鼠","24 心","25 戒指","26 書","27 信","28 男人","29 女人","30 百合","31 太陽","32 月亮","33 鑰匙","34 魚","35 錨","36 十字架"];
+
 const BAGUA_LINES = {"乾":[1,1,1],"兌":[1,1,0],"離":[1,0,1],"震":[1,0,0],"巽":[0,1,1],"坎":[0,1,0],"艮":[0,0,1],"坤":[0,0,0]};
 
-// ✅ 修正版：Key 為「上卦+下卦」
+// ✅ Key 格式為「下卦 + 上卦」(lower + upper)
 const HEX_T = {
-  "乾乾":"乾","兌乾":"履","離乾":"同人","震乾":"無妄","巽乾":"姤","坎乾":"訟","艮乾":"遁","坤乾":"否",
-  "乾兌":"夬","兌兌":"兌","離兌":"革","震兌":"隨","巽兌":"大過","坎兌":"困","艮兌":"咸","坤兌":"萃",
-  "乾離":"大有","兌離":"睽","離離":"離","震離":"噬嗑","巽離":"鼎","坎離":"未濟","艮離":"旅","坤離":"晉",
-  "乾震":"大壯","兌震":"歸妹","離震":"豐","震震":"震","巽震":"益","坎震":"解","艮震":"小過","坤震":"豫",
-  "乾巽":"小畜","兌巽":"中孚","離巽":"家人","震巽":"恆","巽巽":"巽","坎巽":"渙","艮巽":"漸","坤巽":"觀",
-  "乾坎":"需","兌坎":"節","離坎":"既濟","震坎":"屯","巽坎":"井","坎坎":"坎","艮坎":"蹇","坤坎":"比",
-  "乾艮":"大畜","兌艮":"損","離艮":"賁","震艮":"頤","巽艮":"蠱","坎艮":"蒙","艮艮":"艮","坤艮":"剝",
-  "乾坤":"泰","兌坤":"臨","離坤":"明夷","震坤":"復","巽坤":"升","坎坤":"師","艮坤":"謙","坤坤":"坤"
+"乾乾":"乾","兌乾":"履","離乾":"同人","震乾":"無妄","巽乾":"姤","坎乾":"訟","艮乾":"遁","坤乾":"否",
+"乾兌":"夬","兌兌":"兌","離兌":"革","震兌":"隨","巽兌":"大過","坎兌":"困","艮兌":"咸","坤兌":"萃",
+"乾離":"大有","兌離":"睽","離離":"離","震離":"噬嗑","巽離":"鼎","坎離":"未濟","艮離":"旅","坤離":"晉",
+"乾震":"大壯","兌震":"歸妹","離震":"豐","震震":"震","巽震":"益","坎震":"解","艮震":"小過","坤震":"豫",
+"乾巽":"小畜","兌巽":"中孚","離巽":"家人","震巽":"恆","巽巽":"巽","坎巽":"渙","艮巽":"漸","坤巽":"觀",
+"乾坎":"需","兌坎":"節","離坎":"既濟","震坎":"屯","巽坎":"井","坎坎":"坎","艮坎":"蹇","坤坎":"比",
+"乾艮":"大畜","兌艮":"損","離艮":"賁","震艮":"頤","巽艮":"蠱","坎艮":"蒙","艮艮":"艮","坤艮":"剝",
+"乾坤":"泰","兌坤":"臨","離坤":"明夷","震坤":"復","巽坤":"升","坎坤":"師","艮坤":"謙","坤坤":"坤"
 };
+
 const HEX_N = {"乾":1,"坤":2,"屯":3,"蒙":4,"需":5,"訟":6,"師":7,"比":8,"小畜":9,"履":10,"泰":11,"否":12,"同人":13,"大有":14,"謙":15,"豫":16,"隨":17,"蠱":18,"臨":19,"觀":20,"噬嗑":21,"賁":22,"剝":23,"復":24,"無妄":25,"大畜":26,"頤":27,"大過":28,"坎":29,"離":30,"咸":31,"恆":32,"遁":33,"大壯":34,"晉":35,"明夷":36,"家人":37,"睽":38,"蹇":39,"解":40,"損":41,"益":42,"夬":43,"姤":44,"萃":45,"升":46,"困":47,"井":48,"革":49,"鼎":50,"震":51,"艮":52,"漸":53,"歸妹":54,"豐":55,"旅":56,"巽":57,"兌":58,"渙":59,"節":60,"中孚":61,"小過":62,"既濟":63,"未濟":64};
+
 const YN = ["初爻","二爻","三爻","四爻","五爻","上爻"];
 
 function suggest(q) {
-  const lk = ["該不該","要不要","是不是","會不會","還是","選","可不可以","有沒有","能不能","好不好","對不對","值不值"];
-  const yk = ["會怎樣","怎麼樣","最後","結果","成不成","發展","走向","未來會","能不能成","後來","結局","下場"];
-  if (lk.some(k => q.includes(k))) return "lenormand";
-  if (yk.some(k => q.includes(k))) return "liuyao";
-  return "tarot";
+const lk = ["該不該","要不要","是不是","會不會","還是","選","可不可以","有沒有","能不能","好不好","對不對","值不值"];
+const yk = ["會怎樣","怎麼樣","最後","結果","成不成","發展","走向","未來會","能不能成","後來","結局","下場"];
+if (lk.some(k => q.includes(k))) return "lenormand";
+if (yk.some(k => q.includes(k))) return "liuyao";
+return "tarot";
 }
 
 function shuf(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -47,25 +48,25 @@ function drawT(n) { return shuf(ALL_TAROT).slice(0, n).map(c => ({ name: c, rev:
 function drawL(n) { return shuf(LENORMAND).slice(0, n).map(c => ({ name: c })); }
 
 function tossYao() {
-  const c = [Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反"];
-  const h = c.filter(x => x === "正").length;
-  if (h === 3) return { c, v: 9, t: "老陽（動）", l: 1, m: true };
-  if (h === 2) return { c, v: 8, t: "少陰", l: 0, m: false };
-  if (h === 1) return { c, v: 7, t: "少陽", l: 1, m: false };
-  return { c, v: 6, t: "老陰（動）", l: 0, m: true };
+const c = [Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反"];
+const h = c.filter(x => x === "正").length;
+if (h === 3) return { c, v: 9, t: "老陽(動)", l: 1, m: true };
+if (h === 2) return { c, v: 8, t: "少陰", l: 0, m: false };
+if (h === 1) return { c, v: 7, t: "少陽", l: 1, m: false };
+return { c, v: 6, t: "老陰(動)", l: 0, m: true };
 }
 
 function getTri(l) { for (const [n, p] of Object.entries(BAGUA_LINES)) if (p[0] === l[0] && p[1] === l[1] && p[2] === l[2]) return n; return ""; }
 
 function compHex(yaos) {
-  const ls = yaos.map(y => y.l);
-  const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
-  const lo = getTri(ls.slice(0, 3)), up = getTri(ls.slice(3, 6));
-  const lc = getTri(ch.slice(0, 3)), uc = getTri(ch.slice(3, 6));
-  // ✅ 修正：改為「上卦+下卦」查表
-  const on = HEX_T[up + lo] || "?", cn = HEX_T[uc + lc] || "?";
-  const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
-  return { o: on, oN: HEX_N[on] || 0, c: cn, cN: HEX_N[cn] || 0, mv, hasM: mv.length > 0 };
+const ls = yaos.map(y => y.l);
+const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
+const lo = getTri(ls.slice(0, 3)), up = getTri(ls.slice(3, 6));
+const lc = getTri(ch.slice(0, 3)), uc = getTri(ch.slice(3, 6));
+// ✅ 修正:依照表格的「下卦+上卦」格式查詢
+const on = HEX_T[lo + up] || "?", cn = HEX_T[lc + uc] || "?";
+const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
+return { o: on, oN: HEX_N[on] || 0, c: cn, cN: HEX_N[cn] || 0, mv, hasM: mv.length > 0 };
 }
 
 const G = `
@@ -76,11 +77,11 @@ body { background:#f3f0ea; font-family:'Noto Serif TC',serif; color:#2c2c2c; -we
 @keyframes fu { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 @keyframes sd { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-@keyframes cspin { 
-  0%{transform:rotateY(0) scale(1) translateY(0)} 
-  30%{transform:rotateY(180deg) scale(0.9) translateY(-18px)} 
-  70%{transform:rotateY(540deg) scale(0.92) translateY(-6px)} 
-  100%{transform:rotateY(720deg) scale(1) translateY(0)} 
+@keyframes cspin {
+0%{transform:rotateY(0) scale(1) translateY(0)}
+30%{transform:rotateY(180deg) scale(0.9) translateY(-18px)}
+70%{transform:rotateY(540deg) scale(0.92) translateY(-6px)}
+100%{transform:rotateY(720deg) scale(1) translateY(0)}
 }
 @keyframes coinDrop { 0%{transform:scale(0.7); opacity:0} 50%{transform:scale(1.08)} 100%{transform:scale(1); opacity:1} }
 textarea:focus { outline:none; border-color:#6b8f71!important; box-shadow:0 0 0 3px rgba(107,143,113,0.08)!important; }
@@ -93,365 +94,360 @@ button:active { transform: scale(0.96); }
 `;
 
 function Wrap({ children }) {
-  return (
-    <><style>{G}</style>
-    <div style={{ minHeight:"100vh", background:"#f3f0ea", display:"flex", justifyContent:"center" }}>
-      <div style={{ width:"100%", maxWidth:420, minHeight:"100vh", position:"relative" }}>{children}</div>
-    </div></>
-  );
+return (
+<><style>{G}</style>
+<div style={{ minHeight:"100vh", background:"#f3f0ea", display:"flex", justifyContent:"center" }}>
+<div style={{ width:"100%", maxWidth:420, minHeight:"100vh", position:"relative" }}>{children}</div>
+</div></>
+);
 }
 
 function BkBtn({ onClick }) {
-  return <button onClick={onClick} style={{ position:"absolute", top:18, left:20, zIndex:10, background:"none", border:"none", color:"#888", fontSize:13, letterSpacing:2, padding:"8px 0" }}>← 返回</button>;
+return <button onClick={onClick} style={{ position:"absolute", top:18, left:20, zIndex:10, background:"none", border:"none", color:"#888", fontSize:13, letterSpacing:2, padding:"8px 0" }}>← 返回</button>;
 }
 
 function PBtn({ children, onClick, disabled, style: s }) {
-  return <button onClick={onClick} disabled={disabled} style={{ width:"100%", padding:"15px 0", background:disabled?"#ddd9d2":"#6b8f71", color:disabled?"#aaa":"#fff", border:"none", borderRadius:8, fontSize:14, letterSpacing:5, fontWeight:400, boxShadow:disabled?"none":"0 2px 10px rgba(107,143,113,0.18)", opacity:disabled?0.6:1, ...(s||{}) }}>{children}</button>;
+return <button onClick={onClick} disabled={disabled} style={{ width:"100%", padding:"15px 0", background:disabled?"#ddd9d2":"#6b8f71", color:disabled?"#aaa":"#fff", border:"none", borderRadius:8, fontSize:14, letterSpacing:5, fontWeight:400, boxShadow:disabled?"none":"0 2px 10px rgba(107,143,113,0.18)", opacity:disabled?0.6:1, ...(s||{}) }}>{children}</button>;
 }
 
 function GBtn({ children, onClick, style: s }) {
-  return <button onClick={onClick} style={{ padding:"14px 0", width:"100%", background:"none", color:"#888", border:"1px solid #ddd9d2", borderRadius:8, fontSize:13, letterSpacing:3, ...(s||{}) }}>{children}</button>;
+return <button onClick={onClick} style={{ padding:"14px 0", width:"100%", background:"none", color:"#888", border:"1px solid #ddd9d2", borderRadius:8, fontSize:13, letterSpacing:3, ...(s||{}) }}>{children}</button>;
 }
 
 function Dv() { return <div style={{ width:36, height:1, background:"#ccc8c0", margin:"0 auto" }} />; }
 
 /* ═══ QUESTION ═══ */
 function PageQ({ onNext }) {
-  const [q, setQ] = useState("");
-  const ex = ["她現在對我什麼感覺？", "我們還有機會嗎？", "該不該跟她告白？", "我跟她最後會怎樣？"];
-  return (
-    <Wrap><div style={{ padding:"80px 24px 40px", animation:"fu 0.7s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:44 }}>
-        <div style={{ fontSize:11, color:"#aaa", letterSpacing:6, marginBottom:18 }}>愛之謎</div>
-        <h1 className="it" style={{ fontSize:32, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:16, lineHeight:1.3 }}>
-          Mistero d&#39;Amore
-        </h1>
-        <Dv />
-        <p style={{ fontSize:12.5, color:"#888", lineHeight:2.2, marginTop:16, letterSpacing:1 }}>將心中所念化為文字<br/>天地自有感應</p>
-      </div>
-      <div style={{ background:"#fff", borderRadius:14, padding:"20px 20px 14px", boxShadow:"0 1px 10px rgba(0,0,0,0.04)", marginBottom:12, border:"1px solid #ddd9d2" }}>
-        <textarea value={q} onChange={e => setQ(e.target.value.slice(0, 200))} placeholder="輸入你想問的事⋯⋯" rows={4} style={{ width:"100%", border:"1px solid #ddd9d2", borderRadius:8, padding:"14px 16px", fontSize:15, lineHeight:1.9, color:"#2c2c2c", fontFamily:"'Noto Serif TC',serif", resize:"none", background:"#faf8f5", transition:"all 0.3s" }} />
-        <div style={{ textAlign:"right", fontSize:10, color:"#aaa", marginTop:6 }}>{q.length}/200</div>
-      </div>
-      <div style={{ display:"flex", gap:7, flexWrap:"wrap", marginBottom:30 }}>
-        {ex.map(e => <button key={e} onClick={() => setQ(e)} style={{ background:"#eaf1eb", border:"none", borderRadius:20, padding:"6px 13px", fontSize:11, color:"#4a6b4e", letterSpacing:0.3 }}>{e}</button>)}
-      </div>
-      <PBtn onClick={() => onNext(q)} disabled={!q.trim()}>開 始 占 卜</PBtn>
-    </div></Wrap>
-  );
+const [q, setQ] = useState("");
+const ex = ["她現在對我什麼感覺?", "我們還有機會嗎?", "該不該跟她告白?", "我跟她最後會怎樣?"];
+return (
+<Wrap><div style={{ padding:"80px 24px 40px", animation:"fu 0.7s ease" }}>
+<div style={{ textAlign:"center", marginBottom:44 }}>
+<div style={{ fontSize:11, color:"#aaa", letterSpacing:6, marginBottom:18 }}>愛之謎</div>
+<h1 className="it" style={{ fontSize:32, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:16, lineHeight:1.3 }}>
+Mistero d&#39;Amore
+</h1>
+<Dv />
+<p style={{ fontSize:12.5, color:"#888", lineHeight:2.2, marginTop:16, letterSpacing:1 }}>將心中所念化為文字<br/>天地自有感應</p>
+</div>
+<div style={{ background:"#fff", borderRadius:14, padding:"20px 20px 14px", boxShadow:"0 1px 10px rgba(0,0,0,0.04)", marginBottom:12, border:"1px solid #ddd9d2" }}>
+<textarea value={q} onChange={e => setQ(e.target.value.slice(0, 200))} placeholder="輸入你想問的事⋯⋯" rows={4} style={{ width:"100%", border:"1px solid #ddd9d2", borderRadius:8, padding:"14px 16px", fontSize:15, lineHeight:1.9, color:"#2c2c2c", fontFamily:"'Noto Serif TC',serif", resize:"none", background:"#faf8f5", transition:"all 0.3s" }} />
+<div style={{ textAlign:"right", fontSize:10, color:"#aaa", marginTop:6 }}>{q.length}/200</div>
+</div>
+<div style={{ display:"flex", gap:7, flexWrap:"wrap", marginBottom:30 }}>
+{ex.map(e => <button key={e} onClick={() => setQ(e)} style={{ background:"#eaf1eb", border:"none", borderRadius:20, padding:"6px 13px", fontSize:11, color:"#4a6b4e", letterSpacing:0.3 }}>{e}</button>)}
+</div>
+<PBtn onClick={() => onNext(q)} disabled={!q.trim()}>開 始 占 卜</PBtn>
+</div></Wrap>
+);
 }
 
 /* ═══ SYSTEM ═══ */
 function PageS({ question, onNext, onBack }) {
-  const sg = suggest(question);
-  const [sel, setSel] = useState(null);
-  const [cnt, setCnt] = useState(3);
-  const sys = [
-    { id:"tarot", n:"塔 羅", sub:"78張完整牌組・正逆位", ic:"✦" },
-    { id:"lenormand", n:"雷 諾 曼", sub:"36張指引牌", ic:"◇" },
-    { id:"liuyao", n:"六 爻", sub:"銅錢起卦・本卦變卦", ic:"☰" },
-  ];
-  return (
-    <Wrap><BkBtn onClick={onBack} />
-    <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:36 }}>
-        <h1 className="it" style={{ fontSize:26, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 }}>Metodo</h1>
-        <Dv />
-      </div>
-      <div style={{ background:"#fff", borderRadius:10, padding:"12px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
-        「{question.length > 35 ? question.slice(0, 35) + "⋯" : question}」
-      </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:9, marginBottom:24 }}>
-        {sys.map(s => {
-          const a = sel === s.id, r = sg === s.id;
-          return (
-            <button key={s.id} onClick={() => setSel(s.id)} style={{ display:"flex", alignItems:"center", gap:14, width:"100%", padding:"16px 18px", background:a?"#eaf1eb":"#fff", border:a?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:10, textAlign:"left", position:"relative", boxShadow:a?"0 2px 12px rgba(107,143,113,0.1)":"0 1px 3px rgba(0,0,0,0.04)", transition:"all 0.2s" }}>
-              <span style={{ fontSize:18, width:38, height:38, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:8, background:a?"#6b8f71":"#faf8f5", color:a?"#fff":"#888", transition:"all 0.2s", flexShrink:0 }}>{s.ic}</span>
-              <div>
-                <div style={{ fontSize:14, letterSpacing:3, color:a?"#4a6b4e":"#2c2c2c", fontWeight:500 }}>{s.n}</div>
-                <div style={{ fontSize:11, color:"#888", marginTop:2 }}>{s.sub}</div>
-              </div>
-              {r && <span style={{ position:"absolute", top:10, right:14, fontSize:9.5, color:"#b8956a", border:"1px solid #d4b896", padding:"2px 9px", borderRadius:4, letterSpacing:1 }}>推薦</span>}
-            </button>
-          );
-        })}
-      </div>
-      {(sel === "tarot" || sel === "lenormand") && (
-        <div style={{ marginBottom:24, animation:"sd 0.3s ease" }}>
-          <div style={{ fontSize:11, color:"#888", letterSpacing:3, marginBottom:10 }}>抽 牌 數 量</div>
-          <div style={{ display:"flex", gap:10 }}>
-            {[3, 5].map(n => (
-              <button key={n} onClick={() => setCnt(n)} style={{ flex:1, padding:"13px 0", background:cnt===n?"#eaf1eb":"#fff", border:cnt===n?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:8, textAlign:"center", boxShadow:"0 1px 3px rgba(0,0,0,0.04)", transition:"all 0.2s" }}>
-                <div style={{ fontSize:18, color:cnt===n?"#4a6b4e":"#2c2c2c", fontWeight:500 }}>{n}</div>
-                <div style={{ fontSize:10, color:"#888", marginTop:3 }}>{n===3?"快速解讀":"深入分析"}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      <PBtn onClick={() => onNext(sel, cnt)} disabled={!sel}>下 一 步</PBtn>
-    </div></Wrap>
-  );
+const sg = suggest(question);
+const [sel, setSel] = useState(null);
+const [cnt, setCnt] = useState(3);
+const sys = [
+{ id:"tarot", n:"塔 羅", sub:"78張完整牌組・正逆位", ic:"✦" },
+{ id:"lenormand", n:"雷 諾 曼", sub:"36張指引牌", ic:"◇" },
+{ id:"liuyao", n:"六 爻", sub:"銅錢起卦・本卦變卦", ic:"☰" },
+];
+return (
+<Wrap><BkBtn onClick={onBack} />
+<div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
+<div style={{ textAlign:"center", marginBottom:36 }}>
+<h1 className="it" style={{ fontSize:26, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 }}>Metodo</h1>
+<Dv />
+</div>
+<div style={{ background:"#fff", borderRadius:10, padding:"12px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
+「{question.length > 35 ? question.slice(0, 35) + "⋯" : question}」
+</div>
+<div style={{ display:"flex", flexDirection:"column", gap:9, marginBottom:24 }}>
+{sys.map(s => {
+const a = sel === s.id, r = sg === s.id;
+return (
+<button key={s.id} onClick={() => setSel(s.id)} style={{ display:"flex", alignItems:"center", gap:14, width:"100%", padding:"16px 18px", background:a?"#eaf1eb":"#fff", border:a?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:10, textAlign:"left", position:"relative", boxShadow:a?"0 2px 12px rgba(107,143,113,0.1)":"0 1px 3px rgba(0,0,0,0.04)", transition:"all 0.2s" }}>
+<span style={{ fontSize:18, width:38, height:38, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:8, background:a?"#6b8f71":"#faf8f5", color:a?"#fff":"#888", transition:"all 0.2s", flexShrink:0 }}>{s.ic}</span>
+<div>
+<div style={{ fontSize:14, letterSpacing:3, color:a?"#4a6b4e":"#2c2c2c", fontWeight:500 }}>{s.n}</div>
+<div style={{ fontSize:11, color:"#888", marginTop:2 }}>{s.sub}</div>
+</div>
+{r && <span style={{ position:"absolute", top:10, right:14, fontSize:9.5, color:"#b8956a", border:"1px solid #d4b896", padding:"2px 9px", borderRadius:4, letterSpacing:1 }}>推薦</span>}
+</button>
+);
+})}
+</div>
+{(sel === "tarot" || sel === "lenormand") && (
+<div style={{ marginBottom:24, animation:"sd 0.3s ease" }}>
+<div style={{ fontSize:11, color:"#888", letterSpacing:3, marginBottom:10 }}>抽 牌 數 量</div>
+<div style={{ display:"flex", gap:10 }}>
+{[3, 5].map(n => (
+<button key={n} onClick={() => setCnt(n)} style={{ flex:1, padding:"13px 0", background:cnt===n?"#eaf1eb":"#fff", border:cnt===n?"1.5px solid #6b8f71":"1px solid #ddd9d2", borderRadius:8, textAlign:"center", boxShadow:"0 1px 3px rgba(0,0,0,0.04)", transition:"all 0.2s" }}>
+<div style={{ fontSize:18, color:cnt===n?"#4a6b4e":"#2c2c2c", fontWeight:500 }}>{n}</div>
+<div style={{ fontSize:10, color:"#888", marginTop:3 }}>{n===3?"快速解讀":"深入分析"}</div>
+</button>
+))}
+</div>
+</div>
+)}
+<PBtn onClick={() => onNext(sel, cnt)} disabled={!sel}>下 一 步</PBtn>
+</div></Wrap>
+);
 }
 
 /* ═══ CARD DRAW ═══ */
 function PageC({ system, cnt, question, onResult, onBack }) {
-  const [cards, setCards] = useState([]);
-  const [rev, setRev] = useState([]);
-  const [done, setDone] = useState(false);
-  const started = useRef(false);
-  const tmr = useRef(null);
+const [cards, setCards] = useState([]);
+const [rev, setRev] = useState([]);
+const [done, setDone] = useState(false);
+const started = useRef(false);
+const tmr = useRef(null);
 
-  useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    const drawn = system === "tarot" ? drawT(cnt) : drawL(cnt);
-    setCards(drawn);
-    let idx = 0;
-    function next() {
-      if (idx >= drawn.length) { setDone(true); return; }
-      const ci = idx;
-      setRev(p => [...p, ci]);
-      idx++;
-      tmr.current = setTimeout(next, 1000);
-    }
-    tmr.current = setTimeout(next, 1000);
-    return () => { if (tmr.current) clearTimeout(tmr.current); };
-  }, []);
+useEffect(() => {
+if (started.current) return;
+started.current = true;
+const drawn = system === "tarot" ? drawT(cnt) : drawL(cnt);
+setCards(drawn);
+let idx = 0;
+function next() {
+if (idx >= drawn.length) { setDone(true); return; }
+const ci = idx;
+setRev(p => [...p, ci]);
+idx++;
+tmr.current = setTimeout(next, 1000);
+}
+tmr.current = setTimeout(next, 1000);
+return () => { if (tmr.current) clearTimeout(tmr.current); };
+}, []);
 
-  function fmt() {
-    const sn = system === "tarot" ? "塔羅" : "雷諾曼";
-    const cs = cards.map(c => system === "tarot" ? `${c.rev ? "逆位" : "正位"}${c.name}` : c.name);
-    return `【${sn}${cnt}張牌結果】\n占問：${question}\n\n牌面：${cs.join("、")}`;
-  }
+function fmt() {
+const sn = system === "tarot" ? "塔羅" : "雷諾曼";
+const cs = cards.map(c => system === "tarot" ? `${c.rev ? "逆位" : "正位"}${c.name}` : c.name);
+return `【${sn}${cnt}張牌結果】\n占問:${question}\n\n牌面:${cs.join("、")}`;
+}
 
-  const cw = cnt <= 3 ? 98 : 72;
-  const ch = cnt <= 3 ? 152 : 110;
+const cw = cnt <= 3 ? 98 : 72;
+const ch = cnt <= 3 ? 152 : 110;
+const is5 = cnt === 5;
+const row1 = is5 ? cards.slice(0, 3) : cards;
+const row2 = is5 ? cards.slice(3, 5) : [];
 
-  const is5 = cnt === 5;
-  const row1 = is5 ? cards.slice(0, 3) : cards;
-  const row2 = is5 ? cards.slice(3, 5) : [];
+function renderCard(c, i, globalIndex) {
+const show = rev.includes(globalIndex);
+return (
+<div key={i} style={{ width:cw, height:ch, perspective:600, flexShrink:0,
+transform: show ? 'translateY(-4px)' : 'translateY(0)',
+transition: 'transform 0.4s ease'
+}}>
+<div style={{
+width:"100%", height:"100%", position:"relative",
+transformStyle:"preserve-3d",
+transition:"transform 0.65s cubic-bezier(0.4,0,0.2,1)",
+transform: show ? "rotateY(180deg)" : "rotateY(0deg)",
+}}>
+<div style={{ position:"absolute", width:"100%", height:"100%", backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", borderRadius:10, background:"linear-gradient(155deg,#6b8f71,#4a6b4e)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
+<div style={{ width:"68%", height:"78%", border:"1px solid rgba(255,255,255,0.15)", borderRadius:6, display:"flex", alignItems:"center", justifyContent:"center" }}>
+<span style={{ fontSize:cnt<=3?14:10, color:"rgba(255,255,255,0.2)" }}>✦</span>
+</div>
+</div>
+<div style={{ position:"absolute", width:"100%", height:"100%", backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", transform:"rotateY(180deg)", borderRadius:10, background:"#fff", border:"1px solid #ddd9d2", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:cnt<=3?10:6, boxShadow:"0 3px 14px rgba(0,0,0,0.08)" }}>
+{c && (<>
+{system === "tarot" && (
+<div style={{ position:"absolute", top:cnt<=3?7:4, fontSize:cnt<=3?9:7, letterSpacing:2, color:c.rev?"#c07070":"#6b8f71", fontWeight:500 }}>
+{c.rev ? "逆位" : "正位"}
+</div>
+)}
+<div style={{ fontSize:cnt<=3?14:10, fontWeight:500, color:"#2c2c2c", letterSpacing:cnt<=3?2:1, textAlign:"center", lineHeight:1.6, transform:system==="tarot"&&c.rev?"rotate(180deg)":"none" }}>
+{c.name}
+</div>
+{system === "tarot" && TAROT_MAJOR.includes(c.name) && (
+<div style={{ position:"absolute", bottom:cnt<=3?7:4, fontSize:cnt<=3?8:6, color:"#b8956a", letterSpacing:1 }}>大秘儀</div>
+)}
+</>)}
+</div>
+</div>
+</div>
+);
+}
 
-  function renderCard(c, i, globalIndex) {
-    const show = rev.includes(globalIndex);
-    return (
-      <div key={i} style={{ width:cw, height:ch, perspective:600, flexShrink:0,
-        transform: show ? 'translateY(-4px)' : 'translateY(0)',
-        transition: 'transform 0.4s ease'
-      }}>
-        <div style={{
-          width:"100%", height:"100%", position:"relative",
-          transformStyle:"preserve-3d",
-          transition:"transform 0.65s cubic-bezier(0.4,0,0.2,1)",
-          transform: show ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}>
-          {/* BACK */}
-          <div style={{ position:"absolute", width:"100%", height:"100%", backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", borderRadius:10, background:"linear-gradient(155deg,#6b8f71,#4a6b4e)", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
-            <div style={{ width:"68%", height:"78%", border:"1px solid rgba(255,255,255,0.15)", borderRadius:6, display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <span style={{ fontSize:cnt<=3?14:10, color:"rgba(255,255,255,0.2)" }}>✦</span>
-            </div>
-          </div>
-          {/* FRONT */}
-          <div style={{ position:"absolute", width:"100%", height:"100%", backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", transform:"rotateY(180deg)", borderRadius:10, background:"#fff", border:"1px solid #ddd9d2", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:cnt<=3?10:6, boxShadow:"0 3px 14px rgba(0,0,0,0.08)" }}>
-            {c && (<>
-              {system === "tarot" && (
-                <div style={{ position:"absolute", top:cnt<=3?7:4, fontSize:cnt<=3?9:7, letterSpacing:2, color:c.rev?"#c07070":"#6b8f71", fontWeight:500 }}>
-                  {c.rev ? "逆位" : "正位"}
-                </div>
-              )}
-              <div style={{ fontSize:cnt<=3?14:10, fontWeight:500, color:"#2c2c2c", letterSpacing:cnt<=3?2:1, textAlign:"center", lineHeight:1.6, transform:system==="tarot"&&c.rev?"rotate(180deg)":"none" }}>
-                {c.name}
-              </div>
-              {system === "tarot" && TAROT_MAJOR.includes(c.name) && (
-                <div style={{ position:"absolute", bottom:cnt<=3?7:4, fontSize:cnt<=3?8:6, color:"#b8956a", letterSpacing:1 }}>大秘儀</div>
-              )}
-            </>)}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Wrap><BkBtn onClick={onBack} />
-    <div style={{ padding:"76px 20px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:28 }}>
-        <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>
-          {system === "tarot" ? "Tarocchi" : "Lenormand"}
-        </h1>
-        <div style={{ fontSize:11, color:"#aaa", marginTop:8, letterSpacing:2 }}>
-          {rev.length < cnt ? `${rev.length} / ${cnt}` : "牌面已開"}
-        </div>
-      </div>
-
-      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10, marginBottom:32 }}>
-        <div style={{ display:"flex", gap:cnt<=3?10:7, justifyContent:"center" }}>
-          {row1.map((c, i) => renderCard(c, i, i))}
-        </div>
-        {is5 && (
-          <div style={{ display:"flex", gap:7, justifyContent:"center" }}>
-            {row2.map((c, i) => renderCard(c, i, i + 3))}
-          </div>
-        )}
-      </div>
-
-      {done && <div style={{ animation:"slideUp 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult(fmt())}>Risultato</PBtn></div>}
-    </div></Wrap>
-  );
+return (
+<Wrap><BkBtn onClick={onBack} />
+<div style={{ padding:"76px 20px 40px", animation:"fu 0.6s ease" }}>
+<div style={{ textAlign:"center", marginBottom:28 }}>
+<h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>
+{system === "tarot" ? "Tarocchi" : "Lenormand"}
+</h1>
+<div style={{ fontSize:11, color:"#aaa", marginTop:8, letterSpacing:2 }}>
+{rev.length < cnt ? `${rev.length} / ${cnt}` : "牌面已開"}
+</div>
+</div>
+<div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10, marginBottom:32 }}>
+<div style={{ display:"flex", gap:cnt<=3?10:7, justifyContent:"center" }}>
+{row1.map((c, i) => renderCard(c, i, i))}
+</div>
+{is5 && (
+<div style={{ display:"flex", gap:7, justifyContent:"center" }}>
+{row2.map((c, i) => renderCard(c, i, i + 3))}
+</div>
+)}
+</div>
+{done && <div style={{ animation:"slideUp 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult(fmt())}>Risultato</PBtn></div>}
+</div></Wrap>
+);
 }
 
 /* ═══ LIU YAO ═══ */
 function PageY({ question, onResult, onBack }) {
-  const [yaos, setYaos] = useState([]);
-  const [busy, setBusy] = useState(false);
-  const [cur, setCur] = useState(0);
-  const [hex, setHex] = useState(null);
-  const [spin, setSpin] = useState(false);
+const [yaos, setYaos] = useState([]);
+const [busy, setBusy] = useState(false);
+const [cur, setCur] = useState(0);
+const [hex, setHex] = useState(null);
+const [spin, setSpin] = useState(false);
 
-  function doOne() {
-    if (cur >= 6 || busy) return;
-    setBusy(true); setSpin(true);
-    setTimeout(() => {
-      setSpin(false);
-      const y = tossYao();
-      const ny = [...yaos, y];
-      setYaos(ny); setCur(p => p + 1); setBusy(false);
-      if (ny.length === 6) setHex(compHex(ny));
-    }, 700);
-  }
+function doOne() {
+if (cur >= 6 || busy) return;
+setBusy(true); setSpin(true);
+setTimeout(() => {
+setSpin(false);
+const y = tossYao();
+const ny = [...yaos, y];
+setYaos(ny); setCur(p => p + 1); setBusy(false);
+if (ny.length === 6) setHex(compHex(ny));
+}, 700);
+}
 
-  function doAll() {
-    if (busy) return;
-    setBusy(true);
-    const all = []; let i = 0;
-    function next() {
-      if (i >= 6) { setBusy(false); setSpin(false); setHex(compHex(all)); return; }
-      setSpin(true);
-      setTimeout(() => {
-        all.push(tossYao());
-        setYaos([...all]); setCur(all.length);
-        setSpin(false); i++;
-        setTimeout(next, 250);
-      }, 500);
-    }
-    next();
-  }
+function doAll() {
+if (busy) return;
+setBusy(true);
+const all = []; let i = 0;
+function next() {
+if (i >= 6) { setBusy(false); setSpin(false); setHex(compHex(all)); return; }
+setSpin(true);
+setTimeout(() => {
+all.push(tossYao());
+setYaos([...all]); setCur(all.length);
+setSpin(false); i++;
+setTimeout(next, 250);
+}, 500);
+}
+next();
+}
 
-  function reset() { setYaos([]); setCur(0); setHex(null); }
+function reset() { setYaos([]); setCur(0); setHex(null); }
 
-  function fmt() {
-    const ms = hex.mv.length > 0 ? hex.mv.map(i => YN[i]).join("、") : "無";
-    let t = `【六爻起卦結果】\n占問：${question}\n\n本卦：${hex.o}（第${hex.oN}卦）\n`;
-    if (hex.hasM) t += `變卦：${hex.c}（第${hex.cN}卦）\n`;
-    t += `動爻：${ms}\n\n各爻詳情（初爻→上爻）：\n`;
-    yaos.forEach((y, i) => { t += `  ${YN[i]}：${y.c.join("·")} = ${y.v} → ${y.t}\n`; });
-    return t;
-  }
+function fmt() {
+const ms = hex.mv.length > 0 ? hex.mv.map(i => YN[i]).join("、") : "無";
+let t = `【六爻起卦結果】\n占問:${question}\n\n本卦:${hex.o}(第${hex.oN}卦)\n`;
+if (hex.hasM) t += `變卦:${hex.c}(第${hex.cN}卦)\n`;
+t += `動爻:${ms}\n\n各爻詳情(初爻→上爻):\n`;
+yaos.forEach((y, i) => { t += ` ${YN[i]}:${y.c.join("·")} = ${y.v} → ${y.t}\n`; });
+return t;
+}
 
-  return (
-    <Wrap><BkBtn onClick={onBack} />
-    <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:28 }}>
-        <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Sei Linee</h1>
-        <div style={{ fontSize:12, color:"#888", marginTop:6, letterSpacing:3 }}>六 爻 起 卦</div>
-        <div style={{ fontSize:11, color:"#aaa", marginTop:5, letterSpacing:2 }}>
-          {cur < 6 ? `第 ${cur+1} 爻 / 共 6 爻` : "卦象已成"}
-        </div>
-      </div>
+return (
+<Wrap><BkBtn onClick={onBack} />
+<div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
+<div style={{ textAlign:"center", marginBottom:28 }}>
+<h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Sei Linee</h1>
+<div style={{ fontSize:12, color:"#888", marginTop:6, letterSpacing:3 }}>六 爻 起 卦</div>
+<div style={{ fontSize:11, color:"#aaa", marginTop:5, letterSpacing:2 }}>
+{cur < 6 ? `第 ${cur+1} 爻 / 共 6 爻` : "卦象已成"}
+</div>
+</div>
 
-      {cur < 6 && (
-        <div style={{ textAlign:"center", marginBottom:24 }}>
-          <div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:22 }}>
-            {[0,1,2].map(ci => (
-              <div key={ci} className={`coin${spin?" spin":""}`} style={{ animationDelay:`${ci*0.08}s` }} />
-            ))}
-          </div>
-          <div style={{ display:"flex", gap:10 }}>
-            <PBtn onClick={doOne} disabled={busy} style={{ flex:1 }}>擲 銅 錢</PBtn>
-            <GBtn onClick={doAll} style={{ flex:1 }}>一 鍵 六 爻</GBtn>
-          </div>
-          {cur > 0 && <button onClick={reset} style={{ background:"none", border:"none", color:"#aaa", fontSize:11, marginTop:12, letterSpacing:1, fontFamily:"'Noto Serif TC',serif" }}>← 重擲</button>}
-        </div>
-      )}
+{cur < 6 && (
+<div style={{ textAlign:"center", marginBottom:24 }}>
+<div style={{ display:"flex", justifyContent:"center", gap:14, marginBottom:22 }}>
+{[0,1,2].map(ci => (
+<div key={ci} className={`coin${spin?" spin":""}`} style={{ animationDelay:`${ci*0.08}s` }} />
+))}
+</div>
+<div style={{ display:"flex", gap:10 }}>
+<PBtn onClick={doOne} disabled={busy} style={{ flex:1 }}>擲 銅 錢</PBtn>
+<GBtn onClick={doAll} style={{ flex:1 }}>一 鍵 六 爻</GBtn>
+</div>
+{cur > 0 && <button onClick={reset} style={{ background:"none", border:"none", color:"#aaa", fontSize:11, marginTop:12, letterSpacing:1, fontFamily:"'Noto Serif TC',serif" }}>← 重擲</button>}
+</div>
+)}
 
-      {yaos.length > 0 && (
-        <div style={{ background:"#fff", borderRadius:12, padding:"18px 18px", marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2" }}>
-          {[...yaos].reverse().map((y, ri) => {
-            const i = yaos.length - 1 - ri;
-            return (
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 0", animation:"sd 0.3s ease", borderBottom:ri<yaos.length-1?"1px solid #eae6df":"none", flexWrap:"nowrap" }}>
-                <span style={{ fontSize:11, color:"#888", width:30, textAlign:"right", flexShrink:0 }}>{YN[i]}</span>
-                <div style={{ display:"flex", gap:3, alignItems:"center", flexShrink:0 }}>
-                  {y.l === 1
-                    ? <div style={{ width:56, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} />
-                    : <><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /><div style={{ width:5 }} /><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /></>
-                  }
-                </div>
-                <span style={{ fontSize:10, color:"#aaa", flexShrink:0 }}>{y.c.join("·")}={y.v}</span>
-                <span style={{ fontSize:10, color:y.m?"#b8956a":"#888", fontWeight:y.m?500:400, whiteSpace:"nowrap" }}>{y.t}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+{yaos.length > 0 && (
+<div style={{ background:"#fff", borderRadius:12, padding:"18px 18px", marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2" }}>
+{[...yaos].reverse().map((y, ri) => {
+const i = yaos.length - 1 - ri;
+return (
+<div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 0", animation:"sd 0.3s ease", borderBottom:ri<yaos.length-1?"1px solid #eae6df":"none", flexWrap:"nowrap" }}>
+<span style={{ fontSize:11, color:"#888", width:30, textAlign:"right", flexShrink:0 }}>{YN[i]}</span>
+<div style={{ display:"flex", gap:3, alignItems:"center", flexShrink:0 }}>
+{y.l === 1
+? <div style={{ width:56, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} />
+: <><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /><div style={{ width:5 }} /><div style={{ width:24, height:8, background:y.m?"#b8956a":"#6b8f71", borderRadius:2.5 }} /></>
+}
+</div>
+<span style={{ fontSize:10, color:"#aaa", flexShrink:0 }}>{y.c.join("·")}={y.v}</span>
+<span style={{ fontSize:10, color:y.m?"#b8956a":"#888", fontWeight:y.m?500:400, whiteSpace:"nowrap" }}>{y.t}</span>
+</div>
+);
+})}
+</div>
+)}
 
-      {hex && (
-        <div style={{ animation:"slideUp 0.6s ease" }}>
-          <div style={{ background:"#fff", borderRadius:12, padding:24, marginBottom:22, textAlign:"center", border:"1px solid #c5d8c7", boxShadow:"0 2px 14px rgba(107,143,113,0.08)" }}>
-            <div className="it" style={{ fontSize:11, color:"#aaa", letterSpacing:4, marginBottom:16, fontStyle:"italic" }}>Responso</div>
-            <div style={{ fontSize:26, letterSpacing:6, color:"#2c2c2c", fontWeight:500 }}>{hex.o}</div>
-            <div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.oN}卦</div>
-            {hex.hasM && (<>
-              <div style={{ width:1, height:20, background:"#ddd9d2", margin:"12px auto" }} />
-              <div style={{ fontSize:10, color:"#aaa", letterSpacing:3, marginBottom:6 }}>變 卦</div>
-              <div style={{ fontSize:26, letterSpacing:6, color:"#b8956a", fontWeight:500 }}>{hex.c}</div>
-              <div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.cN}卦</div>
-              <div style={{ marginTop:16, padding:"7px 16px", background:"#eaf1eb", borderRadius:6, display:"inline-block", fontSize:11, color:"#4a6b4e", letterSpacing:2 }}>
-                動爻：{hex.mv.map(i => YN[i]).join("、")}
-              </div>
-            </>)}
-          </div>
-          <PBtn onClick={() => onResult(fmt())}>Risultato</PBtn>
-        </div>
-      )}
-    </div></Wrap>
-  );
+{hex && (
+<div style={{ animation:"slideUp 0.6s ease" }}>
+<div style={{ background:"#fff", borderRadius:12, padding:24, marginBottom:22, textAlign:"center", border:"1px solid #c5d8c7", boxShadow:"0 2px 14px rgba(107,143,113,0.08)" }}>
+<div className="it" style={{ fontSize:11, color:"#aaa", letterSpacing:4, marginBottom:16, fontStyle:"italic" }}>Responso</div>
+<div style={{ fontSize:26, letterSpacing:6, color:"#2c2c2c", fontWeight:500 }}>{hex.o}</div>
+<div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.oN}卦</div>
+{hex.hasM && (<>
+<div style={{ width:1, height:20, background:"#ddd9d2", margin:"12px auto" }} />
+<div style={{ fontSize:10, color:"#aaa", letterSpacing:3, marginBottom:6 }}>變 卦</div>
+<div style={{ fontSize:26, letterSpacing:6, color:"#b8956a", fontWeight:500 }}>{hex.c}</div>
+<div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.cN}卦</div>
+<div style={{ marginTop:16, padding:"7px 16px", background:"#eaf1eb", borderRadius:6, display:"inline-block", fontSize:11, color:"#4a6b4e", letterSpacing:2 }}>
+動爻:{hex.mv.map(i => YN[i]).join("、")}
+</div>
+</>)}
+</div>
+<PBtn onClick={() => onResult(fmt())}>Risultato</PBtn>
+</div>
+)}
+</div></Wrap>
+);
 }
 
 /* ═══ RESULT ═══ */
 function PageR({ result, onRestart }) {
-  const [cp, setCp] = useState(false);
-  function copy() { navigator.clipboard.writeText(result).then(() => { setCp(true); setTimeout(() => setCp(false), 2500); }); }
-  return (
-    <Wrap>
-    <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-      <div style={{ textAlign:"center", marginBottom:28 }}>
-        <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Responso</h1>
-        <Dv />
-      </div>
-      <div style={{ background:"#fff", borderRadius:12, padding:22, marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2", whiteSpace:"pre-wrap", fontSize:13, lineHeight:2, color:"#555" }}>{result}</div>
-      <div style={{ display:"flex", gap:10 }}>
-        <PBtn onClick={copy} style={{ flex:1 }}>{cp ? "Copiato ✓" : "Copia"}</PBtn>
-        <GBtn onClick={onRestart} style={{ flex:1 }}>Di Nuovo</GBtn>
-      </div>
-    </div></Wrap>
-  );
+const [cp, setCp] = useState(false);
+function copy() { navigator.clipboard.writeText(result).then(() => { setCp(true); setTimeout(() => setCp(false), 2500); }); }
+return (
+<Wrap>
+<div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
+<div style={{ textAlign:"center", marginBottom:28 }}>
+<h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Responso</h1>
+<Dv />
+</div>
+<div style={{ background:"#fff", borderRadius:12, padding:22, marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2", whiteSpace:"pre-wrap", fontSize:13, lineHeight:2, color:"#555" }}>{result}</div>
+<div style={{ display:"flex", gap:10 }}>
+<PBtn onClick={copy} style={{ flex:1 }}>{cp ? "Copiato ✓" : "Copia"}</PBtn>
+<GBtn onClick={onRestart} style={{ flex:1 }}>Di Nuovo</GBtn>
+</div>
+</div></Wrap>
+);
 }
 
 /* ═══ APP ═══ */
 function App() {
-  const [pg, setPg] = useState("q");
-  const [q, setQ] = useState("");
-  const [sys, setSys] = useState(null);
-  const [cnt, setCnt] = useState(3);
-  const [res, setRes] = useState("");
-  return (<>
-    {pg === "q" && <PageQ onNext={v => { setQ(v); setPg("s"); }} />}
-    {pg === "s" && <PageS question={q} onNext={(s, c) => { setSys(s); setCnt(c); setPg("d"); }} onBack={() => setPg("q")} />}
-    {pg === "d" && sys === "liuyao" && <PageY question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
-    {pg === "d" && sys !== "liuyao" && <PageC system={sys} cnt={cnt} question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
-    {pg === "r" && <PageR result={res} onRestart={() => { setPg("q"); setQ(""); setSys(null); setRes(""); }} />}
-  </>);
+const [pg, setPg] = useState("q");
+const [q, setQ] = useState("");
+const [sys, setSys] = useState(null);
+const [cnt, setCnt] = useState(3);
+const [res, setRes] = useState("");
+return (<>
+{pg === "q" && <PageQ onNext={v => { setQ(v); setPg("s"); }} />}
+{pg === "s" && <PageS question={q} onNext={(s, c) => { setSys(s); setCnt(c); setPg("d"); }} onBack={() => setPg("q")} />}
+{pg === "d" && sys === "liuyao" && <PageY question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
+{pg === "d" && sys !== "liuyao" && <PageC system={sys} cnt={cnt} question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
+{pg === "r" && <PageR result={res} onRestart={() => { setPg("q"); setQ(""); setSys(null); setRes(""); }} />}
+</>);
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
