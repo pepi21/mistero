@@ -9,7 +9,7 @@
 <div id="root"></div>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/lunar-javascript@1.6.18/lunar.js"></script>
+<script src="https://unpkg.com/lunar-javascript@1.6.13/lunar.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
@@ -81,16 +81,16 @@ const LIUSHEN = {
 // 六親：以卦宮五行為「我」對爻地支五行的關係
 function liuqin(meWx, zhiWx) {
   if (meWx === zhiWx) return "兄弟";
-  const sheng = {木:"水",火:"木",土:"火",金:"土",水:"金"};   // 生我者
-  const ke = {木:"金",火:"水",土:"木",金:"火",水:"土"};      // 剋我者
-  const woSheng = {水:"木",木:"火",火:"土",土:"金",金:"水"};  // 我生者
+  const sheng = {木:"水",火:"木",土:"火",金:"土",水:"金"};
+  const ke = {木:"金",火:"水",土:"木",金:"火",水:"土"};
+  const woSheng = {水:"木",木:"火",火:"土",土:"金",金:"水"};
   if (sheng[meWx] === zhiWx) return "父母";
   if (ke[meWx] === zhiWx) return "官鬼";
   if (woSheng[meWx] === zhiWx) return "子孫";
   return "妻財";
 }
 function najiaZhi(lowerTri, upperTri) {
-  return [...NAJIA[lowerTri].l, ...NAJIA[upperTri].u]; // index 0=初爻
+  return [...NAJIA[lowerTri].l, ...NAJIA[upperTri].u];
 }
 // 取當下四柱（用 lunar-javascript，無則回 null）
 function getBazi() {
@@ -132,14 +132,14 @@ function compHex(yaos) {
   const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
   const lo = getTri(ls.slice(0, 3)), up = getTri(ls.slice(3, 6));
   const lc = getTri(ch.slice(0, 3)), uc = getTri(ch.slice(3, 6));
-  // HEX_T 的 key 是「下卦+上卦」順序（例如 "兌乾":"履" = 下兌上乾＝天澤履）
-  const on = HEX_T[lo + up] || "?", cn = HEX_T[lc + uc] || "?";
+  // HEX_T 的 key 是「上卦+下卦」順序
+  const on = HEX_T[up + lo] || "?", cn = HEX_T[uc + lc] || "?";
   const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
 
   // ─── 擴充資訊 ───
-  const oZhi = najiaZhi(lo, up);          // 本卦六爻地支
-  const cZhi = najiaZhi(lc, uc);          // 變卦六爻地支
-  const pal  = PALACE[on] || null;        // 卦宮 / 世應
+  const oZhi = najiaZhi(lo, up);
+  const cZhi = najiaZhi(lc, uc);
+  const pal  = PALACE[on] || null;
   const palWx = pal ? TRI_WX[pal.p] : null;
   const bazi = getBazi();
   const dayGan = bazi ? bazi.d[0] : null;
@@ -221,7 +221,7 @@ function PageQ({ onNext }) {
       <div style={{ textAlign:"center", marginBottom:44 }}>
         <div style={{ fontSize:11, color:"#aaa", letterSpacing:6, marginBottom:18 }}>愛之謎</div>
         <h1 className="it" style={{ fontSize:32, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:16, lineHeight:1.3 }}>
-          Mistero d'Amore
+          Mistero d&#39;Amore
         </h1>
         <Dv />
         <p style={{ fontSize:12.5, color:"#888", lineHeight:2.2, marginTop:16, letterSpacing:1 }}>將心中所念化為文字<br/>天地自有感應</p>
@@ -494,11 +494,11 @@ function PageY({ question, onResult, onBack }) {
               return (
                 <div key={i} style={{ display:"flex", alignItems:"center", padding:"7px 0", animation:"sd 0.3s ease", borderBottom:ri<yaos.length-1?"1px solid #f3efe8":"none", fontSize:10.5, color:"#555" }}>
                   <span style={{ width:28, fontSize:10, color:"#888", textAlign:"center", flexShrink:0 }}>{YN[i]}</span>
-                  <span style={{ width:26, fontSize:9.5, color:"#9a8868", textAlign:"center", flexShrink:0, letterSpacing:0.5 }}>{ln?.sh || ""}</span>
+                  <span style={{ width:26, fontSize:9.5, color:"#9a8868", textAlign:"center", flexShrink:0, letterSpacing:0.5 }}>{ln ? ln.sh || "" : ""}</span>
                   <span style={{ width:36, textAlign:"center", flexShrink:0, color:"#2c2c2c", fontWeight:500 }}>
                     {ln ? <>{ln.z}<span style={{ fontSize:9, color:"#aaa", marginLeft:1 }}>{ln.zwx}</span></> : ""}
                   </span>
-                  <span style={{ width:30, fontSize:10, color:"#4a6b4e", textAlign:"center", flexShrink:0, fontWeight:500 }}>{ln?.lq || ""}</span>
+                  <span style={{ width:30, fontSize:10, color:"#4a6b4e", textAlign:"center", flexShrink:0, fontWeight:500 }}>{ln ? ln.lq || "" : ""}</span>
                   <div style={{ flex:1, display:"flex", alignItems:"center", gap:5, paddingLeft:6, minWidth:0 }}>
                     <div style={{ display:"flex", gap:3, alignItems:"center", flexShrink:0 }}>
                       {y.l === 1
@@ -508,7 +508,7 @@ function PageY({ question, onResult, onBack }) {
                     </div>
                     <span style={{ fontSize:8.5, color:y.m?"#b8956a":"#aaa", whiteSpace:"nowrap" }}>{y.m?"○動":""}</span>
                   </div>
-                  <span style={{ width:22, fontSize:10, fontWeight:600, color:ln?.role==="世"?"#b8956a":ln?.role==="應"?"#6b8f71":"#ccc", textAlign:"center", flexShrink:0 }}>{ln?.role || ""}</span>
+                  <span style={{ width:22, fontSize:10, fontWeight:600, color:ln && ln.role==="世"?"#b8956a":ln && ln.role==="應"?"#6b8f71":"#ccc", textAlign:"center", flexShrink:0 }}>{ln ? ln.role || "" : ""}</span>
                 </div>
               );
             })}
@@ -522,7 +522,7 @@ function PageY({ question, onResult, onBack }) {
                   return (
                     <div key={idx} style={{ display:"flex", gap:8 }}>
                       <span style={{ color:"#999" }}>{YN[idx]}：</span>
-                      <span>{ln.z}{ln.zwx}{ln.lq?` ${ln.lq}`:""} → {ln.cZ}{ZHI_WX[ln.cZ]}{ln.cLq?` ${ln.cLq}`:""}</span>
+                      <span>{ln.z}{ln.zwx}{ln.lq?" "+ln.lq:""} → {ln.cZ}{ZHI_WX[ln.cZ]}{ln.cLq?" "+ln.cLq:""}</span>
                     </div>
                   );
                 })}
