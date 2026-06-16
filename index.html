@@ -587,11 +587,19 @@ function PageR({ result, onRestart }) {
         <div style={{ textAlign:"center", marginBottom:28 }}>
           <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Responso</h1>
           <Dv />
-          {isLY && <div style={{ fontSize:11, color:"#aaa", marginTop:14, letterSpacing:0.5 }}>「{result.question}」</div>}
         </div>
 
         {isLY ? (
           <div>
+
+            {/* 占問 */}
+            <div style={{ textAlign:"center", marginBottom:24 }}>
+              <div style={{ width:24, height:1, background:"#c5d8c7", margin:"0 auto 12px" }} />
+              <div style={{ display:"inline-block", background:"#f0ede6", borderRadius:8, padding:"10px 22px" }}>
+                <span className="it" style={{ fontSize:13.5, color:"#555", letterSpacing:1, fontStyle:"italic" }}>{result.question}</span>
+              </div>
+              <div style={{ width:24, height:1, background:"#c5d8c7", margin:"12px auto 0" }} />
+            </div>
 
             {/* 本卦 → 變卦 大字展示 */}
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginBottom:28 }}>
