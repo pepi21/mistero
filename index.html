@@ -6,11 +6,12 @@
 <title>愛之謎 Mistero d'Amore</title>
 </head>
 <body>
-<div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/lunar-javascript@1.6.13/lunar.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<div id="root"><p style="padding:40px;color:#888;font-size:13px">載入中⋯⋯</p></div>
+<script>window.onerror=function(m,s,l,c,e){document.getElementById("root").innerHTML='<pre style="padding:20px;color:red;font-size:12px;white-space:pre-wrap">錯誤：'+m+'\n來源：'+s+'\n行：'+l+'</pre>';}</script>
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:red>React 載入失敗</p>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:red>ReactDOM 載入失敗</p>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js" onerror="document.getElementById('root').innerHTML+='<p style=color:orange>lunar-javascript 載入失敗（不影響主功能）</p>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js" onerror="document.getElementById('root').innerHTML+='<p style=color:red>Babel 載入失敗</p>'"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 const TAROT_MAJOR = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
@@ -607,7 +608,11 @@ function App() {
   </>);
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+try {
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+} catch(e) {
+  document.getElementById("root").innerHTML = '<pre style="padding:20px;color:red;font-size:12px;white-space:pre-wrap">React 渲染錯誤：' + e.message + '</pre>';
+}
 </script>
 </body>
 </html>
