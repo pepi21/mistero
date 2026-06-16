@@ -133,8 +133,8 @@ function compHex(yaos) {
   const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
   const lo = getTri(ls.slice(0, 3)), up = getTri(ls.slice(3, 6));
   const lc = getTri(ch.slice(0, 3)), uc = getTri(ch.slice(3, 6));
-  // HEX_T 的 key 是「上卦+下卦」順序
-  const on = HEX_T[up + lo] || "?", cn = HEX_T[uc + lc] || "?";
+  // HEX_T 的 key 是「下卦+上卦」順序（例如 "兌乾":"履" = 下兌上乾 = 天澤履）
+  const on = HEX_T[lo + up] || "?", cn = HEX_T[lc + uc] || "?";
   const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
 
   // ─── 擴充資訊 ───
