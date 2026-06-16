@@ -593,12 +593,8 @@ function PageR({ result, onRestart }) {
           <div>
 
             {/* 占問 */}
-            <div style={{ textAlign:"center", marginBottom:24 }}>
-              <div style={{ width:24, height:1, background:"#c5d8c7", margin:"0 auto 12px" }} />
-              <div style={{ display:"inline-block", background:"#f0ede6", borderRadius:8, padding:"10px 22px" }}>
-                <span className="it" style={{ fontSize:13.5, color:"#555", letterSpacing:1, fontStyle:"italic" }}>{result.question}</span>
-              </div>
-              <div style={{ width:24, height:1, background:"#c5d8c7", margin:"12px auto 0" }} />
+            <div style={{ padding:"10px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7" }}>
+              「{result.question}」
             </div>
 
             {/* 本卦 → 變卦 大字展示 */}
