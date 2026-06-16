@@ -5,646 +5,775 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>愛之謎 Mistero d'Amore</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  min-height:100vh;
-  background:#f3f0ea;
-  color:#2c2c2c;
-  font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;
-  -webkit-font-smoothing:antialiased;
-}
-button,textarea{font-family:inherit}
-button{cursor:pointer;-webkit-tap-highlight-color:transparent}
-.wrap{min-height:100vh;display:flex;justify-content:center;background:#f3f0ea}
-.app{width:100%;max-width:420px;min-height:100vh;position:relative;padding:76px 24px 40px;animation:fade .45s ease}
-@keyframes fade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-h1{font-family:Georgia,"Times New Roman",serif;font-weight:300;font-style:italic;letter-spacing:2px}
-.divider{width:36px;height:1px;background:#ccc8c0;margin:14px auto}
-.center{text-align:center}
-.muted{color:#888}
-.tiny{font-size:11px;color:#aaa;letter-spacing:4px}
-.panel{
-  background:#fff;
-  border:1px solid #ddd9d2;
-  border-radius:14px;
-  box-shadow:0 1px 10px rgba(0,0,0,.04);
-}
-textarea{
-  width:100%;
-  border:1px solid #ddd9d2;
-  border-radius:8px;
-  padding:14px 16px;
-  font-size:15px;
-  line-height:1.9;
-  resize:none;
-  background:#faf8f5;
-  color:#2c2c2c;
-}
-textarea:focus{outline:none;border-color:#6b8f71;box-shadow:0 0 0 3px rgba(107,143,113,.08)}
-.primary{
-  width:100%;
-  padding:15px 0;
-  border:none;
-  border-radius:8px;
-  background:#6b8f71;
-  color:white;
-  font-size:14px;
-  letter-spacing:5px;
-  box-shadow:0 2px 10px rgba(107,143,113,.18);
-}
-.primary:disabled{background:#ddd9d2;color:#aaa;box-shadow:none}
-.ghost{
-  width:100%;
-  padding:14px 0;
-  border:1px solid #ddd9d2;
-  border-radius:8px;
-  background:transparent;
-  color:#888;
-  font-size:13px;
-  letter-spacing:3px;
-}
-.back{
-  position:absolute;
-  top:18px;
-  left:20px;
-  border:none;
-  background:transparent;
-  color:#888;
-  font-size:13px;
-  letter-spacing:2px;
-  padding:8px 0;
-}
-.chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 30px}
-.chip{
-  border:none;
-  border-radius:20px;
-  background:#eaf1eb;
-  color:#4a6b4e;
-  padding:6px 13px;
-  font-size:11px;
-}
-.sys{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  width:100%;
-  padding:16px 18px;
-  margin-bottom:9px;
-  border:1px solid #ddd9d2;
-  border-radius:10px;
-  background:#fff;
-  text-align:left;
-  position:relative;
-}
-.sys.active{background:#eaf1eb;border:1.5px solid #6b8f71}
-.icon{
-  width:38px;
-  height:38px;
-  border-radius:8px;
-  background:#faf8f5;
-  color:#888;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:18px;
-  flex-shrink:0;
-}
-.sys.active .icon{background:#6b8f71;color:#fff}
-.tag{
-  position:absolute;
-  right:14px;
-  top:10px;
-  font-size:9px;
-  color:#b8956a;
-  border:1px solid #d4b896;
-  border-radius:4px;
-  padding:2px 9px;
-}
-.counts{display:flex;gap:10px;margin:10px 0 24px}
-.count{
-  flex:1;
-  border:1px solid #ddd9d2;
-  border-radius:8px;
-  background:#fff;
-  padding:13px 0;
-}
-.count.active{background:#eaf1eb;border:1.5px solid #6b8f71}
-.cards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:32px 0}
-.card{
-  width:98px;
-  height:152px;
-  border-radius:10px;
-  background:#fff;
-  border:1px solid #ddd9d2;
-  box-shadow:0 3px 14px rgba(0,0,0,.08);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:10px;
-  text-align:center;
-  animation:pop .35s ease both;
-  position:relative;
-}
-@keyframes pop{from{opacity:0;transform:translateY(12px) rotateY(90deg)}to{opacity:1;transform:translateY(0) rotateY(0)}}
-.card.back{
-  background:linear-gradient(155deg,#6b8f71,#4a6b4e);
-  color:rgba(255,255,255,.35);
-  font-size:20px;
-}
-.rev{color:#c07070;font-size:10px;margin-bottom:8px}
-.up{color:#6b8f71;font-size:10px;margin-bottom:8px}
-.coinrow{display:flex;justify-content:center;gap:14px;margin:22px 0}
-.coin{
-  width:38px;height:38px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#e8d5a8,#c9a96e 50%,#a07840);
-  box-shadow:0 2px 6px rgba(160,120,64,.3),inset 0 1px 2px rgba(255,255,255,.35);
-}
-.spin{animation:spin .75s ease}
-@keyframes spin{from{transform:rotateY(0) translateY(0)}50%{transform:rotateY(540deg) translateY(-14px)}to{transform:rotateY(720deg) translateY(0)}}
-.yaoBox{
-  background:#fff;
-  border:1px solid #ddd9d2;
-  border-radius:12px;
-  padding:16px 14px;
-  margin:20px 0;
-}
-.yao{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 0;
-  border-bottom:1px solid #f3efe8;
-  font-size:12px;
-}
-.yao:last-child{border-bottom:none}
-.line{display:flex;gap:4px;align-items:center}
-.solid{width:48px;height:7px;background:#6b8f71;border-radius:2px}
-.broken{width:21px;height:7px;background:#6b8f71;border-radius:2px}
-.move .solid,.move .broken{background:#b8956a}
-.result{
-  white-space:pre-wrap;
-  background:#fff;
-  border:1px solid #ddd9d2;
-  border-radius:12px;
-  padding:22px;
-  font-size:12px;
-  line-height:1.95;
-  color:#555;
-  margin-bottom:22px;
-}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { min-height:100%; }
+  body {
+    background:#f3f0ea;
+    font-family:"Noto Serif TC","PingFang TC","Hiragino Mincho ProN","Microsoft JhengHei",serif;
+    color:#2c2c2c;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  button, textarea {
+    font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;
+  }
+  button {
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .15s ease, opacity .2s ease, background .2s ease, border .2s ease;
+  }
+  button:active { transform:scale(.96); }
+  button:disabled { cursor:not-allowed; }
+  textarea:focus {
+    outline:none;
+    border-color:#6b8f71!important;
+    box-shadow:0 0 0 3px rgba(107,143,113,.08)!important;
+  }
+  ::selection { background:#c5d8c7; color:#4a6b4e; }
+  .page-shell {
+    min-height:100vh;
+    background:#f3f0ea;
+    display:flex;
+    justify-content:center;
+  }
+  .page-inner {
+    width:100%;
+    max-width:420px;
+    min-height:100vh;
+    position:relative;
+  }
+  .fade { animation:fu .55s ease both; }
+  .slide { animation:sd .3s ease both; }
+  @keyframes fu { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes sd { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes cspin {
+    0%{transform:rotateY(0) scale(1) translateY(0)}
+    30%{transform:rotateY(180deg) scale(.9) translateY(-18px)}
+    70%{transform:rotateY(540deg) scale(.92) translateY(-6px)}
+    100%{transform:rotateY(720deg) scale(1) translateY(0)}
+  }
+  @keyframes coinDrop { 0%{transform:scale(.7); opacity:0} 50%{transform:scale(1.08)} 100%{transform:scale(1); opacity:1} }
+  .it { font-family:"Cormorant Garamond","Times New Roman","Noto Serif TC",serif; }
+  .divider { width:36px; height:1px; background:#ccc8c0; margin:0 auto; }
+  .back {
+    position:absolute; top:18px; left:20px; z-index:10;
+    background:none; border:none; color:#888; font-size:13px;
+    letter-spacing:2px; padding:8px 0;
+  }
+  .primary {
+    width:100%; padding:15px 0; border:none; border-radius:8px;
+    background:#6b8f71; color:#fff; font-size:14px; letter-spacing:5px;
+    font-weight:400; box-shadow:0 2px 10px rgba(107,143,113,.18);
+  }
+  .primary:disabled {
+    background:#ddd9d2; color:#aaa; box-shadow:none; opacity:.6;
+  }
+  .ghost {
+    padding:14px 0; width:100%; background:none; color:#888;
+    border:1px solid #ddd9d2; border-radius:8px; font-size:13px; letter-spacing:3px;
+  }
+  .panel {
+    background:#fff; border:1px solid #ddd9d2; box-shadow:0 1px 10px rgba(0,0,0,.04);
+    border-radius:14px;
+  }
+  .chip {
+    background:#eaf1eb; border:none; border-radius:20px; padding:6px 13px;
+    font-size:11px; color:#4a6b4e; letter-spacing:.3px;
+  }
+  .sys-btn {
+    display:flex; align-items:center; gap:14px; width:100%; padding:16px 18px;
+    background:#fff; border:1px solid #ddd9d2; border-radius:10px; text-align:left;
+    position:relative; box-shadow:0 1px 3px rgba(0,0,0,.04);
+  }
+  .sys-btn.active { background:#eaf1eb; border:1.5px solid #6b8f71; box-shadow:0 2px 12px rgba(107,143,113,.1); }
+  .sys-icon {
+    font-size:18px; width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; background:#faf8f5; color:#888; flex-shrink:0;
+  }
+  .sys-btn.active .sys-icon { background:#6b8f71; color:#fff; }
+  .tag {
+    position:absolute; top:10px; right:14px; font-size:9.5px; color:#b8956a;
+    border:1px solid #d4b896; padding:2px 9px; border-radius:4px; letter-spacing:1px;
+  }
+  .count-btn {
+    flex:1; padding:13px 0; background:#fff; border:1px solid #ddd9d2; border-radius:8px;
+    text-align:center; box-shadow:0 1px 3px rgba(0,0,0,.04);
+  }
+  .count-btn.active { background:#eaf1eb; border:1.5px solid #6b8f71; }
+  .card-wrap { perspective:600px; flex-shrink:0; transition:transform .4s ease; }
+  .card-wrap.show { transform:translateY(-4px); }
+  .card {
+    width:100%; height:100%; position:relative; transform-style:preserve-3d;
+    transition:transform .65s cubic-bezier(.4,0,.2,1);
+  }
+  .card-wrap.show .card { transform:rotateY(180deg); }
+  .card-face {
+    position:absolute; width:100%; height:100%; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    border-radius:10px; display:flex; align-items:center; justify-content:center;
+  }
+  .card-back {
+    background:linear-gradient(155deg,#6b8f71,#4a6b4e);
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+  }
+  .card-back-inner {
+    width:68%; height:78%; border:1px solid rgba(255,255,255,.15); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card-front {
+    transform:rotateY(180deg); background:#fff; border:1px solid #ddd9d2;
+    flex-direction:column; box-shadow:0 3px 14px rgba(0,0,0,.08); position:relative;
+    text-align:center;
+  }
+  .coin {
+    width:38px; height:38px; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 35% 35%,#e8d5a8,#c9a96e 50%,#a07840);
+    box-shadow:0 2px 6px rgba(160,120,64,.3), inset 0 1px 2px rgba(255,255,255,.35);
+    position:relative; animation:coinDrop .35s ease both;
+  }
+  .coin::after {
+    content:""; width:8px; height:8px; border:1.5px solid rgba(255,255,255,.22);
+    position:absolute; border-radius:1px;
+  }
+  .coin.spin { animation:cspin .75s cubic-bezier(.4,0,.2,1); }
+  .yao-row {
+    display:flex; align-items:center; padding:7px 0; border-bottom:1px solid #f3efe8;
+    font-size:10.5px; color:#555;
+  }
+  .yao-row:last-child { border-bottom:none; }
+  .result-box {
+    background:#fff; border-radius:12px; padding:22px; margin-bottom:22px;
+    box-shadow:0 1px 8px rgba(0,0,0,.04); border:1px solid #ddd9d2;
+    white-space:pre-wrap; font-size:12px; line-height:1.95; color:#555;
+    font-family:"Noto Serif TC",ui-monospace,monospace;
+  }
 </style>
 </head>
-
 <body>
-<div id="root"></div>
+<div id="root">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;letter-spacing:2px;">
+    載入中⋯⋯
+  </div>
+</div>
 
 <script>
-const root = document.getElementById("root");
+(function () {
+  "use strict";
 
-const major = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
-const nums = ["王牌","二","三","四","五","六","七","八","九","十","侍者","騎士","王后","國王"];
-const suits = ["權杖","聖杯","寶劍","錢幣"];
-const tarot = major.concat(suits.flatMap(s => nums.map(n => s + n)));
-const lenormand = ["1 騎士","2 幸運草","3 船","4 房屋","5 樹","6 雲","7 蛇","8 棺材","9 花束","10 鐮刀","11 鞭子","12 鳥","13 孩子","14 狐狸","15 熊","16 星星","17 鸛","18 狗","19 塔","20 花園","21 山","22 道路","23 老鼠","24 心","25 戒指","26 書","27 信","28 男人","29 女人","30 百合","31 太陽","32 月亮","33 鑰匙","34 魚","35 錨","36 十字架"];
-const hexNames = ["乾","坤","屯","蒙","需","訟","師","比","小畜","履","泰","否","同人","大有","謙","豫","隨","蠱","臨","觀","噬嗑","賁","剝","復","無妄","大畜","頤","大過","坎","離","咸","恆","遁","大壯","晉","明夷","家人","睽","蹇","解","損","益","夬","姤","萃","升","困","井","革","鼎","震","艮","漸","歸妹","豐","旅","巽","兌","渙","節","中孚","小過","既濟","未濟"];
-const yaoNames = ["初爻","二爻","三爻","四爻","五爻","上爻"];
+  const TAROT_MAJOR = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
+  const ALL_TAROT = [...TAROT_MAJOR,"權杖王牌","權杖二","權杖三","權杖四","權杖五","權杖六","權杖七","權杖八","權杖九","權杖十","權杖侍者","權杖騎士","權杖王后","權杖國王","聖杯王牌","聖杯二","聖杯三","聖杯四","聖杯五","聖杯六","聖杯七","聖杯八","聖杯九","聖杯十","聖杯侍者","聖杯騎士","聖杯王后","聖杯國王","寶劍王牌","寶劍二","寶劍三","寶劍四","寶劍五","寶劍六","寶劍七","寶劍八","寶劍九","寶劍十","寶劍侍者","寶劍騎士","寶劍王后","寶劍國王","錢幣王牌","錢幣二","錢幣三","錢幣四","錢幣五","錢幣六","錢幣七","錢幣八","錢幣九","錢幣十","錢幣侍者","錢幣騎士","錢幣王后","錢幣國王"];
+  const LENORMAND = ["1 騎士","2 幸運草","3 船","4 房屋","5 樹","6 雲","7 蛇","8 棺材","9 花束","10 鐮刀","11 鞭子","12 鳥","13 孩子","14 狐狸","15 熊","16 星星","17 鸛","18 狗","19 塔","20 花園","21 山","22 道路","23 老鼠","24 心","25 戒指","26 書","27 信","28 男人","29 女人","30 百合","31 太陽","32 月亮","33 鑰匙","34 魚","35 錨","36 十字架"];
 
-let state = {
-  page: "question",
-  question: "",
-  system: "",
-  count: 3,
-  cards: [],
-  yaos: [],
-  result: "",
-  busy: false
-};
+  const BAGUA_LINES = {"乾":[1,1,1],"兌":[1,1,0],"離":[1,0,1],"震":[1,0,0],"巽":[0,1,1],"坎":[0,1,0],"艮":[0,0,1],"坤":[0,0,0]};
+  const HEX_T = {
+    "乾乾":"乾","兌乾":"履","離乾":"同人","震乾":"無妄","巽乾":"姤","坎乾":"訟","艮乾":"遁","坤乾":"否",
+    "乾兌":"夬","兌兌":"兌","離兌":"革","震兌":"隨","巽兌":"大過","坎兌":"困","艮兌":"咸","坤兌":"萃",
+    "乾離":"大有","兌離":"睽","離離":"離","震離":"噬嗑","巽離":"鼎","坎離":"未濟","艮離":"旅","坤離":"晉",
+    "乾震":"大壯","兌震":"歸妹","離震":"豐","震震":"震","巽震":"益","坎震":"解","艮震":"小過","坤震":"豫",
+    "乾巽":"小畜","兌巽":"中孚","離巽":"家人","震巽":"恆","巽巽":"巽","坎巽":"渙","艮巽":"漸","坤巽":"觀",
+    "乾坎":"需","兌坎":"節","離坎":"既濟","震坎":"屯","巽坎":"井","坎坎":"坎","艮坎":"蹇","坤坎":"比",
+    "乾艮":"大畜","兌艮":"損","離艮":"賁","震艮":"頤","巽艮":"蠱","坎艮":"蒙","艮艮":"艮","坤艮":"剝",
+    "乾坤":"泰","兌坤":"臨","離坤":"明夷","震坤":"復","巽坤":"升","坎坤":"師","艮坤":"謙","坤坤":"坤"
+  };
+  const HEX_N = {"乾":1,"坤":2,"屯":3,"蒙":4,"需":5,"訟":6,"師":7,"比":8,"小畜":9,"履":10,"泰":11,"否":12,"同人":13,"大有":14,"謙":15,"豫":16,"隨":17,"蠱":18,"臨":19,"觀":20,"噬嗑":21,"賁":22,"剝":23,"復":24,"無妄":25,"大畜":26,"頤":27,"大過":28,"坎":29,"離":30,"咸":31,"恆":32,"遁":33,"大壯":34,"晉":35,"明夷":36,"家人":37,"睽":38,"蹇":39,"解":40,"損":41,"益":42,"夬":43,"姤":44,"萃":45,"升":46,"困":47,"井":48,"革":49,"鼎":50,"震":51,"艮":52,"漸":53,"歸妹":54,"豐":55,"旅":56,"巽":57,"兌":58,"渙":59,"節":60,"中孚":61,"小過":62,"既濟":63,"未濟":64};
+  const YN = ["初爻","二爻","三爻","四爻","五爻","上爻"];
 
-function esc(s){
-  return String(s ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[c]));
-}
+  const ZHI_WX = {子:"水",丑:"土",寅:"木",卯:"木",辰:"土",巳:"火",午:"火",未:"土",申:"金",酉:"金",戌:"土",亥:"水"};
+  const TRI_WX = {乾:"金",兌:"金",震:"木",巽:"木",坎:"水",離:"火",艮:"土",坤:"土"};
+  const NAJIA = {
+    乾:{l:["子","寅","辰"],u:["午","申","戌"]},
+    坎:{l:["寅","辰","午"],u:["申","戌","子"]},
+    艮:{l:["辰","午","申"],u:["戌","子","寅"]},
+    震:{l:["子","寅","辰"],u:["午","申","戌"]},
+    巽:{l:["丑","亥","酉"],u:["未","巳","卯"]},
+    離:{l:["卯","丑","亥"],u:["酉","未","巳"]},
+    坤:{l:["未","巳","卯"],u:["丑","亥","酉"]},
+    兌:{l:["巳","卯","丑"],u:["亥","酉","未"]}
+  };
+  const PALACE = {
+    "乾":{p:"乾",s:6,r:3},"姤":{p:"乾",s:1,r:4},"遁":{p:"乾",s:2,r:5},"否":{p:"乾",s:3,r:6},
+    "觀":{p:"乾",s:4,r:1},"剝":{p:"乾",s:5,r:2},"晉":{p:"乾",s:4,r:1},"大有":{p:"乾",s:3,r:6},
+    "坎":{p:"坎",s:6,r:3},"節":{p:"坎",s:1,r:4},"屯":{p:"坎",s:2,r:5},"既濟":{p:"坎",s:3,r:6},
+    "革":{p:"坎",s:4,r:1},"豐":{p:"坎",s:5,r:2},"明夷":{p:"坎",s:4,r:1},"師":{p:"坎",s:3,r:6},
+    "艮":{p:"艮",s:6,r:3},"賁":{p:"艮",s:1,r:4},"大畜":{p:"艮",s:2,r:5},"損":{p:"艮",s:3,r:6},
+    "睽":{p:"艮",s:4,r:1},"履":{p:"艮",s:5,r:2},"中孚":{p:"艮",s:4,r:1},"漸":{p:"艮",s:3,r:6},
+    "震":{p:"震",s:6,r:3},"豫":{p:"震",s:1,r:4},"解":{p:"震",s:2,r:5},"恆":{p:"震",s:3,r:6},
+    "升":{p:"震",s:4,r:1},"井":{p:"震",s:5,r:2},"大過":{p:"震",s:4,r:1},"隨":{p:"震",s:3,r:6},
+    "巽":{p:"巽",s:6,r:3},"小畜":{p:"巽",s:1,r:4},"家人":{p:"巽",s:2,r:5},"益":{p:"巽",s:3,r:6},
+    "無妄":{p:"巽",s:4,r:1},"噬嗑":{p:"巽",s:5,r:2},"頤":{p:"巽",s:4,r:1},"蠱":{p:"巽",s:3,r:6},
+    "離":{p:"離",s:6,r:3},"旅":{p:"離",s:1,r:4},"鼎":{p:"離",s:2,r:5},"未濟":{p:"離",s:3,r:6},
+    "蒙":{p:"離",s:4,r:1},"渙":{p:"離",s:5,r:2},"訟":{p:"離",s:4,r:1},"同人":{p:"離",s:3,r:6},
+    "坤":{p:"坤",s:6,r:3},"復":{p:"坤",s:1,r:4},"臨":{p:"坤",s:2,r:5},"泰":{p:"坤",s:3,r:6},
+    "大壯":{p:"坤",s:4,r:1},"夬":{p:"坤",s:5,r:2},"需":{p:"坤",s:4,r:1},"比":{p:"坤",s:3,r:6},
+    "兌":{p:"兌",s:6,r:3},"困":{p:"兌",s:1,r:4},"萃":{p:"兌",s:2,r:5},"咸":{p:"兌",s:3,r:6},
+    "蹇":{p:"兌",s:4,r:1},"謙":{p:"兌",s:5,r:2},"小過":{p:"兌",s:4,r:1},"歸妹":{p:"兌",s:3,r:6}
+  };
+  const LIUSHEN = {
+    甲:["青龍","朱雀","勾陳","螣蛇","白虎","玄武"],
+    乙:["青龍","朱雀","勾陳","螣蛇","白虎","玄武"],
+    丙:["朱雀","勾陳","螣蛇","白虎","玄武","青龍"],
+    丁:["朱雀","勾陳","螣蛇","白虎","玄武","青龍"],
+    戊:["勾陳","螣蛇","白虎","玄武","青龍","朱雀"],
+    己:["螣蛇","白虎","玄武","青龍","朱雀","勾陳"],
+    庚:["白虎","玄武","青龍","朱雀","勾陳","螣蛇"],
+    辛:["白虎","玄武","青龍","朱雀","勾陳","螣蛇"],
+    壬:["玄武","青龍","朱雀","勾陳","螣蛇","白虎"],
+    癸:["玄武","青龍","朱雀","勾陳","螣蛇","白虎"]
+  };
 
-function shuffle(arr){
-  const a = [...arr];
-  for(let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function suggest(q){
-  const choose = ["該不該","要不要","是不是","會不會","還是","選","可不可以","有沒有","能不能","好不好","對不對","值不值"];
-  const future = ["會怎樣","怎麼樣","最後","結果","成不成","發展","走向","未來會","後來","結局","下場"];
-  if(choose.some(k => q.includes(k))) return "lenormand";
-  if(future.some(k => q.includes(k))) return "liuyao";
-  return "tarot";
-}
-
-function shell(html){
-  root.innerHTML = `<div class="wrap"><main class="app">${html}</main></div>`;
-  bind();
-}
-
-function questionPage(){
-  shell(`
-    <div class="center">
-      <div class="tiny">愛之謎</div>
-      <h1 style="font-size:32px;margin-top:18px;">Mistero d'Amore</h1>
-      <div class="divider"></div>
-      <p class="muted" style="font-size:12.5px;line-height:2.2;letter-spacing:1px;">將心中所念化為文字<br>天地自有感應</p>
-    </div>
-
-    <div class="panel" style="padding:20px;margin-top:36px;">
-      <textarea id="q" rows="4" maxlength="200" placeholder="輸入你想問的事⋯⋯">${esc(state.question)}</textarea>
-      <div id="qCount" class="muted" style="text-align:right;font-size:10px;margin-top:6px;">${state.question.length}/200</div>
-    </div>
-
-    <div class="chips">
-      ${["她現在對我什麼感覺？","我們還有機會嗎？","該不該跟她告白？","我跟她最後會怎樣？"].map(x => `<button class="chip" data-example="${esc(x)}">${esc(x)}</button>`).join("")}
-    </div>
-
-    <button class="primary" id="start" ${state.question.trim() ? "" : "disabled"}>開 始 占 卜</button>
-  `);
-}
-
-function systemPage(){
-  const rec = suggest(state.question);
   const systems = [
-    ["tarot","塔 羅","78張完整牌組・正逆位","✦"],
-    ["lenormand","雷 諾 曼","36張指引牌","◇"],
-    ["liuyao","六 爻","銅錢起卦・本卦變卦","☰"]
+    { id:"tarot", n:"塔 羅", sub:"78張完整牌組・正逆位", ic:"✦" },
+    { id:"lenormand", n:"雷 諾 曼", sub:"36張指引牌", ic:"◇" },
+    { id:"liuyao", n:"六 爻", sub:"銅錢起卦・本卦變卦", ic:"☰" }
   ];
 
-  shell(`
-    <button class="back" data-back>← 返回</button>
+  const state = {
+    pg:"q",
+    q:"",
+    selected:null,
+    sys:null,
+    cnt:3,
+    cards:[],
+    revealed:[],
+    done:false,
+    yaos:[],
+    busy:false,
+    spin:false,
+    hex:null,
+    result:"",
+    copied:false
+  };
 
-    <div class="center">
-      <h1 style="font-size:26px;">Metodo</h1>
-      <div class="divider"></div>
-    </div>
+  let timer = null;
+  const root = document.getElementById("root");
 
-    <div style="background:#fff;border-left:3px solid #c5d8c7;border-radius:10px;padding:12px 16px;margin:34px 0 24px;font-size:13px;line-height:1.8;color:#555;">
-      「${esc(state.question.length > 35 ? state.question.slice(0,35) + "⋯" : state.question)}」
-    </div>
-
-    ${systems.map(([id,name,sub,icon]) => `
-      <button class="sys ${state.system === id ? "active" : ""}" data-sys="${id}">
-        <span class="icon">${icon}</span>
-        <span>
-          <div style="font-size:14px;letter-spacing:3px;font-weight:500;">${name}</div>
-          <div class="muted" style="font-size:11px;margin-top:2px;">${sub}</div>
-        </span>
-        ${rec === id ? `<span class="tag">推薦</span>` : ""}
-      </button>
-    `).join("")}
-
-    ${(state.system === "tarot" || state.system === "lenormand") ? `
-      <div style="font-size:11px;color:#888;letter-spacing:3px;margin-top:22px;">抽 牌 數 量</div>
-      <div class="counts">
-        <button class="count ${state.count === 3 ? "active" : ""}" data-count="3">
-          <div style="font-size:18px;">3</div>
-          <div class="muted" style="font-size:10px;margin-top:3px;">快速解讀</div>
-        </button>
-        <button class="count ${state.count === 5 ? "active" : ""}" data-count="5">
-          <div style="font-size:18px;">5</div>
-          <div class="muted" style="font-size:10px;margin-top:3px;">深入分析</div>
-        </button>
-      </div>
-    ` : `<div style="height:24px;"></div>`}
-
-    <button class="primary" id="next" ${state.system ? "" : "disabled"}>下 一 步</button>
-  `);
-}
-
-function drawCards(){
-  const source = state.system === "tarot" ? tarot : lenormand;
-  state.cards = shuffle(source).slice(0, state.count).map(name => ({
-    name,
-    reversed: state.system === "tarot" && Math.random() < 0.5
-  }));
-  state.page = "cards";
-  render();
-}
-
-function cardsPage(){
-  const title = state.system === "tarot" ? "Tarocchi" : "Lenormand";
-  shell(`
-    <button class="back" data-back>← 返回</button>
-
-    <div class="center">
-      <h1 style="font-size:24px;">${title}</h1>
-      <div class="muted" style="font-size:11px;margin-top:8px;letter-spacing:2px;">牌面已開</div>
-    </div>
-
-    <div class="cards">
-      ${state.cards.map((c,i) => `
-        <div class="card" style="animation-delay:${i * 90}ms;">
-          ${state.system === "tarot" ? `<div class="${c.reversed ? "rev" : "up"}">${c.reversed ? "逆位" : "正位"}</div>` : ""}
-          <div style="font-size:14px;line-height:1.6;letter-spacing:1px;${c.reversed ? "transform:rotate(180deg)" : ""}">${esc(c.name)}</div>
-          ${state.system === "tarot" && major.includes(c.name) ? `<div style="position:absolute;bottom:8px;font-size:8px;color:#b8956a;">大秘儀</div>` : ""}
-        </div>
-      `).join("")}
-    </div>
-
-    <button class="primary" id="cardResult">Risultato</button>
-  `);
-}
-
-function cardResult(){
-  const name = state.system === "tarot" ? "塔羅" : "雷諾曼";
-  const list = state.cards.map(c => state.system === "tarot" ? `${c.reversed ? "逆位" : "正位"}${c.name}` : c.name);
-  state.result = `【${name}${state.count}張牌結果】\n占問：${state.question}\n\n牌面：${list.join("、")}`;
-  state.page = "result";
-  render();
-}
-
-function tossYao(){
-  const coins = [
-    Math.random() < 0.5 ? "正" : "反",
-    Math.random() < 0.5 ? "正" : "反",
-    Math.random() < 0.5 ? "正" : "反"
-  ];
-  const heads = coins.filter(x => x === "正").length;
-  if(heads === 3) return {coins, value:9, line:1, moving:true, text:"老陽（動）"};
-  if(heads === 2) return {coins, value:8, line:0, moving:false, text:"少陰"};
-  if(heads === 1) return {coins, value:7, line:1, moving:false, text:"少陽"};
-  return {coins, value:6, line:0, moving:true, text:"老陰（動）"};
-}
-
-function hexIndex(yaos){
-  let n = 0;
-  yaos.forEach((y,i) => {
-    if(y.line) n += Math.pow(2,i);
-  });
-  return n % 64;
-}
-
-function changedHexIndex(yaos){
-  let n = 0;
-  yaos.forEach((y,i) => {
-    let line = y.line;
-    if(y.value === 9) line = 0;
-    if(y.value === 6) line = 1;
-    if(line) n += Math.pow(2,i);
-  });
-  return n % 64;
-}
-
-function liuyaoPage(){
-  const complete = state.yaos.length === 6;
-  const h1 = complete ? hexNames[hexIndex(state.yaos)] : "";
-  const h2 = complete ? hexNames[changedHexIndex(state.yaos)] : "";
-  const moving = state.yaos.map((y,i) => y.moving ? yaoNames[i] : null).filter(Boolean);
-
-  shell(`
-    <button class="back" data-back>← 返回</button>
-
-    <div class="center">
-      <h1 style="font-size:24px;">Sei Linee</h1>
-      <div class="muted" style="font-size:12px;margin-top:6px;letter-spacing:3px;">六 爻 起 卦</div>
-      <div class="muted" style="font-size:11px;margin-top:5px;letter-spacing:2px;">${complete ? "卦象已成" : `第 ${state.yaos.length + 1} 爻 / 共 6 爻`}</div>
-    </div>
-
-    ${!complete ? `
-      <div class="coinrow">
-        <div class="coin ${state.busy ? "spin" : ""}"></div>
-        <div class="coin ${state.busy ? "spin" : ""}"></div>
-        <div class="coin ${state.busy ? "spin" : ""}"></div>
-      </div>
-
-      <div style="display:flex;gap:10px;margin-bottom:16px;">
-        <button class="primary" id="one" ${state.busy ? "disabled" : ""} style="flex:1;">擲 銅 錢</button>
-        <button class="ghost" id="all" ${state.busy ? "disabled" : ""} style="flex:1;">一 鍵 六 爻</button>
-      </div>
-      ${state.yaos.length ? `<button id="reset" style="border:none;background:none;color:#aaa;font-size:11px;width:100%;margin-bottom:8px;">← 重擲</button>` : ""}
-    ` : ""}
-
-    ${state.yaos.length ? `
-      <div class="yaoBox">
-        ${[...state.yaos].reverse().map((y,ri) => {
-          const i = state.yaos.length - 1 - ri;
-          return `
-            <div class="yao ${y.moving ? "move" : ""}">
-              <span style="width:36px;color:#888;">${yaoNames[i]}</span>
-              <span class="line">
-                ${y.line ? `<span class="solid"></span>` : `<span class="broken"></span><span class="broken"></span>`}
-              </span>
-              <span style="font-size:11px;color:${y.moving ? "#b8956a" : "#888"};">${y.text}</span>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    ` : ""}
-
-    ${complete ? `
-      <div class="panel center" style="padding:22px 20px;margin-bottom:22px;border-color:#c5d8c7;">
-        <div class="tiny" style="margin-bottom:14px;">Responso</div>
-        <div style="font-size:26px;letter-spacing:6px;">${h1}</div>
-        <div class="muted" style="font-size:12px;margin-top:4px;">本卦</div>
-        ${moving.length ? `
-          <div style="width:1px;height:20px;background:#ddd9d2;margin:12px auto;"></div>
-          <div style="font-size:10px;color:#aaa;letter-spacing:3px;margin-bottom:6px;">變 卦</div>
-          <div style="font-size:26px;letter-spacing:6px;color:#b8956a;">${h2}</div>
-          <div style="margin-top:14px;padding:6px 14px;background:#eaf1eb;border-radius:6px;display:inline-block;font-size:11px;color:#4a6b4e;letter-spacing:2px;">動爻：${moving.join("、")}</div>
-        ` : `<div style="margin-top:14px;font-size:11px;color:#888;">動爻：無</div>`}
-      </div>
-      <button class="primary" id="yaoResult">Risultato</button>
-    ` : ""}
-  `);
-}
-
-function liuyaoResult(){
-  const h1 = hexNames[hexIndex(state.yaos)];
-  const h2 = hexNames[changedHexIndex(state.yaos)];
-  const moving = state.yaos.map((y,i) => y.moving ? yaoNames[i] : null).filter(Boolean);
-
-  let text = `【六爻起卦結果】\n占問：${state.question}\n\n本卦：${h1}\n`;
-  if(moving.length) text += `變卦：${h2}\n`;
-  text += `動爻：${moving.length ? moving.join("、") : "無"}\n\n六爻詳情（上爻→初爻）：\n`;
-
-  for(let i = 5; i >= 0; i--){
-    const y = state.yaos[i];
-    text += `${yaoNames[i]}：${y.coins.join("·")} = ${y.value}，${y.text}\n`;
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
   }
 
-  state.result = text;
-  state.page = "result";
-  render();
-}
-
-function resultPage(){
-  shell(`
-    <div class="center">
-      <h1 style="font-size:24px;">Responso</h1>
-      <div class="divider"></div>
-    </div>
-
-    <div class="result">${esc(state.result)}</div>
-
-    <div style="display:flex;gap:10px;">
-      <button class="primary" id="copy" style="flex:1;letter-spacing:3px;">Copia</button>
-      <button class="ghost" id="again" style="flex:1;">Di Nuovo</button>
-    </div>
-  `);
-}
-
-function render(){
-  if(state.page === "question") questionPage();
-  if(state.page === "system") systemPage();
-  if(state.page === "cards") cardsPage();
-  if(state.page === "liuyao") liuyaoPage();
-  if(state.page === "result") resultPage();
-}
-
-function bind(){
-  const q = document.getElementById("q");
-  if(q){
-    q.addEventListener("input", e => {
-      state.question = e.target.value.slice(0,200);
-      document.getElementById("qCount").textContent = `${state.question.length}/200`;
-      document.getElementById("start").disabled = !state.question.trim();
-    });
+  function clearTimer() {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
   }
 
-  document.querySelectorAll("[data-example]").forEach(btn => {
-    btn.onclick = () => {
-      state.question = btn.dataset.example;
-      render();
-    };
-  });
-
-  const start = document.getElementById("start");
-  if(start){
-    start.onclick = () => {
-      if(!state.question.trim()) return;
-      state.system = "";
-      state.page = "system";
-      render();
-    };
+  function shell(inner) {
+    return `<div class="page-shell"><div class="page-inner">${inner}</div></div>`;
   }
 
-  document.querySelectorAll("[data-sys]").forEach(btn => {
-    btn.onclick = () => {
-      state.system = btn.dataset.sys;
-      render();
-    };
-  });
+  function divider() { return `<div class="divider"></div>`; }
+  function backButton() { return `<button class="back" data-action="back">← 返回</button>`; }
 
-  document.querySelectorAll("[data-count]").forEach(btn => {
-    btn.onclick = () => {
-      state.count = Number(btn.dataset.count);
-      render();
-    };
-  });
+  function suggest(q) {
+    const lk = ["該不該","要不要","是不是","會不會","還是","選","可不可以","有沒有","能不能","好不好","對不對","值不值"];
+    const yk = ["會怎樣","怎麼樣","最後","結果","成不成","發展","走向","未來會","能不能成","後來","結局","下場"];
+    if (lk.some(k => q.includes(k))) return "lenormand";
+    if (yk.some(k => q.includes(k))) return "liuyao";
+    return "tarot";
+  }
 
-  const next = document.getElementById("next");
-  if(next){
-    next.onclick = () => {
-      if(!state.system) return;
-      if(state.system === "liuyao"){
-        state.yaos = [];
-        state.page = "liuyao";
-        render();
-      }else{
-        drawCards();
+  function shuffle(a) {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  }
+  function drawT(n) { return shuffle(ALL_TAROT).slice(0, n).map(c => ({ name:c, rev:Math.random() < 0.5 })); }
+  function drawL(n) { return shuffle(LENORMAND).slice(0, n).map(c => ({ name:c })); }
+
+  function tossYao() {
+    const c = [Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反", Math.random() < 0.5 ? "正" : "反"];
+    const h = c.filter(x => x === "正").length;
+    if (h === 3) return { c, v:9, t:"老陽（動）", l:1, m:true };
+    if (h === 2) return { c, v:8, t:"少陰", l:0, m:false };
+    if (h === 1) return { c, v:7, t:"少陽", l:1, m:false };
+    return { c, v:6, t:"老陰（動）", l:0, m:true };
+  }
+
+  function getTri(lines) {
+    for (const [name, pattern] of Object.entries(BAGUA_LINES)) {
+      if (pattern[0] === lines[0] && pattern[1] === lines[1] && pattern[2] === lines[2]) return name;
+    }
+    return "";
+  }
+
+  function liuqin(meWx, zhiWx) {
+    if (meWx === zhiWx) return "兄弟";
+    const sheng = {木:"水",火:"木",土:"火",金:"土",水:"金"};
+    const ke = {木:"金",火:"水",土:"木",金:"火",水:"土"};
+    const woSheng = {水:"木",木:"火",火:"土",土:"金",金:"水"};
+    if (sheng[meWx] === zhiWx) return "父母";
+    if (ke[meWx] === zhiWx) return "官鬼";
+    if (woSheng[meWx] === zhiWx) return "子孫";
+    return "妻財";
+  }
+
+  function najiaZhi(lowerTri, upperTri) {
+    const low = NAJIA[lowerTri]?.l || ["","",""];
+    const up = NAJIA[upperTri]?.u || ["","",""];
+    return [...low, ...up];
+  }
+
+  function compHex(yaos) {
+    const ls = yaos.map(y => y.l);
+    const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
+    const lo = getTri(ls.slice(0, 3));
+    const up = getTri(ls.slice(3, 6));
+    const lc = getTri(ch.slice(0, 3));
+    const uc = getTri(ch.slice(3, 6));
+    const on = HEX_T[lo + up] || "?";
+    const cn = HEX_T[lc + uc] || "?";
+    const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
+    const oZhi = najiaZhi(lo, up);
+    const cZhi = najiaZhi(lc, uc);
+    const pal = PALACE[on] || null;
+    const palWx = pal ? TRI_WX[pal.p] : null;
+    const ganList = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+    const dayGan = ganList[new Date().getDate() % 10];
+    const shen = LIUSHEN[dayGan] || null;
+
+    const lines = yaos.map((y, i) => {
+      const z = oZhi[i] || "";
+      const zwx = ZHI_WX[z] || "";
+      const lq = palWx && zwx ? liuqin(palWx, zwx) : "";
+      const sh = shen ? shen[i] : "";
+      const role = pal ? (pal.s === i + 1 ? "世" : pal.r === i + 1 ? "應" : "") : "";
+      let cZ = "", cLq = "";
+      if (y.m) {
+        cZ = cZhi[i] || "";
+        const cWx = ZHI_WX[cZ] || "";
+        cLq = palWx && cWx ? liuqin(palWx, cWx) : "";
       }
+      return { z, zwx, lq, sh, role, cZ, cLq };
+    });
+
+    return {
+      o:on, oN:HEX_N[on] || 0, c:cn, cN:HEX_N[cn] || 0,
+      mv, hasM:mv.length > 0, palace:pal ? pal.p : "", palaceWx:palWx || "", lines
     };
   }
 
-  document.querySelectorAll("[data-back]").forEach(btn => {
-    btn.onclick = () => {
-      if(state.page === "system") state.page = "question";
-      else state.page = "system";
+  function formatCardResult() {
+    const sn = state.sys === "tarot" ? "塔羅" : "雷諾曼";
+    const cs = state.cards.map(c => state.sys === "tarot" ? `${c.rev ? "逆位" : "正位"}${c.name}` : c.name);
+    return `【${sn}${state.cnt}張牌結果】\n占問：${state.q}\n\n牌面：${cs.join("、")}`;
+  }
+
+  function formatYaoResult() {
+    const hex = state.hex;
+    const ms = hex.mv.length > 0 ? hex.mv.map(i => YN[i]).join("、") : "無";
+    let t = `【六爻起卦結果】\n占問：${state.q}\n\n`;
+    if (hex.palace) t += `卦宮：${hex.palace}宮（屬${hex.palaceWx}）\n`;
+    t += `本卦：${hex.o}（第${hex.oN}卦）\n`;
+    if (hex.hasM) t += `變卦：${hex.c}（第${hex.cN}卦）\n`;
+    t += `動爻：${ms}\n\n六爻詳情（上爻→初爻）：\n`;
+    for (let i = 5; i >= 0; i--) {
+      const y = state.yaos[i];
+      const ln = hex.lines[i];
+      let row = ` ${YN[i]}`;
+      if (ln.role) row += `【${ln.role}】`;
+      row += ` ${ln.sh || ""} ${ln.z}${ln.zwx}`;
+      if (ln.lq) row += ` ${ln.lq}`;
+      row += ` ─ ${y.c.join("·")}=${y.v} ${y.t}`;
+      if (y.m && ln.cZ) row += `  變→ ${ln.cZ}${ZHI_WX[ln.cZ]}${ln.cLq ? " " + ln.cLq : ""}`;
+      t += row + "\n";
+    }
+    return t;
+  }
+
+  function goQuestion() {
+    clearTimer();
+    Object.assign(state, {pg:"q", q:"", selected:null, sys:null, cnt:3, cards:[], revealed:[], done:false, yaos:[], busy:false, spin:false, hex:null, result:"", copied:false});
+    render();
+  }
+
+  function startCards() {
+    clearTimer();
+    state.cards = state.sys === "tarot" ? drawT(state.cnt) : drawL(state.cnt);
+    state.revealed = [];
+    state.done = false;
+    render();
+
+    let idx = 0;
+    const next = () => {
+      if (idx >= state.cards.length) {
+        state.done = true;
+        render();
+        return;
+      }
+      state.revealed.push(idx);
+      idx += 1;
       render();
+      timer = setTimeout(next, 700);
     };
-  });
+    timer = setTimeout(next, 650);
+  }
 
-  const cardBtn = document.getElementById("cardResult");
-  if(cardBtn) cardBtn.onclick = cardResult;
+  function pageQ() {
+    const examples = ["她現在對我什麼感覺？","我們還有機會嗎？","該不該跟她告白？","我跟她最後會怎樣？"];
+    return shell(`
+      <div class="fade" style="padding:80px 24px 40px;">
+        <div style="text-align:center;margin-bottom:44px;">
+          <div style="font-size:11px;color:#aaa;letter-spacing:6px;margin-bottom:18px;">愛之謎</div>
+          <h1 class="it" style="font-size:32px;font-weight:300;font-style:italic;letter-spacing:2px;margin-bottom:16px;line-height:1.3;">Mistero d'Amore</h1>
+          ${divider()}
+          <p style="font-size:12.5px;color:#888;line-height:2.2;margin-top:16px;letter-spacing:1px;">將心中所念化為文字<br>天地自有感應</p>
+        </div>
+        <div class="panel" style="padding:20px 20px 14px;margin-bottom:12px;">
+          <textarea id="questionInput" placeholder="輸入你想問的事⋯⋯" rows="4" maxlength="200" style="width:100%;border:1px solid #ddd9d2;border-radius:8px;padding:14px 16px;font-size:15px;line-height:1.9;color:#2c2c2c;resize:none;background:#faf8f5;transition:all .3s;">${esc(state.q)}</textarea>
+          <div id="qCount" style="text-align:right;font-size:10px;color:#aaa;margin-top:6px;">${state.q.length}/200</div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:30px;">
+          ${examples.map(e => `<button class="chip" data-example="${esc(e)}">${esc(e)}</button>`).join("")}
+        </div>
+        <button class="primary" id="startBtn" ${state.q.trim() ? "" : "disabled"}>開 始 占 卜</button>
+      </div>
+    `);
+  }
 
-  const one = document.getElementById("one");
-  if(one){
-    one.onclick = () => {
-      if(state.busy || state.yaos.length >= 6) return;
-      state.busy = true;
+  function pageS() {
+    const sg = suggest(state.q);
+    return shell(`
+      ${backButton()}
+      <div class="fade" style="padding:76px 24px 40px;">
+        <div style="text-align:center;margin-bottom:36px;">
+          <h1 class="it" style="font-size:26px;font-weight:300;font-style:italic;letter-spacing:2px;margin-bottom:14px;">Metodo</h1>
+          ${divider()}
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:24px;font-size:13px;color:#555;line-height:1.8;border-left:3px solid #c5d8c7;box-shadow:0 1px 6px rgba(0,0,0,.04);">
+          「${esc(state.q.length > 35 ? state.q.slice(0,35) + "⋯" : state.q)}」
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:24px;">
+          ${systems.map(s => `
+            <button class="sys-btn ${state.selected === s.id ? "active" : ""}" data-system="${s.id}">
+              <span class="sys-icon">${s.ic}</span>
+              <div>
+                <div style="font-size:14px;letter-spacing:3px;color:${state.selected === s.id ? "#4a6b4e" : "#2c2c2c"};font-weight:500;">${s.n}</div>
+                <div style="font-size:11px;color:#888;margin-top:2px;">${s.sub}</div>
+              </div>
+              ${sg === s.id ? `<span class="tag">推薦</span>` : ""}
+            </button>
+          `).join("")}
+        </div>
+        ${(state.selected === "tarot" || state.selected === "lenormand") ? `
+          <div class="slide" style="margin-bottom:24px;">
+            <div style="font-size:11px;color:#888;letter-spacing:3px;margin-bottom:10px;">抽 牌 數 量</div>
+            <div style="display:flex;gap:10px;">
+              ${[3,5].map(n => `
+                <button class="count-btn ${state.cnt === n ? "active" : ""}" data-count="${n}">
+                  <div style="font-size:18px;color:${state.cnt === n ? "#4a6b4e" : "#2c2c2c"};font-weight:500;">${n}</div>
+                  <div style="font-size:10px;color:#888;margin-top:3px;">${n === 3 ? "快速解讀" : "深入分析"}</div>
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
+        <button class="primary" id="nextSystem" ${state.selected ? "" : "disabled"}>下 一 步</button>
+      </div>
+    `);
+  }
+
+  function renderCard(c, globalIndex) {
+    const cnt = state.cnt;
+    const show = state.revealed.includes(globalIndex);
+    const cw = cnt <= 3 ? 98 : 72;
+    const ch = cnt <= 3 ? 152 : 110;
+    const isTarot = state.sys === "tarot";
+    return `
+      <div class="card-wrap ${show ? "show" : ""}" style="width:${cw}px;height:${ch}px;">
+        <div class="card">
+          <div class="card-face card-back">
+            <div class="card-back-inner"><span style="font-size:${cnt <= 3 ? 14 : 10}px;color:rgba(255,255,255,.2);">✦</span></div>
+          </div>
+          <div class="card-face card-front" style="padding:${cnt <= 3 ? 10 : 6}px;">
+            ${c ? `
+              ${isTarot ? `<div style="position:absolute;top:${cnt <= 3 ? 7 : 4}px;font-size:${cnt <= 3 ? 9 : 7}px;letter-spacing:2px;color:${c.rev ? "#c07070" : "#6b8f71"};font-weight:500;">${c.rev ? "逆位" : "正位"}</div>` : ""}
+              <div style="font-size:${cnt <= 3 ? 14 : 10}px;font-weight:500;color:#2c2c2c;letter-spacing:${cnt <= 3 ? 2 : 1}px;text-align:center;line-height:1.6;${isTarot && c.rev ? "transform:rotate(180deg);" : ""}">${esc(c.name)}</div>
+              ${isTarot && TAROT_MAJOR.includes(c.name) ? `<div style="position:absolute;bottom:${cnt <= 3 ? 7 : 4}px;font-size:${cnt <= 3 ? 8 : 6}px;color:#b8956a;letter-spacing:1px;">大秘儀</div>` : ""}
+            ` : ""}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function pageC() {
+    const is5 = state.cnt === 5;
+    const row1 = is5 ? state.cards.slice(0, 3) : state.cards;
+    const row2 = is5 ? state.cards.slice(3, 5) : [];
+    return shell(`
+      ${backButton()}
+      <div class="fade" style="padding:76px 20px 40px;">
+        <div style="text-align:center;margin-bottom:28px;">
+          <h1 class="it" style="font-size:24px;font-weight:300;font-style:italic;letter-spacing:2px;">${state.sys === "tarot" ? "Tarocchi" : "Lenormand"}</h1>
+          <div style="font-size:11px;color:#aaa;margin-top:8px;letter-spacing:2px;">${state.revealed.length < state.cnt ? `${state.revealed.length} / ${state.cnt}` : "牌面已開"}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:32px;">
+          <div style="display:flex;gap:${state.cnt <= 3 ? 10 : 7}px;justify-content:center;">${row1.map((c, i) => renderCard(c, i)).join("")}</div>
+          ${is5 ? `<div style="display:flex;gap:7px;justify-content:center;">${row2.map((c, i) => renderCard(c, i + 3)).join("")}</div>` : ""}
+        </div>
+        ${state.done ? `<div style="animation:slideUp .5s ease;padding:0 4px;"><button class="primary" id="resultCards">Risultato</button></div>` : ""}
+      </div>
+    `);
+  }
+
+  function pageY() {
+    const hex = state.hex;
+    return shell(`
+      ${backButton()}
+      <div class="fade" style="padding:76px 24px 40px;">
+        <div style="text-align:center;margin-bottom:28px;">
+          <h1 class="it" style="font-size:24px;font-weight:300;font-style:italic;letter-spacing:2px;">Sei Linee</h1>
+          <div style="font-size:12px;color:#888;margin-top:6px;letter-spacing:3px;">六 爻 起 卦</div>
+          <div style="font-size:11px;color:#aaa;margin-top:5px;letter-spacing:2px;">${state.yaos.length < 6 ? `第 ${state.yaos.length + 1} 爻 / 共 6 爻` : "卦象已成"}</div>
+        </div>
+
+        ${state.yaos.length < 6 ? `
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="display:flex;justify-content:center;gap:14px;margin-bottom:22px;">
+              ${[0,1,2].map(i => `<div class="coin ${state.spin ? "spin" : ""}" style="animation-delay:${i * .08}s;"></div>`).join("")}
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="primary" id="doOne" ${state.busy ? "disabled" : ""} style="flex:1;">擲 銅 錢</button>
+              <button class="ghost" id="doAll" ${state.busy ? "disabled" : ""} style="flex:1;">一 鍵 六 爻</button>
+            </div>
+            ${state.yaos.length > 0 ? `<button id="resetYao" style="background:none;border:none;color:#aaa;font-size:11px;margin-top:12px;letter-spacing:1px;">← 重擲</button>` : ""}
+          </div>
+        ` : ""}
+
+        ${state.yaos.length > 0 ? `
+          <div style="background:#fff;border-radius:12px;padding:16px 14px;margin-bottom:22px;box-shadow:0 1px 8px rgba(0,0,0,.04);border:1px solid #ddd9d2;">
+            ${hex ? `
+              <div style="display:flex;font-size:9px;color:#aaa;letter-spacing:1px;padding-bottom:8px;margin-bottom:6px;border-bottom:1px dashed #eae6df;text-align:center;">
+                <span style="width:28px;">爻位</span><span style="width:26px;">六神</span><span style="width:36px;">地支</span><span style="width:30px;">六親</span><span style="flex:1;text-align:left;padding-left:6px;">爻象</span><span style="width:22px;">世應</span>
+              </div>
+            ` : ""}
+            ${[...state.yaos].reverse().map((y, ri) => {
+              const i = state.yaos.length - 1 - ri;
+              const ln = hex ? hex.lines[i] : null;
+              return `
+                <div class="yao-row">
+                  <span style="width:28px;font-size:10px;color:#888;text-align:center;flex-shrink:0;">${YN[i]}</span>
+                  <span style="width:26px;font-size:9.5px;color:#9a8868;text-align:center;flex-shrink:0;letter-spacing:.5px;">${ln?.sh || ""}</span>
+                  <span style="width:36px;text-align:center;flex-shrink:0;color:#2c2c2c;font-weight:500;">${ln ? `${ln.z}<span style="font-size:9px;color:#aaa;margin-left:1px;">${ln.zwx}</span>` : ""}</span>
+                  <span style="width:30px;font-size:10px;color:#4a6b4e;text-align:center;flex-shrink:0;font-weight:500;">${ln?.lq || ""}</span>
+                  <div style="flex:1;display:flex;align-items:center;gap:5px;padding-left:6px;min-width:0;">
+                    <div style="display:flex;gap:3px;align-items:center;flex-shrink:0;">
+                      ${y.l === 1
+                        ? `<div style="width:38px;height:7px;background:${y.m ? "#b8956a" : "#6b8f71"};border-radius:2px;"></div>`
+                        : `<div style="width:16px;height:7px;background:${y.m ? "#b8956a" : "#6b8f71"};border-radius:2px;"></div><div style="width:4px;"></div><div style="width:16px;height:7px;background:${y.m ? "#b8956a" : "#6b8f71"};border-radius:2px;"></div>`
+                      }
+                    </div>
+                    <span style="font-size:8.5px;color:${y.m ? "#b8956a" : "#aaa"};white-space:nowrap;">${y.m ? "○動" : ""}</span>
+                  </div>
+                  <span style="width:22px;font-size:10px;font-weight:600;color:${ln?.role === "世" ? "#b8956a" : ln?.role === "應" ? "#6b8f71" : "#ccc"};text-align:center;flex-shrink:0;">${ln?.role || ""}</span>
+                </div>
+              `;
+            }).join("")}
+            ${hex && hex.hasM ? `
+              <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #eae6df;font-size:10px;color:#888;line-height:1.9;">
+                <div style="font-size:9px;color:#b8956a;letter-spacing:2px;margin-bottom:4px;">變 爻</div>
+                ${hex.mv.slice().reverse().map(idx => {
+                  const ln = hex.lines[idx];
+                  return `<div style="display:flex;gap:8px;"><span style="color:#999;">${YN[idx]}：</span><span>${ln.z}${ln.zwx}${ln.lq ? " " + ln.lq : ""} → ${ln.cZ}${ZHI_WX[ln.cZ] || ""}${ln.cLq ? " " + ln.cLq : ""}</span></div>`;
+                }).join("")}
+              </div>
+            ` : ""}
+          </div>
+        ` : ""}
+
+        ${hex ? `
+          <div style="animation:slideUp .6s ease;">
+            <div style="background:#fff;border-radius:12px;padding:22px 20px;margin-bottom:22px;text-align:center;border:1px solid #c5d8c7;box-shadow:0 2px 14px rgba(107,143,113,.08);">
+              <div class="it" style="font-size:11px;color:#aaa;letter-spacing:4px;margin-bottom:14px;font-style:italic;">Responso</div>
+              ${hex.palace ? `<div style="font-size:10.5px;color:#666;margin-bottom:12px;letter-spacing:2px;">${hex.palace}宮　屬${hex.palaceWx}</div>` : ""}
+              <div style="font-size:26px;letter-spacing:6px;color:#2c2c2c;font-weight:500;">${hex.o}</div>
+              <div style="font-size:12px;color:#888;margin-top:4px;">第${hex.oN}卦</div>
+              ${hex.hasM ? `
+                <div style="width:1px;height:20px;background:#ddd9d2;margin:12px auto;"></div>
+                <div style="font-size:10px;color:#aaa;letter-spacing:3px;margin-bottom:6px;">變 卦</div>
+                <div style="font-size:26px;letter-spacing:6px;color:#b8956a;font-weight:500;">${hex.c}</div>
+                <div style="font-size:12px;color:#888;margin-top:4px;">第${hex.cN}卦</div>
+                <div style="margin-top:14px;padding:6px 14px;background:#eaf1eb;border-radius:6px;display:inline-block;font-size:11px;color:#4a6b4e;letter-spacing:2px;">動爻：${hex.mv.map(i => YN[i]).join("、")}</div>
+              ` : ""}
+            </div>
+            <button class="primary" id="resultYao">Risultato</button>
+          </div>
+        ` : ""}
+      </div>
+    `);
+  }
+
+  function pageR() {
+    return shell(`
+      <div class="fade" style="padding:76px 24px 40px;">
+        <div style="text-align:center;margin-bottom:28px;">
+          <h1 class="it" style="font-size:24px;font-weight:300;font-style:italic;letter-spacing:2px;">Responso</h1>
+          ${divider()}
+        </div>
+        <div class="result-box" id="resultText">${esc(state.result)}</div>
+        <div style="display:flex;gap:10px;">
+          <button class="primary" id="copyResult" style="flex:1;letter-spacing:3px;">${state.copied ? "Copiato ✓" : "Copia"}</button>
+          <button class="ghost" id="restart" style="flex:1;">Di Nuovo</button>
+        </div>
+      </div>
+    `);
+  }
+
+  function render() {
+    try {
+      if (state.pg === "q") root.innerHTML = pageQ();
+      if (state.pg === "s") root.innerHTML = pageS();
+      if (state.pg === "c") root.innerHTML = pageC();
+      if (state.pg === "y") root.innerHTML = pageY();
+      if (state.pg === "r") root.innerHTML = pageR();
+      bind();
+    } catch (err) {
+      root.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#666;line-height:1.8;">網頁發生錯誤，請重新整理。<br><small>${esc(err.message)}</small></div>`;
+      console.error(err);
+    }
+  }
+
+  function bind() {
+    const qInput = document.getElementById("questionInput");
+    if (qInput) {
+      qInput.addEventListener("input", e => {
+        state.q = e.target.value.slice(0, 200);
+        const count = document.getElementById("qCount");
+        const btn = document.getElementById("startBtn");
+        if (count) count.textContent = `${state.q.length}/200`;
+        if (btn) btn.disabled = !state.q.trim();
+      });
+    }
+
+    document.querySelectorAll("[data-example]").forEach(btn => btn.addEventListener("click", () => {
+      state.q = btn.getAttribute("data-example");
       render();
-      setTimeout(() => {
+    }));
+
+    const start = document.getElementById("startBtn");
+    if (start) start.addEventListener("click", () => {
+      if (!state.q.trim()) return;
+      state.selected = null;
+      state.pg = "s";
+      render();
+    });
+
+    document.querySelectorAll("[data-system]").forEach(btn => btn.addEventListener("click", () => {
+      state.selected = btn.getAttribute("data-system");
+      render();
+    }));
+
+    document.querySelectorAll("[data-count]").forEach(btn => btn.addEventListener("click", () => {
+      state.cnt = Number(btn.getAttribute("data-count"));
+      render();
+    }));
+
+    const next = document.getElementById("nextSystem");
+    if (next) next.addEventListener("click", () => {
+      if (!state.selected) return;
+      state.sys = state.selected;
+      if (state.sys === "liuyao") {
+        Object.assign(state, {pg:"y", yaos:[], busy:false, spin:false, hex:null});
+        render();
+      } else {
+        state.pg = "c";
+        startCards();
+      }
+    });
+
+    document.querySelectorAll("[data-action='back']").forEach(btn => btn.addEventListener("click", () => {
+      clearTimer();
+      if (state.pg === "s") state.pg = "q";
+      else if (state.pg === "c" || state.pg === "y") state.pg = "s";
+      else state.pg = "q";
+      render();
+    }));
+
+    const resultCards = document.getElementById("resultCards");
+    if (resultCards) resultCards.addEventListener("click", () => {
+      state.result = formatCardResult();
+      state.pg = "r";
+      render();
+    });
+
+    const doOne = document.getElementById("doOne");
+    if (doOne) doOne.addEventListener("click", () => {
+      if (state.busy || state.yaos.length >= 6) return;
+      state.busy = true;
+      state.spin = true;
+      render();
+      timer = setTimeout(() => {
         state.yaos.push(tossYao());
         state.busy = false;
+        state.spin = false;
+        if (state.yaos.length === 6) state.hex = compHex(state.yaos);
         render();
-      }, 500);
-    };
-  }
+      }, 520);
+    });
 
-  const all = document.getElementById("all");
-  if(all){
-    all.onclick = () => {
-      if(state.busy) return;
+    const doAll = document.getElementById("doAll");
+    if (doAll) doAll.addEventListener("click", () => {
+      if (state.busy) return;
       state.busy = true;
+      state.spin = true;
       render();
-      setTimeout(() => {
-        state.yaos = Array.from({length:6}, tossYao);
+      timer = setTimeout(() => {
+        state.yaos = Array.from({length:6}, () => tossYao());
+        state.hex = compHex(state.yaos);
         state.busy = false;
+        state.spin = false;
         render();
-      }, 650);
-    };
-  }
+      }, 700);
+    });
 
-  const reset = document.getElementById("reset");
-  if(reset){
-    reset.onclick = () => {
-      state.yaos = [];
-      state.busy = false;
+    const resetYao = document.getElementById("resetYao");
+    if (resetYao) resetYao.addEventListener("click", () => {
+      clearTimer();
+      Object.assign(state, {yaos:[], busy:false, spin:false, hex:null});
       render();
-    };
-  }
+    });
 
-  const yaoBtn = document.getElementById("yaoResult");
-  if(yaoBtn) yaoBtn.onclick = liuyaoResult;
+    const resultYao = document.getElementById("resultYao");
+    if (resultYao) resultYao.addEventListener("click", () => {
+      state.result = formatYaoResult();
+      state.pg = "r";
+      render();
+    });
 
-  const copy = document.getElementById("copy");
-  if(copy){
-    copy.onclick = async () => {
-      try{
-        await navigator.clipboard.writeText(state.result);
-        copy.textContent = "Copiato ✓";
-      }catch(e){
+    const copyResult = document.getElementById("copyResult");
+    if (copyResult) copyResult.addEventListener("click", async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(state.result);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = state.result;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        state.copied = true;
+        render();
+        setTimeout(() => { state.copied = false; render(); }, 1800);
+      } catch (e) {
         alert("複製失敗，請手動選取文字。");
       }
-    };
+    });
+
+    const restart = document.getElementById("restart");
+    if (restart) restart.addEventListener("click", goQuestion);
   }
 
-  const again = document.getElementById("again");
-  if(again){
-    again.onclick = () => {
-      state = {
-        page: "question",
-        question: "",
-        system: "",
-        count: 3,
-        cards: [],
-        yaos: [],
-        result: "",
-        busy: false
-      };
-      render();
-    };
-  }
-}
-
-try{
   render();
-}catch(e){
-  root.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#666;line-height:1.8;">網頁發生錯誤，請重新整理。<br><small>${esc(e.message)}</small></div>`;
-}
+})();
 </script>
 </body>
 </html>
