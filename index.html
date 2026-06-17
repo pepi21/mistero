@@ -19,7 +19,6 @@ const ALL_TAROT = [...TAROT_MAJOR,"權杖王牌","權杖二","權杖三","權杖
 const LENORMAND = ["1 騎士","2 幸運草","3 船","4 房屋","5 樹","6 雲","7 蛇","8 棺材","9 花束","10 鐮刀","11 鞭子","12 鳥","13 孩子","14 狐狸","15 熊","16 星星","17 鸛","18 狗","19 塔","20 花園","21 山","22 道路","23 老鼠","24 心","25 戒指","26 書","27 信","28 男人","29 女人","30 百合","31 太陽","32 月亮","33 鑰匙","34 魚","35 錨","36 十字架"];
 const BAGUA_LINES = {"乾":[1,1,1],"兌":[1,1,0],"離":[1,0,1],"震":[1,0,0],"巽":[0,1,1],"坎":[0,1,0],"艮":[0,0,1],"坤":[0,0,0]};
 
-// 卦表（key = 上卦+下卦）
 const HEX_T = {
 "乾乾":"乾","兌乾":"履","離乾":"同人","震乾":"無妄","巽乾":"姤","坎乾":"訟","艮乾":"遁","坤乾":"否",
 "乾兌":"夬","兌兌":"兌","離兌":"革","震兌":"隨","巽兌":"大過","坎兌":"困","艮兌":"咸","坤兌":"萃",
@@ -33,10 +32,8 @@ const HEX_T = {
 const HEX_N = {"乾":1,"坤":2,"屯":3,"蒙":4,"需":5,"訟":6,"師":7,"比":8,"小畜":9,"履":10,"泰":11,"否":12,"同人":13,"大有":14,"謙":15,"豫":16,"隨":17,"蠱":18,"臨":19,"觀":20,"噬嗑":21,"賁":22,"剝":23,"復":24,"無妄":25,"大畜":26,"頤":27,"大過":28,"坎":29,"離":30,"咸":31,"恆":32,"遁":33,"大壯":34,"晉":35,"明夷":36,"家人":37,"睽":38,"蹇":39,"解":40,"損":41,"益":42,"夬":43,"姤":44,"萃":45,"升":46,"困":47,"井":48,"革":49,"鼎":50,"震":51,"艮":52,"漸":53,"歸妹":54,"豐":55,"旅":56,"巽":57,"兌":58,"渙":59,"節":60,"中孚":61,"小過":62,"既濟":63,"未濟":64};
 const YN = ["初爻","二爻","三爻","四爻","五爻","上爻"];
 
-// ═══ 六爻擴充：納甲、卦宮、世應、五行、六親、六神 ═══
 const ZHI_WX = {子:"水",丑:"土",寅:"木",卯:"木",辰:"土",巳:"火",午:"火",未:"土",申:"金",酉:"金",戌:"土",亥:"水"};
 const TRI_WX = {乾:"金",兌:"金",震:"木",巽:"木",坎:"水",離:"火",艮:"土",坤:"土"};
-// 納甲：每個八卦下三爻(l)與上三爻(u)的地支
 const NAJIA = {
 乾:{l:["子","寅","辰"],u:["午","申","戌"]},
 坎:{l:["寅","辰","午"],u:["申","戌","子"]},
@@ -47,7 +44,6 @@ const NAJIA = {
 坤:{l:["未","巳","卯"],u:["丑","亥","酉"]},
 兌:{l:["巳","卯","丑"],u:["亥","酉","未"]}
 };
-// 卦宮、世位、應位（s=世爻位 1-6，r=應爻位）
 const PALACE = {
 "乾":{p:"乾",s:6,r:3},"姤":{p:"乾",s:1,r:4},"遁":{p:"乾",s:2,r:5},"否":{p:"乾",s:3,r:6},
 "觀":{p:"乾",s:4,r:1},"剝":{p:"乾",s:5,r:2},"晉":{p:"乾",s:4,r:1},"大有":{p:"乾",s:3,r:6},
@@ -66,7 +62,6 @@ const PALACE = {
 "兌":{p:"兌",s:6,r:3},"困":{p:"兌",s:1,r:4},"萃":{p:"兌",s:2,r:5},"咸":{p:"兌",s:3,r:6},
 "蹇":{p:"兌",s:4,r:1},"謙":{p:"兌",s:5,r:2},"小過":{p:"兌",s:4,r:1},"歸妹":{p:"兌",s:3,r:6}
 };
-// 六神（依日干起，從初爻往上）
 const LIUSHEN = {
 甲:["青龍","朱雀","勾陳","螣蛇","白虎","玄武"],
 乙:["青龍","朱雀","勾陳","螣蛇","白虎","玄武"],
@@ -79,7 +74,6 @@ const LIUSHEN = {
 壬:["玄武","青龍","朱雀","勾陳","螣蛇","白虎"],
 癸:["玄武","青龍","朱雀","勾陳","螣蛇","白虎"]
 };
-// 六親：以卦宮五行為「我」對爻地支五行的關係
 function liuqin(meWx, zhiWx) {
   if (meWx === zhiWx) return "兄弟";
   const sheng = {木:"水",火:"木",土:"火",金:"土",水:"金"};
@@ -93,7 +87,6 @@ function liuqin(meWx, zhiWx) {
 function najiaZhi(lowerTri, upperTri) {
   return [...NAJIA[lowerTri].l, ...NAJIA[upperTri].u];
 }
-// 取當下四柱（用 lunar-javascript，無則回 null）
 function getBazi() {
   try {
     if (typeof Solar === "undefined") return null;
@@ -133,11 +126,9 @@ function compHex(yaos) {
   const ch = yaos.map(y => y.v === 9 ? 0 : y.v === 6 ? 1 : y.l);
   const lo = getTri(ls.slice(0, 3)), up = getTri(ls.slice(3, 6));
   const lc = getTri(ch.slice(0, 3)), uc = getTri(ch.slice(3, 6));
-  // HEX_T 的 key 是「下卦+上卦」順序（例如 "兌乾":"履" = 下兌上乾 = 天澤履）
   const on = HEX_T[lo + up] || "?", cn = HEX_T[lc + uc] || "?";
   const mv = yaos.map((y, i) => y.m ? i : -1).filter(i => i >= 0);
 
-  // ─── 擴充資訊 ───
   const oZhi = najiaZhi(lo, up);
   const cZhi = najiaZhi(lc, uc);
   const pal  = PALACE[on] || null;
@@ -146,7 +137,6 @@ function compHex(yaos) {
   const dayGan = bazi ? bazi.d[0] : null;
   const shen = dayGan && LIUSHEN[dayGan] ? LIUSHEN[dayGan] : null;
 
-  // 每爻整合：地支/五行/六親/六神/世應/變爻
   const lines = yaos.map((y, i) => {
     const z = oZhi[i];
     const zwx = ZHI_WX[z];
@@ -478,7 +468,6 @@ function PageY({ question, onResult, onBack }) {
 
         {yaos.length > 0 && (
           <div style={{ background:"#fff", borderRadius:12, padding:"16px 14px", marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2" }}>
-            {/* 表頭 */}
             {hex && (
               <div style={{ display:"flex", fontSize:9, color:"#aaa", letterSpacing:1, paddingBottom:8, marginBottom:6, borderBottom:"1px dashed #eae6df", textAlign:"center" }}>
                 <span style={{ width:28 }}>爻位</span>
@@ -514,7 +503,6 @@ function PageY({ question, onResult, onBack }) {
               );
             })}
 
-            {/* 變爻地支列（若有動爻） */}
             {hex && hex.hasM && (
               <div style={{ marginTop:10, paddingTop:10, borderTop:"1px dashed #eae6df", fontSize:10, color:"#888", lineHeight:1.9 }}>
                 <div style={{ fontSize:9, color:"#b8956a", letterSpacing:2, marginBottom:4 }}>變 爻</div>
@@ -537,7 +525,6 @@ function PageY({ question, onResult, onBack }) {
             <div style={{ background:"#fff", borderRadius:12, padding:"22px 20px", marginBottom:22, textAlign:"center", border:"1px solid #c5d8c7", boxShadow:"0 2px 14px rgba(107,143,113,0.08)" }}>
               <div className="it" style={{ fontSize:11, color:"#aaa", letterSpacing:4, marginBottom:14, fontStyle:"italic" }}>Responso</div>
 
-              {/* 四柱 */}
               {hex.bazi && (
                 <div style={{ fontSize:10.5, color:"#888", lineHeight:1.9, marginBottom:14, letterSpacing:1 }}>
                   <div style={{ fontSize:9, color:"#b8956a", letterSpacing:3, marginBottom:4 }}>年 月 日 時</div>
@@ -584,7 +571,7 @@ function PageR({ result, onRestart }) {
   return (
     <Wrap>
       <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-        <div style={{ textAlign:"center", marginBottom:16 }}>
+        <div style={{ textAlign:"center", marginBottom:isLY ? 28 : 16 }}>
           <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Responso</h1>
           <Dv />
         </div>
@@ -593,69 +580,69 @@ function PageR({ result, onRestart }) {
           <div>
 
             {/* 占問 */}
-            <div style={{ textAlign:"center", marginBottom:18 }}>
-              <div style={{ display:"inline-block", background:"#f3f0ea", borderRadius:6, padding:"7px 16px", border:"1px solid #eae6df" }}>
+            <div style={{ textAlign:"center", marginBottom:28 }}>
+              <div style={{ display:"inline-block", background:"#f3f0ea", borderRadius:6, padding:"9px 18px", border:"1px solid #eae6df" }}>
                 <span style={{ fontSize:12, color:"#888", letterSpacing:0.5 }}>{result.question}</span>
               </div>
             </div>
 
             {/* 本卦 → 變卦 大字展示 */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginBottom:28 }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20, marginBottom:36 }}>
               <div style={{ textAlign:"center" }}>
-                <div style={{ fontSize:9, color:"#aaa", letterSpacing:3, marginBottom:8 }}>本 卦</div>
-                <div style={{ fontSize:34, letterSpacing:4, color:"#2c2c2c", fontWeight:500 }}>{result.hex.o}</div>
-                <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>第{result.hex.oN}卦</div>
+                <div style={{ fontSize:9, color:"#aaa", letterSpacing:3, marginBottom:10 }}>本 卦</div>
+                <div style={{ fontSize:36, letterSpacing:4, color:"#2c2c2c", fontWeight:500 }}>{result.hex.o}</div>
+                <div style={{ fontSize:11, color:"#aaa", marginTop:6 }}>第{result.hex.oN}卦</div>
               </div>
               {result.hex.hasM && (<>
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingTop:12 }}>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingTop:14 }}>
                   <div style={{ width:28, height:1, background:"#ddd9d2" }} />
                   <span style={{ fontSize:10, color:"#b8956a", letterSpacing:2 }}>→</span>
                   <div style={{ width:28, height:1, background:"#ddd9d2" }} />
                 </div>
                 <div style={{ textAlign:"center" }}>
-                  <div style={{ fontSize:9, color:"#b8956a", letterSpacing:3, marginBottom:8 }}>變 卦</div>
-                  <div style={{ fontSize:34, letterSpacing:4, color:"#b8956a", fontWeight:500 }}>{result.hex.c}</div>
-                  <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>第{result.hex.cN}卦</div>
+                  <div style={{ fontSize:9, color:"#b8956a", letterSpacing:3, marginBottom:10 }}>變 卦</div>
+                  <div style={{ fontSize:36, letterSpacing:4, color:"#b8956a", fontWeight:500 }}>{result.hex.c}</div>
+                  <div style={{ fontSize:11, color:"#aaa", marginTop:6 }}>第{result.hex.cN}卦</div>
                 </div>
               </>)}
             </div>
 
             {/* 摘要卡片 */}
-            <div style={{ display:"flex", gap:8, marginBottom:22 }}>
+            <div style={{ display:"flex", gap:10, marginBottom:30 }}>
               {result.hex.palace && (
-                <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"14px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:6 }}>卦宮</div>
-                  <div style={{ fontSize:14, color:"#2c2c2c", fontWeight:500 }}>{result.hex.palace}</div>
-                  <div style={{ fontSize:9, color:"#888", marginTop:2 }}>屬{result.hex.palaceWx}</div>
+                <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>卦宮</div>
+                  <div style={{ fontSize:15, color:"#2c2c2c", fontWeight:500 }}>{result.hex.palace}</div>
+                  <div style={{ fontSize:9, color:"#888", marginTop:4 }}>屬{result.hex.palaceWx}</div>
                 </div>
               )}
-              <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"14px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:6 }}>動爻</div>
-                <div style={{ fontSize:14, color:"#b8956a", fontWeight:500 }}>{result.hex.mv.length > 0 ? result.hex.mv.map(i => YN[i]).join("、") : "無"}</div>
+              <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+                <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>動爻</div>
+                <div style={{ fontSize:15, color:"#b8956a", fontWeight:500 }}>{result.hex.mv.length > 0 ? result.hex.mv.map(i => YN[i]).join("、") : "無"}</div>
               </div>
               {result.hex.bazi && (
-                <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"14px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:6 }}>日柱</div>
-                  <div style={{ fontSize:14, color:"#2c2c2c", fontWeight:500 }}>{result.hex.bazi.d}</div>
+                <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>日柱</div>
+                  <div style={{ fontSize:15, color:"#2c2c2c", fontWeight:500 }}>{result.hex.bazi.d}</div>
                 </div>
               )}
             </div>
 
             {/* 可展開的六爻詳情 */}
-            <button onClick={() => setShowDetail(!showDetail)} style={{ width:"100%", padding:"14px 18px", background:"#fff", border:"1px solid #eae6df", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:showDetail?0:22, borderBottomLeftRadius:showDetail?0:10, borderBottomRightRadius:showDetail?0:10, boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+            <button onClick={() => setShowDetail(!showDetail)} style={{ width:"100%", padding:"16px 18px", background:"#fff", border:"1px solid #eae6df", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:showDetail?0:30, borderBottomLeftRadius:showDetail?0:10, borderBottomRightRadius:showDetail?0:10, boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
               <span style={{ fontSize:12, color:"#888", letterSpacing:2 }}>六 爻 詳 情</span>
               <span style={{ fontSize:11, color:"#aaa", transition:"transform 0.3s", transform:showDetail?"rotate(180deg)":"rotate(0deg)" }}>▼</span>
             </button>
             {showDetail && (
-              <div style={{ background:"#fff", borderTop:"1px dashed #eae6df", borderLeft:"1px solid #eae6df", borderRight:"1px solid #eae6df", borderBottom:"1px solid #eae6df", borderBottomLeftRadius:10, borderBottomRightRadius:10, padding:"14px 14px", marginBottom:22, animation:"sd 0.3s ease", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+              <div style={{ background:"#fff", borderTop:"1px dashed #eae6df", borderLeft:"1px solid #eae6df", borderRight:"1px solid #eae6df", borderBottom:"1px solid #eae6df", borderBottomLeftRadius:10, borderBottomRightRadius:10, padding:"16px 14px", marginBottom:30, animation:"sd 0.3s ease", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
                 {/* 四柱完整 */}
                 {result.hex.bazi && (
-                  <div style={{ fontSize:10, color:"#888", textAlign:"center", marginBottom:12, lineHeight:1.8, letterSpacing:1 }}>
+                  <div style={{ fontSize:10, color:"#888", textAlign:"center", marginBottom:14, lineHeight:1.8, letterSpacing:1 }}>
                     {result.hex.bazi.y}年・{result.hex.bazi.m}月・{result.hex.bazi.d}日・{result.hex.bazi.h}時
                   </div>
                 )}
                 {/* 表格 */}
-                <div style={{ display:"flex", fontSize:9, color:"#aaa", letterSpacing:1, paddingBottom:8, marginBottom:6, borderBottom:"1px dashed #eae6df", textAlign:"center" }}>
+                <div style={{ display:"flex", fontSize:9, color:"#aaa", letterSpacing:1, paddingBottom:10, marginBottom:8, borderBottom:"1px dashed #eae6df", textAlign:"center" }}>
                   <span style={{ width:28 }}>爻位</span>
                   <span style={{ width:26 }}>六神</span>
                   <span style={{ width:36 }}>地支</span>
@@ -667,7 +654,7 @@ function PageR({ result, onRestart }) {
                   const i = result.yaos.length - 1 - ri;
                   const ln = result.hex.lines[i];
                   return (
-                    <div key={i} style={{ display:"flex", alignItems:"center", padding:"7px 0", borderBottom:ri<result.yaos.length-1?"1px solid #f3efe8":"none", fontSize:10.5, color:"#555" }}>
+                    <div key={i} style={{ display:"flex", alignItems:"center", padding:"9px 0", borderBottom:ri<result.yaos.length-1?"1px solid #f3efe8":"none", fontSize:10.5, color:"#555" }}>
                       <span style={{ width:28, fontSize:10, color:"#888", textAlign:"center", flexShrink:0 }}>{YN[i]}</span>
                       <span style={{ width:26, fontSize:9.5, color:"#9a8868", textAlign:"center", flexShrink:0, letterSpacing:0.5 }}>{ln ? ln.sh || "" : ""}</span>
                       <span style={{ width:36, textAlign:"center", flexShrink:0, color:"#2c2c2c", fontWeight:500 }}>
@@ -688,12 +675,12 @@ function PageR({ result, onRestart }) {
                   );
                 })}
                 {result.hex.hasM && (
-                  <div style={{ marginTop:10, paddingTop:10, borderTop:"1px dashed #eae6df", fontSize:10, color:"#888", lineHeight:1.9 }}>
-                    <div style={{ fontSize:9, color:"#b8956a", letterSpacing:2, marginBottom:4 }}>變 爻</div>
+                  <div style={{ marginTop:14, paddingTop:14, borderTop:"1px dashed #eae6df", fontSize:10, color:"#888", lineHeight:2.0 }}>
+                    <div style={{ fontSize:9, color:"#b8956a", letterSpacing:2, marginBottom:6 }}>變 爻</div>
                     {result.hex.mv.slice().reverse().map(idx => {
                       const ln = result.hex.lines[idx];
                       return (
-                        <div key={idx} style={{ display:"flex", gap:8 }}>
+                        <div key={idx} style={{ display:"flex", gap:8, marginBottom:2 }}>
                           <span style={{ color:"#999" }}>{YN[idx]}：</span>
                           <span>{ln.z}{ln.zwx}{ln.lq?" "+ln.lq:""} → {ln.cZ}{ZHI_WX[ln.cZ]}{ln.cLq?" "+ln.cLq:""}</span>
                         </div>
