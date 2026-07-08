@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#f3f0ea">
 <title>愛之謎 Mistero d'Amore</title>
 </head>
 <body>
@@ -160,7 +159,7 @@ function compHex(yaos) {
 const G = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500;600&display=swap');
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#f3f0ea; font-family:'Noto Serif TC',serif; color:#2c2c2c; -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%; overflow-x:hidden; }
+body { background:#f3f0ea; font-family:'Noto Serif TC',serif; color:#2c2c2c; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
 .it { font-family:'Cormorant Garamond','Noto Serif TC',serif; }
 @keyframes fu { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 @keyframes sd { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
@@ -218,8 +217,8 @@ function PageQ({ onNext }) {
         <Dv />
         <p style={{ fontSize:12.5, color:"#888", lineHeight:2.2, marginTop:16, letterSpacing:1 }}>將心中所念化為文字<br/>天地自有感應</p>
       </div>
-      <div style={{ background:"#fff", borderRadius:12, padding:"20px 20px 14px", boxShadow:"0 1px 8px rgba(0,0,0,0.04)", marginBottom:12, border:"1px solid #ddd9d2" }}>
-        <textarea value={q} onChange={e => setQ(e.target.value.slice(0, 200))} placeholder="輸入你想問的事⋯⋯" rows={4} style={{ width:"100%", border:"1px solid #ddd9d2", borderRadius:8, padding:"14px 16px", fontSize:16, lineHeight:1.8, color:"#2c2c2c", fontFamily:"'Noto Serif TC',serif", resize:"none", background:"#faf8f5", transition:"all 0.3s" }} />
+      <div style={{ background:"#fff", borderRadius:14, padding:"20px 20px 14px", boxShadow:"0 1px 10px rgba(0,0,0,0.04)", marginBottom:12, border:"1px solid #ddd9d2" }}>
+        <textarea value={q} onChange={e => setQ(e.target.value.slice(0, 200))} placeholder="輸入你想問的事⋯⋯" rows={4} style={{ width:"100%", border:"1px solid #ddd9d2", borderRadius:8, padding:"14px 16px", fontSize:15, lineHeight:1.9, color:"#2c2c2c", fontFamily:"'Noto Serif TC',serif", resize:"none", background:"#faf8f5", transition:"all 0.3s" }} />
         <div style={{ textAlign:"right", fontSize:10, color:"#aaa", marginTop:6 }}>{q.length}/200</div>
       </div>
       <div style={{ display:"flex", gap:7, flexWrap:"wrap", marginBottom:30 }}>
@@ -244,7 +243,7 @@ function PageS({ question, onNext, onBack }) {
     <Wrap><BkBtn onClick={onBack} />
       <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
         <div style={{ textAlign:"center", marginBottom:36 }}>
-          <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 }}>Metodo</h1>
+          <h1 className="it" style={{ fontSize:26, fontWeight:300, fontStyle:"italic", letterSpacing:2, marginBottom:14 }}>Metodo</h1>
           <Dv />
         </div>
         <div style={{ background:"#fff", borderRadius:10, padding:"12px 16px", marginBottom:24, fontSize:13, color:"#555", lineHeight:1.8, borderLeft:"3px solid #c5d8c7", boxShadow:"0 1px 6px rgba(0,0,0,0.04)" }}>
@@ -360,7 +359,7 @@ function PageC({ system, cnt, question, onResult, onBack }) {
 
   return (
     <Wrap><BkBtn onClick={onBack} />
-      <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
+      <div style={{ padding:"76px 20px 40px", animation:"fu 0.6s ease" }}>
         <div style={{ textAlign:"center", marginBottom:28 }}>
           <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>
             {system === "tarot" ? "Tarocchi" : "Lenormand"}
@@ -379,7 +378,7 @@ function PageC({ system, cnt, question, onResult, onBack }) {
             </div>
           )}
         </div>
-        {done && <div style={{ animation:"slideUp 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult({ text: fmt(), system, cards, question })}>Risultato</PBtn></div>}
+        {done && <div style={{ animation:"slideUp 0.5s ease", padding:"0 4px" }}><PBtn onClick={() => onResult({ text: fmt(), system })}>Risultato</PBtn></div>}
       </div></Wrap>
   );
 }
@@ -572,22 +571,20 @@ function PageR({ result, onRestart }) {
   return (
     <Wrap>
       <div style={{ padding:"76px 24px 40px", animation:"fu 0.6s ease" }}>
-        <div style={{ textAlign:"center", marginBottom:28 }}>
+        <div style={{ textAlign:"center", marginBottom:isLY ? 28 : 16 }}>
           <h1 className="it" style={{ fontSize:24, fontWeight:300, fontStyle:"italic", letterSpacing:2 }}>Responso</h1>
           <Dv />
         </div>
 
-        {/* 占問 */}
-        {result.question && (
-          <div style={{ textAlign:"center", marginBottom:28 }}>
-            <div style={{ display:"inline-block", maxWidth:"100%", background:"#fff", borderRadius:8, padding:"9px 18px", border:"1px solid #ddd9d2", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-              <span style={{ fontSize:12, color:"#888", letterSpacing:0.5, lineHeight:1.8 }}>{result.question}</span>
-            </div>
-          </div>
-        )}
-
         {isLY ? (
           <div>
+
+            {/* 占問 */}
+            <div style={{ textAlign:"center", marginBottom:28 }}>
+              <div style={{ display:"inline-block", background:"#f3f0ea", borderRadius:6, padding:"9px 18px", border:"1px solid #eae6df" }}>
+                <span style={{ fontSize:12, color:"#888", letterSpacing:0.5 }}>{result.question}</span>
+              </div>
+            </div>
 
             {/* 本卦 → 變卦 大字展示 */}
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20, marginBottom:36 }}>
@@ -613,18 +610,18 @@ function PageR({ result, onRestart }) {
             {/* 摘要卡片 */}
             <div style={{ display:"flex", gap:10, marginBottom:30 }}>
               {result.hex.palace && (
-                <div style={{ flex:1, background:"#fff", borderRadius:12, padding:"16px 10px", textAlign:"center", border:"1px solid #ddd9d2", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+                <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
                   <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>卦宮</div>
                   <div style={{ fontSize:15, color:"#2c2c2c", fontWeight:500 }}>{result.hex.palace}</div>
                   <div style={{ fontSize:9, color:"#888", marginTop:4 }}>屬{result.hex.palaceWx}</div>
                 </div>
               )}
-              <div style={{ flex:1, background:"#fff", borderRadius:12, padding:"16px 10px", textAlign:"center", border:"1px solid #ddd9d2", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+              <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
                 <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>動爻</div>
                 <div style={{ fontSize:15, color:"#b8956a", fontWeight:500 }}>{result.hex.mv.length > 0 ? result.hex.mv.map(i => YN[i]).join("、") : "無"}</div>
               </div>
               {result.hex.bazi && (
-                <div style={{ flex:1, background:"#fff", borderRadius:12, padding:"16px 10px", textAlign:"center", border:"1px solid #ddd9d2", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+                <div style={{ flex:1, background:"#fff", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
                   <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>日柱</div>
                   <div style={{ fontSize:15, color:"#2c2c2c", fontWeight:500 }}>{result.hex.bazi.d}</div>
                 </div>
@@ -632,12 +629,12 @@ function PageR({ result, onRestart }) {
             </div>
 
             {/* 可展開的六爻詳情 */}
-            <button onClick={() => setShowDetail(!showDetail)} style={{ width:"100%", padding:"16px 18px", background:"#fff", border:"1px solid #ddd9d2", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:showDetail?0:30, borderBottomLeftRadius:showDetail?0:12, borderBottomRightRadius:showDetail?0:12, boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+            <button onClick={() => setShowDetail(!showDetail)} style={{ width:"100%", padding:"16px 18px", background:"#fff", border:"1px solid #eae6df", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:showDetail?0:30, borderBottomLeftRadius:showDetail?0:10, borderBottomRightRadius:showDetail?0:10, boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
               <span style={{ fontSize:12, color:"#888", letterSpacing:2 }}>六 爻 詳 情</span>
               <span style={{ fontSize:11, color:"#aaa", transition:"transform 0.3s", transform:showDetail?"rotate(180deg)":"rotate(0deg)" }}>▼</span>
             </button>
             {showDetail && (
-              <div style={{ background:"#fff", borderTop:"1px dashed #eae6df", borderLeft:"1px solid #ddd9d2", borderRight:"1px solid #ddd9d2", borderBottom:"1px solid #ddd9d2", borderBottomLeftRadius:12, borderBottomRightRadius:12, padding:"16px 14px", marginBottom:30, animation:"sd 0.3s ease", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
+              <div style={{ background:"#fff", borderTop:"1px dashed #eae6df", borderLeft:"1px solid #eae6df", borderRight:"1px solid #eae6df", borderBottom:"1px solid #eae6df", borderBottomLeftRadius:10, borderBottomRightRadius:10, padding:"16px 14px", marginBottom:30, animation:"sd 0.3s ease", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
                 {/* 四柱完整 */}
                 {result.hex.bazi && (
                   <div style={{ fontSize:10, color:"#888", textAlign:"center", marginBottom:14, lineHeight:1.8, letterSpacing:1 }}>
@@ -693,18 +690,6 @@ function PageR({ result, onRestart }) {
                 )}
               </div>
             )}
-          </div>
-        ) : result.cards ? (
-          <div style={{ display:"flex", flexWrap:"wrap", gap:10, justifyContent:"center", marginBottom:30 }}>
-            {result.cards.map((c, i) => (
-              <div key={i} style={{ width:result.cards.length <= 3 ? 104 : 88, background:"#fff", border:"1px solid #ddd9d2", borderRadius:12, padding:"18px 8px", textAlign:"center", boxShadow:"0 1px 8px rgba(0,0,0,0.04)", animation:`slideUp 0.5s ease ${i*0.08}s both` }}>
-                <div className="it" style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:10, fontStyle:"italic" }}>{["I","II","III","IV","V"][i]}</div>
-                <div style={{ fontSize:result.cards.length <= 3 ? 14 : 12, fontWeight:500, color:"#2c2c2c", lineHeight:1.6, letterSpacing:1 }}>{c.name}</div>
-                {result.system === "tarot" && (
-                  <div style={{ fontSize:9, marginTop:10, color:c.rev ? "#c07070" : "#6b8f71", letterSpacing:2 }}>{c.rev ? "逆位" : "正位"}</div>
-                )}
-              </div>
-            ))}
           </div>
         ) : (
           <div style={{ background:"#fff", borderRadius:12, padding:22, marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid #ddd9d2", whiteSpace:"pre-wrap", fontSize:12, lineHeight:1.95, color:"#555", fontFamily:"'Noto Serif TC',ui-monospace,monospace" }}>{copyText}</div>
