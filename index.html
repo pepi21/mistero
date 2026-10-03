@@ -360,7 +360,6 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .pbtn:disabled { background:#e0dcd4; color:#aaa59c; box-shadow:none; cursor:default; }
 .pbtn:disabled::after { display:none; }
 .gbtn { width:100%; padding:15px 0; background:rgba(255,253,249,.6); color:var(--muted); border:1px solid var(--line); border-radius:12px; font-size:13px; letter-spacing:.3em; text-indent:.3em; }
-.link { background:none; border:none; color:var(--sage); font-size:11.5px; letter-spacing:.25em; border-bottom:1px solid var(--sage-m); padding:2px 0; margin-top:12px; }
 
 /* question */
 .ask { padding:2px; transition:border-color .3s, box-shadow .3s; }
@@ -400,7 +399,6 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .tcard.sm { width:min(92px, calc((100vw - 76px) / 3)); }
 .tc-in { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .85s cubic-bezier(.3,.7,.2,1); }
 .tcard.on .tc-in { transform:rotateY(180deg); }
-@media (hover:hover) { .tcard:not(.on):hover .tc-in { transform:translateY(-4px); } }
 .side { position:absolute; inset:0; border-radius:10px; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; }
 .cb { background:linear-gradient(155deg,#789c7e,#4a6b4e); box-shadow:0 8px 18px -8px rgba(40,60,45,.5); display:flex; align-items:center; justify-content:center; }
 .cb::before { content:""; position:absolute; inset:5px; border:1px solid rgba(226,207,178,.55); border-radius:6px; }
@@ -628,12 +626,14 @@ function PageC({ system, cnt, question, onResult, onBack }) {
   const [cards] = useState(() => system === "tarot" ? drawT(cnt) : system === "sibilla" ? drawS(cnt) : drawL(cnt));
   const [phase, setPhase] = useState("shuffle");
   const [open, setOpen] = useState([]);
-  const [auto, setAuto] = useState(false);
   const tmrs = useRef([]);
   const later = (fn, ms) => { tmrs.current.push(setTimeout(fn, ms)); };
 
   useEffect(() => {
     later(() => setPhase("deal"), 1700);
+    // 發牌動畫結束後，逐張自動翻開
+    const start = 1700 + cnt * 130 + 700;
+    for (let i = 0; i < cnt; i++) later(() => reveal(i), start + i * 750);
     return () => tmrs.current.forEach(clearTimeout);
   }, []);
 
@@ -642,11 +642,6 @@ function PageC({ system, cnt, question, onResult, onBack }) {
   const done = open.length === cnt;
 
   function reveal(i) { buzz(8); setOpen(p => p.includes(i) ? p : [...p, i]); }
-  function flip(i) { if (phase === "shuffle" || open.includes(i)) return; reveal(i); }
-  function flipAll() {
-    setAuto(true);
-    cards.map((_, i) => i).filter(i => !open.includes(i)).forEach((i, k) => later(() => reveal(i), k * 280));
-  }
 
   function fmt() {
     if (isSib) {
@@ -666,13 +661,13 @@ function PageC({ system, cnt, question, onResult, onBack }) {
     const on = open.includes(i);
     return (
       <div key={i} className={"slot" + (on ? " on" : "")}>
-        <button className={"tcard" + (sm ? " sm" : "") + (on ? " on" : "")} style={{ animationDelay:`${i * 0.13}s` }} onClick={() => flip(i)}
-          aria-label={on ? `第${POS_CN[i]}張：${cardLabel(cards[i], system)}` : `翻開第${POS_CN[i]}張牌`}>
+        <div className={"tcard" + (sm ? " sm" : "") + (on ? " on" : "")} style={{ animationDelay:`${i * 0.13}s` }}
+          role="img" aria-label={on ? `第${POS_CN[i]}張：${cardLabel(cards[i], system)}` : `第${POS_CN[i]}張（未翻開）`}>
           <div className="tc-in">
             <CardBack system={system} />
             <div className="side face"><CardFace c={cards[i]} system={system} sm={sm} /></div>
           </div>
-        </button>
+        </div>
         <div className="pos">第{POS_CN[i]}張</div>
       </div>
     );
@@ -698,8 +693,7 @@ function PageC({ system, cnt, question, onResult, onBack }) {
         <div className="spread">{rows.map((r, k) => <div className="row" key={k}>{r.map(slot)}</div>)}</div>
         {!done ? (
           <div style={{ textAlign:"center", animation:`fadeIn .6s ease ${cnt * 0.13 + 0.3}s both` }}>
-            <div className="hint">輕觸牌面，逐一翻開　<span style={{ color:"var(--faint)", fontVariantNumeric:"tabular-nums" }}>{open.length} / {cnt}</span></div>
-            {!auto && <button className="link" onClick={flipAll}>全部翻開</button>}
+            <div className="hint" style={{ animation:"breathe 1.8s ease-in-out infinite" }}>牌面揭曉中　<span style={{ color:"var(--faint)", fontVariantNumeric:"tabular-nums" }}>{open.length} / {cnt}</span></div>
           </div>
         ) : (
           <div style={{ animation:"slideUp .5s ease .6s both" }}>
