@@ -78,7 +78,6 @@ const SIBILLA = [
   ["♠","🔥","爭吵","La Lite","衝突與摩擦，退一步再談會比較好。"],
   ["♠","🎭","欺騙","L'Inganno","事情不如表面所見，先查證再相信。"]
 ];
-const SUIT_INFO = [["♥","紅心","感情、家庭、喜悅"],["♦","方塊","金錢、消息、移動"],["♣","梅花","工作、思考、身邊的人"],["♠","黑桃","阻礙、失落、需要留意的事"]];
 const POS_CN = "一二三四五";
 const BAGUA_LINES = {"乾":[1,1,1],"兌":[1,1,0],"離":[1,0,1],"震":[1,0,0],"巽":[0,1,1],"坎":[0,1,0],"艮":[0,0,1],"坤":[0,0,0]};
 
@@ -179,25 +178,6 @@ function drawL(n) { return shuf(LENORMAND).slice(0, n).map(c => ({ name: c })); 
 function drawS(n) { return shuf(SIBILLA).slice(0, n).map(c => ({ suit: c[0], ic: c[1], name: c[2], it: c[3], mean: c[4] })); }
 const isRedSuit = s => s === "♥" || s === "♦";
 
-function sibSummary(cards) {
-  const n = cards.length;
-  const cnt = { "♥":0, "♦":0, "♣":0, "♠":0 };
-  cards.forEach(c => cnt[c.suit]++);
-  const sp = cnt["♠"];
-  let tone;
-  if (sp === 0) tone = "牌裡沒有黑桃，整體走向偏順利，可以放心往前。";
-  else if (sp >= Math.ceil(n / 2)) tone = "黑桃佔了多數，這段時間阻礙較多。先處理眼前的問題，別急著做大決定。";
-  else {
-    const top = Object.entries(cnt).filter(([k]) => k !== "♠").sort((a, b) => b[1] - a[1]);
-    if (top[0][1] === top[1][1]) tone = "花色分布平均，局面比較複雜，需要在感情、現實與思考之間取得平衡。";
-    else tone = { "♥":"紅心最多，這件事的核心在感情與人際，跟著真心走。",
-                  "♦":"方塊最多，事情會有實際的變動，留意消息與機會。",
-                  "♣":"梅花最多，關鍵在於規劃與溝通，想清楚再行動。" }[top[0][0]]
-         + "其中的黑桃提醒你留意一個小阻礙。";
-  }
-  return `這組牌從「${cards[0].name}」開始，最後落在「${cards[n-1].name}」。${tone}試著把相鄰的牌連起來看，例如「${cards[0].name}＋${cards[1].name}」，往往會浮現和你的問題最貼近的畫面。`;
-}
-
 async function copyToClipboard(text) {
   try { await navigator.clipboard.writeText(text); return true; } catch (e) {
     try {
@@ -259,7 +239,11 @@ const TAROT_SUIT_IT = { 權杖:"Bastoni", 聖杯:"Coppe", 寶劍:"Spade", 錢幣
 const SYS_IT = { tarot:"Tarocchi", lenormand:"Lenormand", sibilla:"Sibilla" };
 const SYS_ZH = { tarot:"塔羅牌", lenormand:"雷諾曼", sibilla:"西比拉卡" };
 function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms || 10); } catch (e) {} }
-function cardLabel(c, system) { return system === "tarot" ? `${c.rev ? "逆位" : "正位"}${c.name}` : c.name; }
+function cardLabel(c, system) {
+  if (system === "tarot") return `${c.rev ? "逆位" : "正位"}${c.name}`;
+  if (system === "sibilla") return `${c.suit}${c.name}（${c.it}）`;
+  return c.name;
+}
 
 const MOTES = Array.from({ length: 14 }, () => ({
   left: Math.random() * 100, top: 25 + Math.random() * 70, size: 2 + Math.random() * 2.5,
@@ -579,7 +563,7 @@ function PageS({ question, onNext, onBack }) {
   const sys = [
     { id:"tarot", n:"塔羅", sub:"78張完整牌組・正逆位", ic:"✦" },
     { id:"lenormand", n:"雷諾曼", sub:"36張指引牌", ic:"◇" },
-    { id:"sibilla", n:"西比拉", sub:"52張吉普賽紙牌・花色解讀", ic:"❦" },
+    { id:"sibilla", n:"西比拉", sub:"52張吉普賽占卜牌", ic:"❦" },
     { id:"liuyao", n:"六爻", sub:"銅錢起卦・本卦變卦", ic:"☰" },
   ];
   const isCard = sel === "tarot" || sel === "lenormand" || sel === "sibilla";
@@ -637,23 +621,17 @@ function PageC({ system, cnt, question, onResult, onBack }) {
     return () => tmrs.current.forEach(clearTimeout);
   }, []);
 
-  const isSib = system === "sibilla";
   const sm = cnt > 3;
   const done = open.length === cnt;
 
   function reveal(i) { buzz(8); setOpen(p => p.includes(i) ? p : [...p, i]); }
 
   function fmt() {
-    if (isSib) {
-      let t = `【西比拉卡${cnt}張牌結果】\n占問：${question}\n\n`;
-      cards.forEach((c, i) => { t += `第${POS_CN[i]}張 ${c.suit} ${c.name} ${c.it}\n${c.mean}\n\n`; });
-      return t + `總結：${sibSummary(cards)}`;
-    }
-    const sn = system === "tarot" ? "塔羅" : "雷諾曼";
+    const sn = { tarot:"塔羅", lenormand:"雷諾曼", sibilla:"西比拉卡" }[system];
     return `【${sn}${cnt}張牌結果】\n占問：${question}\n\n牌面：${cards.map(c => cardLabel(c, system)).join("、")}`;
   }
   function finish() {
-    onResult({ text: fmt(), system, cards, question, summary: isSib ? sibSummary(cards) : null });
+    onResult({ text: fmt(), system, cards, question });
   }
 
   const rows = sm ? [[0, 1, 2], [3, 4]] : [[0, 1, 2]];
@@ -895,8 +873,6 @@ function PageR({ result, onRestart }) {
   }
 
   const isLY = result.system === "liuyao" && result.hex;
-  const isSB = result.system === "sibilla" && result.cards;
-  const suitCnt = isSB ? SUIT_INFO.map(([s]) => result.cards.filter(c => c.suit === s).length) : [];
 
   return (<>
     <TopBar step={3} />
@@ -1018,92 +994,30 @@ function PageR({ result, onRestart }) {
               </div>
             )}
           </div>
-        ) : isSB ? (
-          <div>
-
-            {/* 占問 */}
-            <div style={{ textAlign:"center", marginBottom:24 }}>
-              <div style={{ display:"inline-block", background:"#f3f0ea", borderRadius:6, padding:"9px 18px", border:"1px solid #eae6df" }}>
-                <span style={{ fontSize:12, color:"#888", letterSpacing:0.5 }}>{result.question}</span>
-              </div>
-            </div>
-
-            {/* 花色分布 */}
-            <div style={{ display:"flex", gap:8, marginBottom:24 }}>
-              {SUIT_INFO.map(([s, n], i) => (
-                <div key={s} style={{ flex:1, background:"var(--paper)", borderRadius:10, padding:"12px 4px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)", opacity:suitCnt[i] ? 1 : 0.55 }}>
-                  <div style={{ fontSize:16, lineHeight:1, color:isRedSuit(s) ? "#c07070" : "#4a4a4a" }}>{s}</div>
-                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginTop:6 }}>{n}</div>
-                  <div style={{ fontSize:15, color:suitCnt[i] ? "#2c2c2c" : "#bbb", fontWeight:500, marginTop:2 }}>{suitCnt[i]}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* 逐張牌義 */}
-            <div style={{ background:"var(--paper)", borderRadius:12, border:"1px solid var(--line)", boxShadow:"0 1px 8px rgba(0,0,0,0.04)", padding:"4px 18px", marginBottom:16 }}>
-              {result.cards.map((c, i) => (
-                <div key={i} style={{ display:"flex", gap:14, padding:"16px 0", borderTop:i ? "1px solid #f3efe8" : "none", animation:`slideUp 0.5s ease ${i * 0.08}s both` }}>
-                  <div style={{ width:42, height:42, flexShrink:0, borderRadius:"50%", background:"#faf8f5", border:"1px solid #d4b896", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>{c.ic}</div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:9.5, color:"#aaa", letterSpacing:2, marginBottom:3 }}>第{POS_CN[i]}張</div>
-                    <div style={{ display:"flex", alignItems:"baseline", flexWrap:"wrap", gap:"0 8px" }}>
-                      <span style={{ fontSize:15, fontWeight:500, color:"#2c2c2c", letterSpacing:2 }}>
-                        <span style={{ color:isRedSuit(c.suit) ? "#c07070" : "#4a4a4a", marginRight:5, fontSize:13 }}>{c.suit}</span>{c.name}
-                      </span>
-                      <span className="it" style={{ fontSize:13, fontStyle:"italic", color:"#6b8f71" }}>{c.it}</span>
-                    </div>
-                    <p style={{ fontSize:12.5, color:"#555", lineHeight:1.9, marginTop:5 }}>{c.mean}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 總結 */}
-            <div style={{ background:"var(--paper)", borderRadius:12, padding:"18px 18px 18px 16px", marginBottom:16, borderLeft:"3px solid #b8956a", boxShadow:"0 1px 8px rgba(0,0,0,0.04)" }}>
-              <div className="it" style={{ fontSize:12, color:"#b8956a", letterSpacing:3, fontStyle:"italic", marginBottom:8 }}>Sintesi</div>
-              <p style={{ fontSize:13, color:"#444", lineHeight:2 }}>{result.summary}</p>
-            </div>
-
-            {/* 花色說明 */}
-            <button onClick={() => setShowDetail(!showDetail)} style={{ width:"100%", padding:"16px 18px", background:"var(--paper)", border:"1px solid #eae6df", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:showDetail?0:16, borderBottomLeftRadius:showDetail?0:10, borderBottomRightRadius:showDetail?0:10, boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-              <span style={{ fontSize:12, color:"#888", letterSpacing:2 }}>四 種 花 色 的 意 義</span>
-              <span style={{ fontSize:11, color:"#aaa", transition:"transform 0.3s", transform:showDetail?"rotate(180deg)":"rotate(0deg)" }}>▼</span>
-            </button>
-            {showDetail && (
-              <div style={{ background:"var(--paper)", borderTop:"1px dashed #eae6df", borderLeft:"1px solid #eae6df", borderRight:"1px solid #eae6df", borderBottom:"1px solid #eae6df", borderBottomLeftRadius:10, borderBottomRightRadius:10, padding:"6px 18px", marginBottom:16, animation:"sd 0.3s ease" }}>
-                {SUIT_INFO.map(([s, n, d], i) => (
-                  <div key={s} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderTop:i ? "1px solid #f3efe8" : "none", fontSize:12 }}>
-                    <span style={{ width:16, textAlign:"center", color:isRedSuit(s) ? "#c07070" : "#4a4a4a" }}>{s}</span>
-                    <span style={{ width:34, color:"#4a6b4e", fontWeight:500 }}>{n}</span>
-                    <span style={{ color:"#666" }}>{d}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <p style={{ fontSize:10, color:"#aaa", textAlign:"center", lineHeight:1.9, marginBottom:24, letterSpacing:0.5 }}>
-              牌義整理自傳統西比拉卡的常見解讀，花色分組為簡化設計。<br/>結果僅供娛樂與自我反思。
-            </p>
-          </div>
         ) : result.cards ? (
           <div>
             <div style={{ textAlign:"center", marginBottom:24 }}><span className="qchip">{result.question}</span></div>
             <div className="panel" style={{ padding:"4px 18px", marginBottom:16 }}>
               {result.cards.map((c, i) => {
                 const tarot = result.system === "tarot";
+                const sib = result.system === "sibilla";
                 const mi = tarot ? TAROT_MAJOR.indexOf(c.name) : -1;
-                const parts = tarot ? null : c.name.split(" ");
+                const parts = tarot || sib ? null : c.name.split(" ");
                 return (
                   <div key={i} style={{ display:"flex", alignItems:"center", gap:14, padding:"15px 0", borderTop:i ? "1px solid var(--line2)" : "none", animation:`slideUp 0.5s ease ${i * 0.08}s both` }}>
-                    <div className="it" style={{ width:44, height:44, flexShrink:0, borderRadius:"50%", background:"#faf8f5", border:"1px solid var(--gold-l)", display:"flex", alignItems:"center", justifyContent:"center", color:tarot && mi < 0 ? "var(--sage)" : "var(--gold)", fontSize:tarot ? (mi >= 0 ? 16 : 10.5) : 19, fontStyle:tarot && mi < 0 ? "italic" : "normal" }}>
-                      {tarot ? (mi >= 0 ? ROMAN[mi] : TAROT_SUIT_IT[c.name.slice(0, 2)]) : parts[0]}
+                    <div className="it" style={{ width:44, height:44, flexShrink:0, borderRadius:"50%", background:"#faf8f5", border:"1px solid var(--gold-l)", display:"flex", alignItems:"center", justifyContent:"center", color:tarot && mi < 0 ? "var(--sage)" : "var(--gold)", fontSize:tarot ? (mi >= 0 ? 16 : 10.5) : sib ? 20 : 19, fontStyle:tarot && mi < 0 ? "italic" : "normal" }}>
+                      {tarot ? (mi >= 0 ? ROMAN[mi] : TAROT_SUIT_IT[c.name.slice(0, 2)]) : sib ? c.ic : parts[0]}
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ fontSize:9.5, color:"var(--faint)", letterSpacing:2, marginBottom:3 }}>
                         第{POS_CN[i]}張{mi >= 0 && <span style={{ color:"var(--gold)", marginLeft:8 }}>大秘儀</span>}
                       </div>
-                      <div style={{ fontSize:15.5, fontWeight:500, letterSpacing:2 }}>{tarot ? c.name : parts.slice(1).join(" ")}</div>
+                      <div style={{ fontSize:15.5, fontWeight:500, letterSpacing:2 }}>
+                        {tarot || sib ? c.name : parts.slice(1).join(" ")}
+                        {sib && <span className="it" style={{ fontSize:13, fontStyle:"italic", fontWeight:400, letterSpacing:0, color:"var(--sage)", marginLeft:8 }}>{c.it}</span>}
+                      </div>
                     </div>
+                    {sib && <span style={{ fontSize:18, flexShrink:0, color:isRedSuit(c.suit) ? "var(--rose)" : "#4a4a4a" }}>{c.suit}</span>}
                     {tarot && (
                       <span style={{ fontSize:11, letterSpacing:2, padding:"3px 10px", borderRadius:10, flexShrink:0, color:c.rev ? "var(--rose)" : "var(--sage-d)", background:c.rev ? "#f8ecec" : "var(--sage-l)" }}>
                         {c.rev ? "逆位" : "正位"}
