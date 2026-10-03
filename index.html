@@ -324,7 +324,13 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .label { font-size:10.5px; color:var(--faint); letter-spacing:.35em; margin-bottom:10px; }
 .chip { background:rgba(234,241,235,.85); border:1px solid transparent; border-radius:20px; padding:7px 14px; font-size:12px; color:var(--sage-d); letter-spacing:.3px; transition:background .2s, border-color .2s, color .2s; }
 .chip.on { background:var(--sage); color:#fff; }
-.qchip { display:inline-block; max-width:100%; background:rgba(255,253,249,.7); border:1px solid var(--line); border-radius:20px; padding:8px 18px; font-size:12.5px; color:var(--ink2); line-height:1.7; }
+.qhead .label { margin-bottom:6px; }
+.qtext { font-size:15px; line-height:1.8; letter-spacing:.5px; word-break:break-word; }
+.qdiv { display:flex; align-items:center; gap:10px; margin:14px 0 6px; }
+.qdiv span { flex:1; height:1px; background:linear-gradient(90deg, rgba(212,184,150,0), var(--gold-l)); }
+.qdiv span:last-child { transform:scaleX(-1); }
+.qdiv b { font-size:8px; color:var(--gold); font-weight:400; line-height:1; }
+.qhead + .crow { border-top:none; }
 .note { font-size:10.5px; color:var(--faint); text-align:center; line-height:1.9; margin:0 0 24px; letter-spacing:.5px; }
 
 /* buttons */
@@ -444,7 +450,7 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .hex b { display:block; font-size:34px; font-weight:500; letter-spacing:4px; line-height:1.3; }
 .hex.chg b { color:var(--gold); }
 .hex span { font-size:10.5px; color:var(--faint); letter-spacing:1px; }
-.stats { display:flex; gap:10px; margin:28px 0 14px; }
+.stats { display:flex; gap:10px; margin:14px 0; }
 .stat { flex:1; padding:14px 6px 12px; text-align:center; }
 .stat .label { margin-bottom:6px; letter-spacing:.25em; }
 .stat b { display:block; font-size:15px; font-weight:500; }
@@ -877,6 +883,16 @@ function PageY({ question, onResult, onBack }) {
 }
 
 /* ═══ RESULT ═══ */
+function QHead({ q }) {
+  return (
+    <div className="qhead">
+      <div className="label">占 問</div>
+      <div className="qtext">{q}</div>
+      <div className="qdiv" aria-hidden="true"><span /><b>✦</b><span /></div>
+    </div>
+  );
+}
+
 function PageR({ result, onRestart }) {
   const [cp, setCp] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
@@ -894,11 +910,13 @@ function PageR({ result, onRestart }) {
     <TopBar step={3} />
     <div className="page">
       <Head it="Responso" zh="占卜結果" />
-      <div style={{ textAlign:"center", marginBottom:26 }}><span className="qchip">{result.question}</span></div>
 
       {hex ? (
         <div>
-          <HexPair hex={hex} />
+          <div className="panel" style={{ padding:"18px 18px 24px" }}>
+            <QHead q={result.question} />
+            <HexPair hex={hex} />
+          </div>
           <div className="stats">
             {hex.palace && <div className="panel stat"><div className="label">卦 宮</div><b>{hex.palace}</b><small>屬{hex.palaceWx}</small></div>}
             <div className="panel stat"><div className="label">動 爻</div><b style={{ color:"var(--gold)" }}>{hex.mv.length > 0 ? hex.mv.map(i => YN[i]).join("、") : "無"}</b></div>
@@ -919,7 +937,8 @@ function PageR({ result, onRestart }) {
         </div>
       ) : result.cards ? (
         <div>
-          <div className="panel" style={{ padding:"4px 18px", marginBottom:16 }}>
+          <div className="panel" style={{ padding:"18px 18px 4px", marginBottom:16 }}>
+            <QHead q={result.question} />
             {result.cards.map((c, i) => {
               const m = cardMeta(c, result.system);
               return (
