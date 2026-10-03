@@ -245,10 +245,6 @@ function cardLabel(c, system) {
   return c.name;
 }
 
-const MOTES = Array.from({ length: 14 }, () => ({
-  left: Math.random() * 100, top: 25 + Math.random() * 70, size: 2 + Math.random() * 2.5,
-  dur: 10 + Math.random() * 10, delay: -Math.random() * 20
-}));
 const NOISE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .37 0 0 0 0 .3 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
 
 const G = `
@@ -273,7 +269,6 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 @keyframes spinSlow { to{transform:rotate(360deg)} }
 @keyframes breathe { 0%,100%{opacity:.5} 50%{opacity:1} }
-@keyframes drift { 0%{opacity:0;transform:translateY(0)} 20%{opacity:.6} 80%{opacity:.3} 100%{opacity:0;transform:translateY(-140px)} }
 @keyframes shine { 0%,72%{left:-60%} 100%{left:140%} }
 @keyframes deal { from{opacity:0;transform:translateY(-40px) rotate(-6deg) scale(.92)} to{opacity:1;transform:none} }
 @keyframes glow {
@@ -298,7 +293,6 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
     radial-gradient(100% 55% at 50% 108%, #e8e1d4 0%, rgba(232,225,212,0) 70%),
     var(--bg); }
 .bg::after { content:""; position:absolute; inset:0; background-image:url("${NOISE}"); opacity:.6; }
-.mote { position:absolute; border-radius:50%; background:var(--gold-l); opacity:0; animation:drift linear infinite; }
 
 .shell { position:relative; z-index:1; min-height:100vh; min-height:100dvh; display:flex; justify-content:center; }
 .col { width:100%; max-width:440px; padding-bottom:env(safe-area-inset-bottom); }
@@ -356,11 +350,13 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .opt { display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px 15px 14px; background:var(--paper); border:1px solid var(--line); border-radius:14px; text-align:left;
   box-shadow:0 1px 2px rgba(70,55,30,.04); transition:border-color .25s, background .25s, box-shadow .25s, transform .15s; }
 .opt.on { background:#f7faf6; border-color:var(--sage); box-shadow:0 10px 24px -14px rgba(74,107,78,.45); }
-.opt .ic { font-size:18px; width:42px; height:42px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--bg); color:var(--muted); transition:all .25s; }
+.opt .ic { font-size:17px; font-style:normal; letter-spacing:.5px; width:42px; height:42px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--bg); color:var(--muted); transition:all .25s; }
 .opt.on .ic { background:linear-gradient(160deg,#77997c,#4a6b4e); color:#fff; }
 .opt .t { font-size:15px; letter-spacing:.3em; font-weight:500; display:flex; align-items:center; }
 .opt.on .t { color:var(--sage-d); }
 .opt .s { font-size:11px; color:var(--muted); margin-top:3px; }
+.opt .tit { font-size:13px; font-style:italic; letter-spacing:.5px; font-weight:400; color:var(--faint); margin-left:2px; }
+.opt.on .tit { color:var(--sage); }
 .rec { font-size:9.5px; color:var(--gold); border:1px solid var(--gold-l); padding:0 8px; border-radius:10px; letter-spacing:1px; margin-left:4px; font-weight:400; line-height:18px; }
 .radio { margin-left:auto; width:18px; height:18px; border-radius:50%; border:1px solid #d6d1c8; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .25s; }
 .opt.on .radio { border-color:var(--sage); background:var(--sage); }
@@ -391,18 +387,74 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .face { transform:rotateY(180deg); background:var(--paper); border:1px solid var(--line); box-shadow:0 8px 20px -10px rgba(70,55,30,.35);
   display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 6px; text-align:center; }
 .tcard.on .face { animation:glow 1.4s ease .45s both; }
-.sib-back {
-  background:
-    radial-gradient(circle at 50% 50%,#d4b896 0 13%,transparent 14%),
-    radial-gradient(circle at 0 0,#f3f0ea 0 17%,transparent 18%),
-    radial-gradient(circle at 100% 0,#f3f0ea 0 17%,transparent 18%),
-    radial-gradient(circle at 0 100%,#f3f0ea 0 17%,transparent 18%),
-    radial-gradient(circle at 100% 100%,#f3f0ea 0 17%,transparent 18%),
-    radial-gradient(circle at 50% 50%,#6b8f71 0 34%,#f3f0ea 35% 40%,#4a6b4e 41%);
-  background-size:18px 18px; background-position:center;
-  border:4px solid #f3f0ea; outline:1px solid #b8956a; outline-offset:-7px;
-  box-shadow:0 8px 18px -8px rgba(40,60,45,.45);
-}
+/* card faces (shared by all systems) */
+.cf-frame { position:absolute; inset:5px; border:1px solid #e8dcc8; border-radius:6px; pointer-events:none; }
+.cf-mark { position:absolute; top:11px; left:0; right:0; font-size:16px; color:var(--gold); line-height:1.2; }
+.cf-mark.sm-it { font-style:italic; font-size:12px; color:var(--sage); }
+.cf-star { font-size:9px; color:var(--gold-l); margin-bottom:7px; line-height:1; }
+.cf-name { font-size:14.5px; font-weight:500; letter-spacing:2px; line-height:1.5; white-space:nowrap; }
+.cf-name.long { font-size:13px; letter-spacing:1px; }
+.cf-foot { position:absolute; bottom:11px; left:0; right:0; font-size:9.5px; letter-spacing:2px; color:var(--sage-d); }
+.cf-foot.rev { color:var(--rose); }
+.cf-foot.it { font-style:italic; font-size:11.5px; letter-spacing:.3px; color:var(--sage); }
+.tcard.sm .cf-frame { inset:4px; border-radius:5px; }
+.tcard.sm .cf-mark { top:9px; font-size:14px; }
+.tcard.sm .cf-mark.sm-it { font-size:10.5px; }
+.tcard.sm .cf-star { font-size:8px; margin-bottom:5px; }
+.tcard.sm .cf-name { font-size:12.5px; letter-spacing:1px; }
+.tcard.sm .cf-name.long { font-size:11.5px; }
+.tcard.sm .cf-foot { bottom:9px; font-size:8.5px; }
+.tcard.sm .cf-foot.it { font-size:10px; }
+
+/* result rows */
+.crow { display:flex; align-items:center; gap:14px; padding:15px 0; border-top:1px solid var(--line2); animation:slideUp .5s ease both; }
+.crow:first-child { border-top:none; }
+.cmark { width:44px; height:44px; flex-shrink:0; border-radius:50%; border:1px solid var(--gold-l); background:#fbf8f2; display:flex; align-items:center; justify-content:center; font-size:17px; color:var(--gold); }
+.cmark.sm-it { font-style:italic; font-size:11px; color:var(--sage); }
+.cpos { font-size:10px; color:var(--faint); letter-spacing:2px; margin-bottom:3px; }
+.cpos .it { font-size:12px; font-style:italic; letter-spacing:.3px; color:var(--sage); }
+.cname { font-size:15.5px; font-weight:500; letter-spacing:2px; }
+.ctag { font-size:11px; letter-spacing:2px; color:var(--sage-d); flex-shrink:0; }
+.ctag.rev { color:var(--rose); }
+
+/* liu yao */
+.yrow { display:flex; align-items:center; padding:9px 0; border-top:1px solid var(--line2); font-size:11px; color:var(--ink2); }
+.yrow:first-child, .yhead + .yrow { border-top:none; }
+.yhead { font-size:9.5px; color:var(--faint); letter-spacing:1px; border-bottom:1px solid var(--line); }
+.yrow .c1 { width:30px; flex-shrink:0; text-align:center; font-size:10.5px; color:var(--muted); }
+.yrow .c2 { width:30px; flex-shrink:0; text-align:center; font-size:10px; color:var(--gold); }
+.yrow .c3 { width:38px; flex-shrink:0; text-align:center; font-weight:500; color:var(--ink); }
+.yrow .c3 small { font-size:9px; font-weight:400; color:var(--faint); margin-left:1px; }
+.yrow .c4 { width:32px; flex-shrink:0; text-align:center; font-size:10.5px; color:var(--sage-d); }
+.yrow .c5 { flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding-left:8px; }
+.yhead .c5 { display:block; }
+.yrow.yhead span { color:var(--faint); font-weight:400; font-size:9.5px; }
+.yrow .c5 em { font-style:normal; font-size:9px; color:var(--gold); }
+.yrow .c6 { width:24px; flex-shrink:0; text-align:center; font-size:10.5px; font-weight:600; color:#ccc; }
+.yhead .c6 { font-weight:400; color:var(--faint); }
+.yrow .c6.shi { color:var(--gold); }
+.yrow .c6.ying { color:var(--sage); }
+.bar { display:flex; gap:5px; width:40px; flex-shrink:0; }
+.bar i { display:block; flex:1; height:6px; border-radius:1px; background:var(--sage); }
+.bar.mv i { background:var(--gold); }
+.ychg { margin-top:6px; padding-top:12px; border-top:1px solid var(--line); font-size:10.5px; color:var(--ink2); line-height:2; }
+.ychg span { color:var(--muted); margin-right:8px; }
+.hex { text-align:center; }
+.hex .label { margin-bottom:8px; }
+.hex b { display:block; font-size:34px; font-weight:500; letter-spacing:4px; line-height:1.3; }
+.hex.chg b { color:var(--gold); }
+.hex span { font-size:10.5px; color:var(--faint); letter-spacing:1px; }
+.stats { display:flex; gap:10px; margin:28px 0 14px; }
+.stat { flex:1; padding:14px 6px 12px; text-align:center; }
+.stat .label { margin-bottom:6px; letter-spacing:.25em; }
+.stat b { display:block; font-size:15px; font-weight:500; }
+.stat small { font-size:9.5px; color:var(--muted); }
+.fold { width:100%; display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:none; border:none; font-size:12px; color:var(--muted); letter-spacing:.3em; }
+.fold:active { transform:none; }
+.fold svg { transition:transform .3s var(--ease); }
+.fold.on svg { transform:rotate(180deg); }
+.textbtn { background:none; border:none; color:var(--faint); font-size:11px; letter-spacing:.2em; margin-top:14px; padding:4px 8px; }
+
 .deck { position:relative; width:96px; aspect-ratio:5/8; margin:36px auto 30px; }
 .deck > div { position:absolute; inset:0; }
 .deck .d0 { transform:rotate(3deg); }
@@ -420,15 +472,12 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
-  .mote { display:none; }
 }
 `;
 
 function Backdrop() {
   return (
-    <div className="bg" aria-hidden="true">
-      {MOTES.map((m, i) => <span key={i} className="mote" style={{ left:m.left+"%", top:m.top+"%", width:m.size, height:m.size, animationDuration:m.dur+"s", animationDelay:m.delay+"s" }} />)}
-    </div>
+    <div className="bg" aria-hidden="true" />
   );
 }
 
@@ -471,8 +520,7 @@ function Emblem() {
   );
 }
 
-function CardBack({ system }) {
-  if (system === "sibilla") return <div className="side sib-back" />;
+function CardBack() {
   return (
     <div className="side cb">
       <svg viewBox="0 0 60 60" fill="none" stroke="#e2cfb2" strokeWidth=".8" aria-hidden="true">
@@ -486,43 +534,81 @@ function CardBack({ system }) {
   );
 }
 
-function CardFace({ c, system, sm }) {
-  if (system === "sibilla") {
-    const col = isRedSuit(c.suit) ? "var(--rose)" : "#4a4a4a";
-    return (<>
-      <div style={{ position:"absolute", inset:sm?4:5, border:"1px solid #d7e3d8", borderRadius:sm?5:6, pointerEvents:"none" }} />
-      <span style={{ position:"absolute", top:sm?8:10, left:sm?8:10, fontSize:sm?10:12, lineHeight:1, color:col }}>{c.suit}</span>
-      <span style={{ position:"absolute", bottom:sm?8:10, right:sm?8:10, fontSize:sm?10:12, lineHeight:1, color:col, transform:"rotate(180deg)" }}>{c.suit}</span>
-      <div style={{ width:sm?36:46, height:sm?36:46, borderRadius:"50%", background:"#faf8f5", border:"1px solid var(--gold-l)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:sm?17:22, marginBottom:sm?6:9 }}>{c.ic}</div>
-      <div style={{ fontSize:c.name.length >= 4 ? (sm?11:12.5) : (sm?12:14), fontWeight:500, letterSpacing:c.name.length >= 4 ? 1 : (sm?1:2), lineHeight:1.4, whiteSpace:"nowrap" }}>{c.name}</div>
-      <div className="it" style={{ fontSize:sm?9.5:11, fontStyle:"italic", color:"var(--sage)", lineHeight:1.2, marginTop:2 }}>{c.it}</div>
-    </>);
-  }
+// 三種牌共用的牌面資訊：mark 上方標記、name 牌名、sub 副標、tag 正逆位
+function cardMeta(c, system) {
   if (system === "tarot") {
     const mi = TAROT_MAJOR.indexOf(c.name);
-    const major = mi >= 0;
-    return (<>
-      <div style={{ position:"absolute", inset:sm?4:5, border:`1px solid ${major ? "#e6d5bc" : "#d7e3d8"}`, borderRadius:sm?5:6, pointerEvents:"none" }} />
-      <div className="it" style={{ position:"absolute", top:sm?9:11, fontSize:major?(sm?14:16):(sm?10.5:12), fontStyle:major?"normal":"italic", color:major?"var(--gold)":"var(--sage)", letterSpacing:major?1:.5 }}>
-        {major ? ROMAN[mi] : TAROT_SUIT_IT[c.name.slice(0, 2)]}
-      </div>
-      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", transform:c.rev ? "rotate(180deg)" : "none" }}>
-        <div style={{ fontSize:sm?8:9, color:"var(--gold-l)", marginBottom:sm?5:7 }}>✦</div>
-        <div style={{ fontSize:c.name.length >= 4 ? (sm?11.5:13) : (sm?12.5:14.5), fontWeight:500, letterSpacing:c.name.length >= 4 ? 1 : (sm?1:2), lineHeight:1.5, whiteSpace:"nowrap" }}>{c.name}</div>
-      </div>
-      <div style={{ position:"absolute", bottom:sm?8:10, fontSize:sm?8.5:9.5, letterSpacing:2, padding:"1px 8px", borderRadius:8, color:c.rev ? "var(--rose)" : "var(--sage-d)", background:c.rev ? "#f8ecec" : "var(--sage-l)" }}>
-        {c.rev ? "逆位" : "正位"}
-      </div>
-    </>);
+    const tag = c.rev ? "逆位" : "正位";
+    return mi >= 0
+      ? { mark: ROMAN[mi], name: c.name, sub: "大秘儀", tag, rev: c.rev }
+      : { mark: TAROT_SUIT_IT[c.name.slice(0, 2)], markIt: true, name: c.name, sub: "", tag, rev: c.rev };
   }
+  if (system === "sibilla") return { mark: c.suit, name: c.name, sub: c.it, subIt: true };
   const [num, ...rest] = c.name.split(" ");
+  return { mark: num, name: rest.join(" "), sub: "" };
+}
+
+function CardFace({ c, system }) {
+  const m = cardMeta(c, system);
   return (<>
-    <div style={{ position:"absolute", inset:sm?4:5, border:"1px solid #d7e3d8", borderRadius:sm?5:6, pointerEvents:"none" }} />
-    <div className="it" style={{ position:"absolute", top:sm?7:9, fontSize:sm?18:22, color:"var(--gold)", lineHeight:1.2 }}>{num}</div>
-    <div style={{ fontSize:sm?9:10, color:"var(--gold-l)", marginBottom:sm?5:7 }}>✦</div>
-    <div style={{ fontSize:sm?15:17, fontWeight:500, letterSpacing:3, textIndent:3 }}>{rest.join(" ")}</div>
-    <div className="it" style={{ position:"absolute", bottom:sm?8:10, fontSize:sm?9.5:11, fontStyle:"italic", color:"var(--sage)" }}>Lenormand</div>
+    <div className="cf-frame" />
+    <div className={"cf-mark it" + (m.markIt ? " sm-it" : "")}>{m.mark}</div>
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", transform:c.rev ? "rotate(180deg)" : "none" }}>
+      <div className="cf-star">✦</div>
+      <div className={"cf-name" + (m.name.length >= 4 ? " long" : "")}>{m.name}</div>
+    </div>
+    {m.tag ? <div className={"cf-foot" + (m.rev ? " rev" : "")}>{m.tag}</div>
+      : m.subIt ? <div className="cf-foot it">{m.sub}</div> : null}
   </>);
+}
+
+function YaoTable({ yaos, hex }) {
+  return (<>
+    {hex && (
+      <div className="yrow yhead">
+        <span className="c1">爻位</span><span className="c2">六神</span><span className="c3">地支</span>
+        <span className="c4">六親</span><span className="c5">爻象</span><span className="c6">世應</span>
+      </div>
+    )}
+    {[...yaos].reverse().map((y, ri) => {
+      const i = yaos.length - 1 - ri;
+      const ln = hex ? hex.lines[i] : null;
+      return (
+        <div key={i} className="yrow">
+          <span className="c1">{YN[i]}</span>
+          <span className="c2">{ln ? ln.sh || "" : ""}</span>
+          <span className="c3">{ln ? <>{ln.z}<small>{ln.zwx}</small></> : ""}</span>
+          <span className="c4">{ln ? ln.lq || "" : ""}</span>
+          <span className="c5">
+            <span className={"bar" + (y.m ? " mv" : "")}>{y.l === 1 ? <i /> : <><i /><i /></>}</span>
+            {y.m && <em>動</em>}
+          </span>
+          <span className={"c6" + (ln && ln.role === "世" ? " shi" : ln && ln.role === "應" ? " ying" : "")}>{ln ? ln.role || "" : ""}</span>
+        </div>
+      );
+    })}
+    {hex && hex.hasM && (
+      <div className="ychg">
+        <div className="label" style={{ marginBottom:4 }}>變 爻</div>
+        {hex.mv.slice().reverse().map(idx => {
+          const ln = hex.lines[idx];
+          return <div key={idx}><span>{YN[idx]}</span>{ln.z}{ln.zwx}{ln.lq ? " " + ln.lq : ""} → {ln.cZ}{ZHI_WX[ln.cZ]}{ln.cLq ? " " + ln.cLq : ""}</div>;
+        })}
+      </div>
+    )}
+  </>);
+}
+
+function HexPair({ hex }) {
+  return (
+    <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"center", gap:22 }}>
+      <div className="hex"><div className="label">本 卦</div><b>{hex.o}</b><span>第{hex.oN}卦</span></div>
+      {hex.hasM && (<>
+        <div className="it" style={{ alignSelf:"center", color:"var(--gold-l)", fontSize:22, marginTop:8 }} aria-hidden="true">→</div>
+        <div className="hex chg"><div className="label">變 卦</div><b>{hex.c}</b><span>第{hex.cN}卦</span></div>
+      </>)}
+    </div>
+  );
 }
 
 /* ═══ QUESTION ═══ */
@@ -561,10 +647,10 @@ function PageS({ question, onNext, onBack }) {
   const [sel, setSel] = useState(sg);
   const [cnt, setCnt] = useState(3);
   const sys = [
-    { id:"tarot", n:"塔羅", sub:"78張完整牌組・正逆位", ic:"✦" },
-    { id:"lenormand", n:"雷諾曼", sub:"36張指引牌", ic:"◇" },
-    { id:"sibilla", n:"西比拉", sub:"52張吉普賽占卜牌", ic:"❦" },
-    { id:"liuyao", n:"六爻", sub:"銅錢起卦・本卦變卦", ic:"☰" },
+    { id:"tarot", n:"塔羅", it:"Tarocchi", sub:"78張完整牌組・正逆位", ic:"I" },
+    { id:"lenormand", n:"雷諾曼", it:"Lenormand", sub:"36張指引牌", ic:"II" },
+    { id:"sibilla", n:"西比拉", it:"Sibilla", sub:"52張吉普賽占卜牌", ic:"III" },
+    { id:"liuyao", n:"六爻", it:"Sei Linee", sub:"銅錢起卦・本卦變卦", ic:"IV" },
   ];
   const isCard = sel === "tarot" || sel === "lenormand" || sel === "sibilla";
   return (<>
@@ -578,9 +664,9 @@ function PageS({ question, onNext, onBack }) {
       <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
         {sys.map(s => (
           <button key={s.id} className={"opt" + (sel === s.id ? " on" : "")} onClick={() => setSel(s.id)} aria-pressed={sel === s.id}>
-            <span className="ic">{s.ic}</span>
+            <span className="ic it">{s.ic}</span>
             <div style={{ minWidth:0 }}>
-              <div className="t">{s.n}{sg === s.id && <span className="rec">推薦</span>}</div>
+              <div className="t">{s.n}<span className="tit it">{s.it}</span>{sg === s.id && <span className="rec">推薦</span>}</div>
               <div className="s">{s.sub}</div>
             </div>
             <span className="radio" />
@@ -642,8 +728,8 @@ function PageC({ system, cnt, question, onResult, onBack }) {
         <div className={"tcard" + (sm ? " sm" : "") + (on ? " on" : "")} style={{ animationDelay:`${i * 0.13}s` }}
           role="img" aria-label={on ? `第${POS_CN[i]}張：${cardLabel(cards[i], system)}` : `第${POS_CN[i]}張（未翻開）`}>
           <div className="tc-in">
-            <CardBack system={system} />
-            <div className="side face"><CardFace c={cards[i]} system={system} sm={sm} /></div>
+            <CardBack />
+            <div className="side face"><CardFace c={cards[i]} system={system} /></div>
           </div>
         </div>
         <div className="pos">第{POS_CN[i]}張</div>
@@ -658,9 +744,9 @@ function PageC({ system, cnt, question, onResult, onBack }) {
       {phase === "shuffle" ? (
         <div style={{ animation:"fadeIn .4s ease" }}>
           <div className="deck" aria-hidden="true">
-            <div className="d0"><CardBack system={system} /></div>
-            <div className="d1"><CardBack system={system} /></div>
-            <div className="d2"><CardBack system={system} /></div>
+            <div className="d0"><CardBack /></div>
+            <div className="d1"><CardBack /></div>
+            <div className="d2"><CardBack /></div>
           </div>
           <div className="wait">靜心洗牌</div>
           <div style={{ textAlign:"center", fontSize:12, color:"var(--faint)", marginTop:16, lineHeight:1.9, padding:"0 12px" }}>
@@ -676,7 +762,7 @@ function PageC({ system, cnt, question, onResult, onBack }) {
         ) : (
           <div style={{ animation:"slideUp .5s ease .6s both" }}>
             <div className="hint" style={{ marginBottom:18, color:"var(--gold)" }}>✦　牌面已開　✦</div>
-            <PBtn onClick={finish}>Risultato</PBtn>
+            <PBtn onClick={finish}>查看結果</PBtn>
           </div>
         )}
       </>)}
@@ -747,7 +833,7 @@ function PageY({ question, onResult, onBack }) {
     <><TopBar onBack={onBack} step={2} />
       <div className="page">
         <Head it="Sei Linee" zh="六爻起卦" />
-        <div style={{ textAlign:"center", fontSize:11, color:"var(--faint)", margin:"-12px 0 26px", letterSpacing:2 }}>
+        <div className="hint" style={{ margin:"-12px 0 26px", color:"var(--faint)" }}>
           {cur < 6 ? `第 ${cur+1} 爻 / 共 6 爻` : "卦象已成"}
         </div>
         {cur < 6 && (
@@ -762,103 +848,33 @@ function PageY({ question, onResult, onBack }) {
               <PBtn onClick={doOne} disabled={busy} style={{ flex:1 }}>擲銅錢</PBtn>
               <GBtn onClick={doAll} style={{ flex:1 }}>一鍵六爻</GBtn>
             </div>
-            {cur > 0 && <button onClick={reset} style={{ background:"none", border:"none", color:"#aaa", fontSize:11, marginTop:12, letterSpacing:1, fontFamily:"'Noto Serif TC',serif" }}>← 重擲</button>}
+            {cur > 0 && <button className="textbtn" onClick={reset}>重新擲卦</button>}
           </div>
         )}
 
         {yaos.length > 0 && (
-          <div style={{ background:"var(--paper)", borderRadius:12, padding:"16px 14px", marginBottom:22, boxShadow:"0 1px 8px rgba(0,0,0,0.04)", border:"1px solid var(--line)" }}>
-            {hex && (
-              <div style={{ display:"flex", fontSize:9, color:"#aaa", letterSpacing:1, paddingBottom:8, marginBottom:6, borderBottom:"1px dashed #eae6df", textAlign:"center" }}>
-                <span style={{ width:28 }}>爻位</span>
-                <span style={{ width:26 }}>六神</span>
-                <span style={{ width:36 }}>地支</span>
-                <span style={{ width:30 }}>六親</span>
-                <span style={{ flex:1, textAlign:"left", paddingLeft:6 }}>爻象</span>
-                <span style={{ width:22 }}>世應</span>
-              </div>
-            )}
-            {[...yaos].reverse().map((y, ri) => {
-              const i = yaos.length - 1 - ri;
-              const ln = hex ? hex.lines[i] : null;
-              return (
-                <div key={i} style={{ display:"flex", alignItems:"center", padding:"7px 0", animation:"sd 0.3s ease", borderBottom:ri<yaos.length-1?"1px solid #f3efe8":"none", fontSize:10.5, color:"#555" }}>
-                  <span style={{ width:28, fontSize:10, color:"#888", textAlign:"center", flexShrink:0 }}>{YN[i]}</span>
-                  <span style={{ width:26, fontSize:9.5, color:"#9a8868", textAlign:"center", flexShrink:0, letterSpacing:0.5 }}>{ln ? ln.sh || "" : ""}</span>
-                  <span style={{ width:36, textAlign:"center", flexShrink:0, color:"#2c2c2c", fontWeight:500 }}>
-                    {ln ? <>{ln.z}<span style={{ fontSize:9, color:"#aaa", marginLeft:1 }}>{ln.zwx}</span></> : ""}
-                  </span>
-                  <span style={{ width:30, fontSize:10, color:"#4a6b4e", textAlign:"center", flexShrink:0, fontWeight:500 }}>{ln ? ln.lq || "" : ""}</span>
-                  <div style={{ flex:1, display:"flex", alignItems:"center", gap:5, paddingLeft:6, minWidth:0 }}>
-                    <div style={{ display:"flex", gap:3, alignItems:"center", flexShrink:0 }}>
-                      {y.l === 1
-                        ? <div style={{ width:38, height:7, background:y.m?"#b8956a":"#6b8f71", borderRadius:2 }} />
-                        : <><div style={{ width:16, height:7, background:y.m?"#b8956a":"#6b8f71", borderRadius:2 }} /><div style={{ width:4 }} /><div style={{ width:16, height:7, background:y.m?"#b8956a":"#6b8f71", borderRadius:2 }} /></>
-                      }
-                    </div>
-                    <span style={{ fontSize:8.5, color:y.m?"#b8956a":"#aaa", whiteSpace:"nowrap" }}>{y.m?"○動":""}</span>
-                  </div>
-                  <span style={{ width:22, fontSize:10, fontWeight:600, color:ln && ln.role==="世"?"#b8956a":ln && ln.role==="應"?"#6b8f71":"#ccc", textAlign:"center", flexShrink:0 }}>{ln ? ln.role || "" : ""}</span>
-                </div>
-              );
-            })}
-
-            {hex && hex.hasM && (
-              <div style={{ marginTop:10, paddingTop:10, borderTop:"1px dashed #eae6df", fontSize:10, color:"#888", lineHeight:1.9 }}>
-                <div style={{ fontSize:9, color:"#b8956a", letterSpacing:2, marginBottom:4 }}>變 爻</div>
-                {hex.mv.slice().reverse().map(idx => {
-                  const ln = hex.lines[idx];
-                  return (
-                    <div key={idx} style={{ display:"flex", gap:8 }}>
-                      <span style={{ color:"#999" }}>{YN[idx]}：</span>
-                      <span>{ln.z}{ln.zwx}{ln.lq?" "+ln.lq:""} → {ln.cZ}{ZHI_WX[ln.cZ]}{ln.cLq?" "+ln.cLq:""}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+          <div className="panel" style={{ padding:"8px 18px", marginBottom:22 }}>
+            <YaoTable yaos={yaos} hex={hex} />
           </div>
         )}
 
         {hex && (
           <div style={{ animation:"slideUp 0.6s ease" }}>
-            <div style={{ background:"var(--paper)", borderRadius:12, padding:"22px 20px", marginBottom:22, textAlign:"center", border:"1px solid #c5d8c7", boxShadow:"0 2px 14px rgba(107,143,113,0.08)" }}>
-              <div className="it" style={{ fontSize:11, color:"#aaa", letterSpacing:4, marginBottom:14, fontStyle:"italic" }}>Responso</div>
-
-              {hex.bazi && (
-                <div style={{ fontSize:10.5, color:"#888", lineHeight:1.9, marginBottom:14, letterSpacing:1 }}>
-                  <div style={{ fontSize:9, color:"#b8956a", letterSpacing:3, marginBottom:4 }}>年 月 日 時</div>
-                  <div>{hex.bazi.y}年・{hex.bazi.m}月</div>
-                  <div>{hex.bazi.d}日・{hex.bazi.h}時</div>
+            <div className="panel" style={{ padding:"22px 16px 20px", marginBottom:22 }}>
+              <HexPair hex={hex} />
+              {(hex.bazi || hex.palace) && (
+                <div className="hint" style={{ marginTop:16, fontSize:10.5, color:"var(--faint)", lineHeight:1.9 }}>
+                  {hex.palace && <div>{hex.palace}宮・屬{hex.palaceWx}</div>}
+                  {hex.bazi && <div>{hex.bazi.y}年 {hex.bazi.m}月 {hex.bazi.d}日 {hex.bazi.h}時</div>}
                 </div>
               )}
-
-              {hex.palace && (
-                <div style={{ fontSize:10.5, color:"#666", marginBottom:12, letterSpacing:2 }}>
-                  {hex.palace}宮　屬{hex.palaceWx}
-                </div>
-              )}
-
-              <div style={{ fontSize:26, letterSpacing:6, color:"#2c2c2c", fontWeight:500 }}>{hex.o}</div>
-              <div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.oN}卦</div>
-
-              {hex.hasM && (<>
-                <div style={{ width:1, height:20, background:"#ddd9d2", margin:"12px auto" }} />
-                <div style={{ fontSize:10, color:"#aaa", letterSpacing:3, marginBottom:6 }}>變 卦</div>
-                <div style={{ fontSize:26, letterSpacing:6, color:"#b8956a", fontWeight:500 }}>{hex.c}</div>
-                <div style={{ fontSize:12, color:"#888", marginTop:4 }}>第{hex.cN}卦</div>
-                <div style={{ marginTop:14, padding:"6px 14px", background:"#eaf1eb", borderRadius:6, display:"inline-block", fontSize:11, color:"#4a6b4e", letterSpacing:2 }}>
-                  動爻：{hex.mv.map(i => YN[i]).join("、")}
-                </div>
-              </>)}
             </div>
-            <PBtn onClick={() => onResult({ text: fmt(), hex, yaos, question, system: "liuyao" })}>Risultato</PBtn>
+            <PBtn onClick={() => onResult({ text: fmt(), hex, yaos, question, system: "liuyao" })}>查看結果</PBtn>
           </div>
         )}
       </div></>
   );
 }
-
 
 /* ═══ RESULT ═══ */
 function PageR({ result, onRestart }) {
@@ -872,170 +888,61 @@ function PageR({ result, onRestart }) {
     setTimeout(() => setCp(false), 2500);
   }
 
-  const isLY = result.system === "liuyao" && result.hex;
+  const hex = result.system === "liuyao" ? result.hex : null;
 
   return (<>
     <TopBar step={3} />
     <div className="page">
       <Head it="Responso" zh="占卜結果" />
+      <div style={{ textAlign:"center", marginBottom:26 }}><span className="qchip">{result.question}</span></div>
 
-        {isLY ? (
-          <div>
-
-            {/* 占問 */}
-            <div style={{ textAlign:"center", marginBottom:28 }}>
-              <div style={{ display:"inline-block", background:"#f3f0ea", borderRadius:6, padding:"9px 18px", border:"1px solid #eae6df" }}>
-                <span style={{ fontSize:12, color:"#888", letterSpacing:0.5 }}>{result.question}</span>
-              </div>
-            </div>
-
-            {/* 本卦 → 變卦 大字展示 */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20, marginBottom:36 }}>
-              <div style={{ textAlign:"center" }}>
-                <div style={{ fontSize:9, color:"#aaa", letterSpacing:3, marginBottom:10 }}>本 卦</div>
-                <div style={{ fontSize:36, letterSpacing:4, color:"#2c2c2c", fontWeight:500 }}>{result.hex.o}</div>
-                <div style={{ fontSize:11, color:"#aaa", marginTop:6 }}>第{result.hex.oN}卦</div>
-              </div>
-              {result.hex.hasM && (<>
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, paddingTop:14 }}>
-                  <div style={{ width:28, height:1, background:"#ddd9d2" }} />
-                  <span style={{ fontSize:10, color:"#b8956a", letterSpacing:2 }}>→</span>
-                  <div style={{ width:28, height:1, background:"#ddd9d2" }} />
-                </div>
-                <div style={{ textAlign:"center" }}>
-                  <div style={{ fontSize:9, color:"#b8956a", letterSpacing:3, marginBottom:10 }}>變 卦</div>
-                  <div style={{ fontSize:36, letterSpacing:4, color:"#b8956a", fontWeight:500 }}>{result.hex.c}</div>
-                  <div style={{ fontSize:11, color:"#aaa", marginTop:6 }}>第{result.hex.cN}卦</div>
-                </div>
-              </>)}
-            </div>
-
-            {/* 摘要卡片 */}
-            <div style={{ display:"flex", gap:10, marginBottom:30 }}>
-              {result.hex.palace && (
-                <div style={{ flex:1, background:"var(--paper)", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>卦宮</div>
-                  <div style={{ fontSize:15, color:"#2c2c2c", fontWeight:500 }}>{result.hex.palace}</div>
-                  <div style={{ fontSize:9, color:"#888", marginTop:4 }}>屬{result.hex.palaceWx}</div>
-                </div>
-              )}
-              <div style={{ flex:1, background:"var(--paper)", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>動爻</div>
-                <div style={{ fontSize:15, color:"#b8956a", fontWeight:500 }}>{result.hex.mv.length > 0 ? result.hex.mv.map(i => YN[i]).join("、") : "無"}</div>
-              </div>
-              {result.hex.bazi && (
-                <div style={{ flex:1, background:"var(--paper)", borderRadius:10, padding:"16px 10px", textAlign:"center", border:"1px solid #eae6df", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                  <div style={{ fontSize:9, color:"#aaa", letterSpacing:2, marginBottom:8 }}>日柱</div>
-                  <div style={{ fontSize:15, color:"#2c2c2c", fontWeight:500 }}>{result.hex.bazi.d}</div>
-                </div>
-              )}
-            </div>
-
-            {/* 可展開的六爻詳情 */}
-            <button onClick={() => setShowDetail(!showDetail)} style={{ width:"100%", padding:"16px 18px", background:"var(--paper)", border:"1px solid #eae6df", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:showDetail?0:30, borderBottomLeftRadius:showDetail?0:10, borderBottomRightRadius:showDetail?0:10, boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-              <span style={{ fontSize:12, color:"#888", letterSpacing:2 }}>六 爻 詳 情</span>
-              <span style={{ fontSize:11, color:"#aaa", transition:"transform 0.3s", transform:showDetail?"rotate(180deg)":"rotate(0deg)" }}>▼</span>
+      {hex ? (
+        <div>
+          <HexPair hex={hex} />
+          <div className="stats">
+            {hex.palace && <div className="panel stat"><div className="label">卦 宮</div><b>{hex.palace}</b><small>屬{hex.palaceWx}</small></div>}
+            <div className="panel stat"><div className="label">動 爻</div><b style={{ color:"var(--gold)" }}>{hex.mv.length > 0 ? hex.mv.map(i => YN[i]).join("、") : "無"}</b></div>
+            {hex.bazi && <div className="panel stat"><div className="label">日 柱</div><b>{hex.bazi.d}</b></div>}
+          </div>
+          <div className="panel" style={{ marginBottom:24, overflow:"hidden" }}>
+            <button className={"fold" + (showDetail ? " on" : "")} onClick={() => setShowDetail(!showDetail)} aria-expanded={showDetail}>
+              <span>六爻詳情</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             {showDetail && (
-              <div style={{ background:"var(--paper)", borderTop:"1px dashed #eae6df", borderLeft:"1px solid #eae6df", borderRight:"1px solid #eae6df", borderBottom:"1px solid #eae6df", borderBottomLeftRadius:10, borderBottomRightRadius:10, padding:"16px 14px", marginBottom:30, animation:"sd 0.3s ease", boxShadow:"0 1px 4px rgba(0,0,0,0.03)" }}>
-                {/* 四柱完整 */}
-                {result.hex.bazi && (
-                  <div style={{ fontSize:10, color:"#888", textAlign:"center", marginBottom:14, lineHeight:1.8, letterSpacing:1 }}>
-                    {result.hex.bazi.y}年・{result.hex.bazi.m}月・{result.hex.bazi.d}日・{result.hex.bazi.h}時
-                  </div>
-                )}
-                {/* 表格 */}
-                <div style={{ display:"flex", fontSize:9, color:"#aaa", letterSpacing:1, paddingBottom:10, marginBottom:8, borderBottom:"1px dashed #eae6df", textAlign:"center" }}>
-                  <span style={{ width:28 }}>爻位</span>
-                  <span style={{ width:26 }}>六神</span>
-                  <span style={{ width:36 }}>地支</span>
-                  <span style={{ width:30 }}>六親</span>
-                  <span style={{ flex:1, textAlign:"left", paddingLeft:6 }}>爻象</span>
-                  <span style={{ width:22 }}>世應</span>
-                </div>
-                {[...result.yaos].reverse().map((y, ri) => {
-                  const i = result.yaos.length - 1 - ri;
-                  const ln = result.hex.lines[i];
-                  return (
-                    <div key={i} style={{ display:"flex", alignItems:"center", padding:"9px 0", borderBottom:ri<result.yaos.length-1?"1px solid #f3efe8":"none", fontSize:10.5, color:"#555" }}>
-                      <span style={{ width:28, fontSize:10, color:"#888", textAlign:"center", flexShrink:0 }}>{YN[i]}</span>
-                      <span style={{ width:26, fontSize:9.5, color:"#9a8868", textAlign:"center", flexShrink:0, letterSpacing:0.5 }}>{ln ? ln.sh || "" : ""}</span>
-                      <span style={{ width:36, textAlign:"center", flexShrink:0, color:"#2c2c2c", fontWeight:500 }}>
-                        {ln ? <>{ln.z}<span style={{ fontSize:9, color:"#aaa", marginLeft:1 }}>{ln.zwx}</span></> : ""}
-                      </span>
-                      <span style={{ width:30, fontSize:10, color:"#4a6b4e", textAlign:"center", flexShrink:0, fontWeight:500 }}>{ln ? ln.lq || "" : ""}</span>
-                      <div style={{ flex:1, display:"flex", alignItems:"center", gap:5, paddingLeft:6, minWidth:0 }}>
-                        <div style={{ display:"flex", gap:3, alignItems:"center", flexShrink:0 }}>
-                          {y.l === 1
-                            ? <div style={{ width:38, height:7, background:y.m?"#b8956a":"#6b8f71", borderRadius:2 }} />
-                            : <><div style={{ width:16, height:7, background:y.m?"#b8956a":"#6b8f71", borderRadius:2 }} /><div style={{ width:4 }} /><div style={{ width:16, height:7, background:y.m?"#b8956a":"#6b8f71", borderRadius:2 }} /></>
-                          }
-                        </div>
-                        <span style={{ fontSize:8.5, color:y.m?"#b8956a":"#aaa", whiteSpace:"nowrap" }}>{y.m?"○動":""}</span>
-                      </div>
-                      <span style={{ width:22, fontSize:10, fontWeight:600, color:ln && ln.role==="世"?"#b8956a":ln && ln.role==="應"?"#6b8f71":"#ccc", textAlign:"center", flexShrink:0 }}>{ln ? ln.role || "" : ""}</span>
-                    </div>
-                  );
-                })}
-                {result.hex.hasM && (
-                  <div style={{ marginTop:14, paddingTop:14, borderTop:"1px dashed #eae6df", fontSize:10, color:"#888", lineHeight:2.0 }}>
-                    <div style={{ fontSize:9, color:"#b8956a", letterSpacing:2, marginBottom:6 }}>變 爻</div>
-                    {result.hex.mv.slice().reverse().map(idx => {
-                      const ln = result.hex.lines[idx];
-                      return (
-                        <div key={idx} style={{ display:"flex", gap:8, marginBottom:2 }}>
-                          <span style={{ color:"#999" }}>{YN[idx]}：</span>
-                          <span>{ln.z}{ln.zwx}{ln.lq?" "+ln.lq:""} → {ln.cZ}{ZHI_WX[ln.cZ]}{ln.cLq?" "+ln.cLq:""}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+              <div style={{ padding:"0 18px 14px", animation:"sd 0.3s ease" }}>
+                {hex.bazi && <div className="hint" style={{ fontSize:10.5, color:"var(--faint)", padding:"2px 0 12px" }}>{hex.bazi.y}年・{hex.bazi.m}月・{hex.bazi.d}日・{hex.bazi.h}時</div>}
+                <YaoTable yaos={result.yaos} hex={hex} />
               </div>
             )}
           </div>
-        ) : result.cards ? (
-          <div>
-            <div style={{ textAlign:"center", marginBottom:24 }}><span className="qchip">{result.question}</span></div>
-            <div className="panel" style={{ padding:"4px 18px", marginBottom:16 }}>
-              {result.cards.map((c, i) => {
-                const tarot = result.system === "tarot";
-                const sib = result.system === "sibilla";
-                const mi = tarot ? TAROT_MAJOR.indexOf(c.name) : -1;
-                const parts = tarot || sib ? null : c.name.split(" ");
-                return (
-                  <div key={i} style={{ display:"flex", alignItems:"center", gap:14, padding:"15px 0", borderTop:i ? "1px solid var(--line2)" : "none", animation:`slideUp 0.5s ease ${i * 0.08}s both` }}>
-                    <div className="it" style={{ width:44, height:44, flexShrink:0, borderRadius:"50%", background:"#faf8f5", border:"1px solid var(--gold-l)", display:"flex", alignItems:"center", justifyContent:"center", color:tarot && mi < 0 ? "var(--sage)" : "var(--gold)", fontSize:tarot ? (mi >= 0 ? 16 : 10.5) : sib ? 20 : 19, fontStyle:tarot && mi < 0 ? "italic" : "normal" }}>
-                      {tarot ? (mi >= 0 ? ROMAN[mi] : TAROT_SUIT_IT[c.name.slice(0, 2)]) : sib ? c.ic : parts[0]}
-                    </div>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:9.5, color:"var(--faint)", letterSpacing:2, marginBottom:3 }}>
-                        第{POS_CN[i]}張{mi >= 0 && <span style={{ color:"var(--gold)", marginLeft:8 }}>大秘儀</span>}
-                      </div>
-                      <div style={{ fontSize:15.5, fontWeight:500, letterSpacing:2 }}>
-                        {tarot || sib ? c.name : parts.slice(1).join(" ")}
-                        {sib && <span className="it" style={{ fontSize:13, fontStyle:"italic", fontWeight:400, letterSpacing:0, color:"var(--sage)", marginLeft:8 }}>{c.it}</span>}
-                      </div>
-                    </div>
-                    {sib && <span style={{ fontSize:18, flexShrink:0, color:isRedSuit(c.suit) ? "var(--rose)" : "#4a4a4a" }}>{c.suit}</span>}
-                    {tarot && (
-                      <span style={{ fontSize:11, letterSpacing:2, padding:"3px 10px", borderRadius:10, flexShrink:0, color:c.rev ? "var(--rose)" : "var(--sage-d)", background:c.rev ? "#f8ecec" : "var(--sage-l)" }}>
-                        {c.rev ? "逆位" : "正位"}
-                      </span>
-                    )}
+        </div>
+      ) : result.cards ? (
+        <div>
+          <div className="panel" style={{ padding:"4px 18px", marginBottom:16 }}>
+            {result.cards.map((c, i) => {
+              const m = cardMeta(c, result.system);
+              return (
+                <div key={i} className="crow" style={{ animationDelay:`${i * 0.08}s` }}>
+                  <div className={"cmark it" + (m.markIt ? " sm-it" : "")}>{m.mark}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div className="cpos">第{POS_CN[i]}張{m.sub && <>　<span className={m.subIt ? "it" : ""}>{m.sub}</span></>}</div>
+                    <div className="cname">{m.name}</div>
                   </div>
-                );
-              })}
-            </div>
-            <p className="note">可複製牌面結果，留存或交由占卜師進一步解讀。</p>
+                  {m.tag && <span className={"ctag" + (m.rev ? " rev" : "")}>{m.tag}</span>}
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          <div className="panel" style={{ padding:22, marginBottom:22, whiteSpace:"pre-wrap", fontSize:12, lineHeight:1.95, color:"var(--ink2)" }}>{copyText}</div>
-        )}
+          <p className="note">可複製牌面結果，留存或交由占卜師進一步解讀。</p>
+        </div>
+      ) : (
+        <div className="panel" style={{ padding:22, marginBottom:22, whiteSpace:"pre-wrap", fontSize:12, lineHeight:1.95, color:"var(--ink2)" }}>{copyText}</div>
+      )}
 
       <div style={{ display:"flex", gap:10 }}>
-        <PBtn onClick={copy} style={{ flex:1 }}>{cp === "ok" ? "Copiato ✓" : cp === "fail" ? "請長按手動複製" : "Copia"}</PBtn>
-        <GBtn onClick={onRestart} style={{ flex:1 }}>Di Nuovo</GBtn>
+        <PBtn onClick={copy} style={{ flex:1 }}>{cp === "ok" ? "已複製 ✓" : cp === "fail" ? "請長按手動複製" : "複製結果"}</PBtn>
+        <GBtn onClick={onRestart} style={{ flex:1 }}>重新占卜</GBtn>
       </div>
     </div>
   </>);
