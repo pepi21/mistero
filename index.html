@@ -10,11 +10,24 @@
 </head>
 <body style="margin:0;background:#f3f0ea">
 <div id="root"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f3f0ea;color:#b0aba2;font-family:Georgia,serif;font-style:italic;font-size:18px;letter-spacing:2px">Mistero d'Amore</div></div>
-<script>window.onerror=function(m,s,l,c,e){document.getElementById("root").innerHTML='<pre style="padding:20px;color:red;font-size:12px;white-space:pre-wrap">錯誤：'+m+'\n來源：'+s+'\n行：'+l+'</pre>';}</script>
+<script>
+// 顯示錯誤。「Script error.」是瀏覽器隱藏細節的跨網域錯誤，常來自瀏覽器自己注入的程式（如 Brave），
+// 網頁已正常顯示時就忽略；只有網頁跑不起來時才顯示。
+window.__appReady = false;
+function showErr(t){ document.getElementById("root").innerHTML='<pre style="padding:20px;color:red;font-size:12px;white-space:pre-wrap">'+t+'</pre>'; }
+window.onerror=function(m,s,l,c,e){
+  if (!s && /^Script error\.?$/.test(String(m))) {
+    if (console && console.warn) console.warn("已忽略跨網域錯誤：", m);
+    setTimeout(function(){ if (!window.__appReady) showErr("錯誤：網頁無法啟動（"+m+"）\n請關閉分頁後重新開啟，或改用 Safari / Chrome 開啟。"); }, 4000);
+    return true;
+  }
+  showErr('錯誤：'+m+'\n來源：'+s+'\n行：'+l+(e && e.stack ? '\n\n'+e.stack : ''));
+};
+</script>
 <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:red>React 載入失敗</p>'"></script>
 <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:red>ReactDOM 載入失敗</p>'"></script>
-<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js" onerror="document.getElementById('root').innerHTML+='<p style=color:orange>lunar-javascript 載入失敗（不影響主功能）</p>'"></script>
-<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.7/babel.min.js" onerror="document.getElementById('root').innerHTML+='<p style=color:red>Babel 載入失敗</p>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:orange>lunar-javascript 載入失敗（不影響主功能）</p>'"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.7/babel.min.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:red>Babel 載入失敗</p>'"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 const TAROT_MAJOR = ["愚者","魔術師","女祭司","女皇","皇帝","教皇","戀人","戰車","力量","隱者","命運之輪","正義","倒吊人","死神","節制","惡魔","高塔","星星","月亮","太陽","審判","世界"];
@@ -977,6 +990,7 @@ function App() {
   const [sys, setSys] = useState(null);
   const [cnt, setCnt] = useState(3);
   const [res, setRes] = useState(null);
+  useEffect(() => { window.__appReady = true; }, []);
   useEffect(() => { window.scrollTo(0, 0); }, [pg]);
   return (<>
     <style>{G}</style>
