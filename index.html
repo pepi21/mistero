@@ -11,17 +11,22 @@
 <body style="margin:0;background:#f3f0ea">
 <div id="root"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f3f0ea;color:#b0aba2;font-family:Georgia,serif;font-style:italic;font-size:18px;letter-spacing:2px">Mistero d'Amore</div></div>
 <script>
-// 顯示錯誤。「Script error.」是瀏覽器隱藏細節的跨網域錯誤，常來自瀏覽器自己注入的程式（如 Brave），
-// 網頁已正常顯示時就忽略；只有網頁跑不起來時才顯示。
+// 錯誤處理：瀏覽器常會往網頁注入自己的程式（例如 Brave 的加密錢包 window.ethereum），
+// 那些程式出錯也會觸發這裡。網頁正常啟動後，一律只記錄、不蓋掉畫面；
+// 只有網頁啟動不了（4 秒內沒顯示出來）時，才把第一個錯誤顯示出來。
+// 網頁本身的畫面錯誤由 React 的 ErrorBoundary 顯示。
 window.__appReady = false;
+window.__firstErr = null;
 function showErr(t){ document.getElementById("root").innerHTML='<pre style="padding:20px;color:red;font-size:12px;white-space:pre-wrap">'+t+'</pre>'; }
 window.onerror=function(m,s,l,c,e){
-  if (!s && /^Script error\.?$/.test(String(m))) {
-    if (console && console.warn) console.warn("已忽略跨網域錯誤：", m);
-    setTimeout(function(){ if (!window.__appReady) showErr("錯誤：網頁無法啟動（"+m+"）\n請關閉分頁後重新開啟，或改用 Safari / Chrome 開啟。"); }, 4000);
-    return true;
+  var t='錯誤：'+m+'\n來源：'+(s||'')+'\n行：'+l+(e && e.stack ? '\n\n'+e.stack : '');
+  if (window.console && console.warn) console.warn('[已攔截] '+t);
+  if (window.__appReady) return true;
+  if (!window.__firstErr) {
+    window.__firstErr = t;
+    setTimeout(function(){ if (!window.__appReady) showErr(window.__firstErr); }, 4000);
   }
-  showErr('錯誤：'+m+'\n來源：'+s+'\n行：'+l+(e && e.stack ? '\n\n'+e.stack : ''));
+  return true;
 };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" crossorigin onerror="document.getElementById('root').innerHTML+='<p style=color:red>React 載入失敗</p>'"></script>
@@ -1005,8 +1010,18 @@ function App() {
   </>);
 }
 
+class Boundary extends React.Component {
+  constructor(p) { super(p); this.state = { err: null }; }
+  static getDerivedStateFromError(err) { return { err }; }
+  render() {
+    const e = this.state.err;
+    if (e) return <pre style={{ padding:20, color:"red", fontSize:12, whiteSpace:"pre-wrap" }}>{"React 渲染錯誤：" + (e.message || e) + (e.stack ? "\n\n" + e.stack : "")}</pre>;
+    return this.props.children;
+  }
+}
+
 try {
-  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  ReactDOM.createRoot(document.getElementById("root")).render(<Boundary><App /></Boundary>);
 } catch(e) {
   document.getElementById("root").innerHTML = '<pre style="padding:20px;color:red;font-size:12px;white-space:pre-wrap">React 渲染錯誤：' + e.message + '</pre>';
 }
