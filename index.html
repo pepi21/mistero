@@ -371,7 +371,7 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 /* question */
 .ask { padding:2px; transition:border-color .3s, box-shadow .3s; }
 .ask:focus-within { border-color:var(--sage-m); box-shadow:0 0 0 4px rgba(107,143,113,.08), 0 10px 28px -16px rgba(70,55,30,.18); }
-.ask textarea { display:block; width:100%; border:none; background:transparent; padding:16px 18px 4px; font-size:15.5px; line-height:1.9; color:var(--ink); font-family:'Noto Serif TC',serif; resize:none; outline:none; }
+.ask textarea { display:block; width:100%; border:none; background:transparent; padding:16px 18px 4px; font-size:16px; line-height:1.9; color:var(--ink); font-family:'Noto Serif TC',serif; resize:none; outline:none; }
 .ask textarea::placeholder { color:#bdb8af; }
 .count { text-align:right; font-size:10px; color:var(--faint); padding:0 14px 10px; font-variant-numeric:tabular-nums; }
 
@@ -392,6 +392,27 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 .radio::after { content:""; width:6px; height:6px; border-radius:50%; background:#fff; transform:scale(0); transition:transform .25s var(--ease); }
 .opt.on .radio::after { transform:scale(1); }
 .seg { display:flex; gap:8px; }
+.seg button:disabled { opacity:.3; cursor:default; }
+.cmp { padding:14px 16px; margin-bottom:18px; }
+.cmp-row { display:flex; align-items:center; gap:14px; }
+.cmp-t { font-size:14px; font-weight:500; letter-spacing:.3em; }
+.cmp-s { font-size:11px; color:var(--muted); margin-top:3px; line-height:1.6; }
+.switch { margin-left:auto; flex-shrink:0; width:44px; height:26px; border-radius:13px; border:none; background:#ddd8cf; position:relative; transition:background .25s; }
+.switch::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.18); transition:transform .25s var(--ease); }
+.switch.on { background:var(--sage); }
+.switch.on::after { transform:translateX(18px); }
+.cmp-in { display:flex; gap:8px; margin-top:12px; }
+.cmp-in label { flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:0 10px; }
+.cmp-in b { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:500; color:var(--gold); }
+.cmp-in input { flex:1; min-width:0; border:none; background:none; outline:none; font-family:'Noto Serif TC',serif; font-size:16px; color:var(--ink); padding:9px 0; }
+.cmp-in input::placeholder { color:#bdb8af; font-size:13px; }
+.grp { display:flex; flex-direction:column; align-items:center; gap:10px; }
+.grp-h, .rgrp-h { display:flex; align-items:baseline; gap:8px; }
+.grp-h b, .rgrp-h b { font-size:20px; font-weight:500; color:var(--gold); line-height:1; }
+.grp-h span, .rgrp-h span { font-size:12px; color:var(--muted); letter-spacing:.15em; }
+.rgrp-h { padding:16px 0 2px; border-top:1px solid var(--line); }
+.qhead + .rgrp-h { border-top:none; padding-top:4px; }
+.rgrp-h + .crow { border-top:none; }
 .seg button { flex:1; min-width:0; padding:10px 0 8px; background:var(--paper); border:1px solid var(--line); border-radius:12px; transition:all .25s; }
 .seg button.on { border-color:var(--sage); background:#f7faf6; box-shadow:0 8px 20px -14px rgba(74,107,78,.5); }
 .seg .n { font-family:'Cormorant Garamond',serif; font-size:24px; line-height:1.1; }
@@ -399,6 +420,7 @@ button:focus-visible, textarea:focus-visible { outline:2px solid var(--gold-l); 
 
 /* cards */
 .spread { display:flex; flex-direction:column; align-items:center; gap:16px; margin:4px 0 26px; }
+.spread.cmpd { gap:24px; }
 .spread .row { display:flex; justify-content:center; gap:12px; }
 .slot { display:flex; flex-direction:column; align-items:center; gap:8px; }
 .slot .pos { font-size:10px; color:var(--faint); letter-spacing:.25em; text-indent:.25em; transition:color .4s; }
@@ -640,6 +662,12 @@ function HexPair({ hex }) {
   );
 }
 
+// 比較模式：組別標籤（A／B，加上自填名稱）
+function cmpTag(cmp, g) { const n = g ? cmp.b : cmp.a; return (g ? "B" : "A") + (n ? `（${n}）` : ""); }
+function GroupHead({ g, name, cls }) {
+  return <div className={cls || "grp-h"}><b className="it">{g ? "B" : "A"}</b>{name && <span>{name}</span>}</div>;
+}
+
 /* ═══ QUESTION ═══ */
 function PageQ({ onNext }) {
   const [q, setQ] = useState("");
@@ -674,7 +702,17 @@ function PageQ({ onNext }) {
 function PageS({ question, onNext, onBack }) {
   const sg = suggest(question);
   const [sel, setSel] = useState(sg);
-  const [cnt, setCnt] = useState(3);
+  // 問題像「A 還是 B」時，預先打開比較模式
+  const cmpGuess = /還是|哪個|哪一個|哪位|比較好|比較適合|選哪/.test(question);
+  const [cmp, setCmp] = useState(cmpGuess);
+  const [la, setLa] = useState("");
+  const [lb, setLb] = useState("");
+  const [cnt, setCnt] = useState(cmpGuess ? 4 : 3);
+  function toggleCmp() {
+    const v = !cmp;
+    setCmp(v);
+    if (v && cnt % 2) setCnt(Math.min(cnt + 1, 6));  // 比較模式只能選偶數張
+  }
   const sys = [
     { id:"tarot", n:"塔羅", it:"Tarocchi", sub:"78張完整牌組・正逆位", ic:"I" },
     { id:"lenormand", n:"雷諾曼", it:"Lenormand", sub:"36張指引牌", ic:"II" },
@@ -704,23 +742,38 @@ function PageS({ question, onNext, onBack }) {
       </div>
       {isCard && (
         <div style={{ marginBottom:26, animation:"sd 0.3s ease" }}>
-          <div className="label">抽 牌 數 量</div>
+          <div className="panel cmp">
+            <div className="cmp-row">
+              <div>
+                <div className="cmp-t">比較模式</div>
+                <div className="cmp-s">牌平分成 A、B 兩組，適合「A 還是 B」的問題</div>
+              </div>
+              <button className={"switch" + (cmp ? " on" : "")} onClick={toggleCmp} role="switch" aria-checked={cmp} aria-label="比較模式" />
+            </div>
+            {cmp && (
+              <div className="cmp-in" style={{ animation:"sd .3s ease" }}>
+                <label><b>A</b><input value={la} onChange={e => setLa(e.target.value.slice(0, 20))} placeholder="名稱（可不填）" aria-label="選項 A 名稱" /></label>
+                <label><b>B</b><input value={lb} onChange={e => setLb(e.target.value.slice(0, 20))} placeholder="名稱（可不填）" aria-label="選項 B 名稱" /></label>
+              </div>
+            )}
+          </div>
+          <div className="label">抽 牌 數 量{cmp && "（A、B 各半）"}</div>
           <div className="seg">
             {[1, 2, 3, 4, 5, 6].map(n => (
-              <button key={n} className={cnt === n ? "on" : ""} onClick={() => setCnt(n)} aria-pressed={cnt === n} aria-label={`${n} 張`}>
+              <button key={n} className={cnt === n ? "on" : ""} onClick={() => setCnt(n)} aria-pressed={cnt === n} aria-label={`${n} 張`} disabled={cmp && n % 2 === 1}>
                 <div className="n">{n}</div>
               </button>
             ))}
           </div>
         </div>
       )}
-      <PBtn onClick={() => onNext(sel, cnt)} disabled={!sel}>下一步</PBtn>
+      <PBtn onClick={() => onNext(sel, cnt, isCard && cmp ? { a: la.trim(), b: lb.trim() } : null)} disabled={!sel}>下一步</PBtn>
     </div>
   </>);
 }
 
 /* ═══ CARD DRAW ═══ */
-function PageC({ system, cnt, question, onResult, onBack }) {
+function PageC({ system, cnt, cmp, question, onResult, onBack }) {
   const [cards] = useState(() => system === "tarot" ? drawT(cnt) : system === "sibilla" ? drawS(cnt) : drawL(cnt));
   const [phase, setPhase] = useState("shuffle");
   const [open, setOpen] = useState([]);
@@ -742,26 +795,35 @@ function PageC({ system, cnt, question, onResult, onBack }) {
 
   function fmt() {
     const sn = { tarot:"塔羅", lenormand:"雷諾曼", sibilla:"西比拉卡" }[system];
+    if (cmp) {
+      const half = cnt / 2;
+      const grp = g => `${cmpTag(cmp, g)}：${cards.slice(g * half, (g + 1) * half).map(c => cardLabel(c, system)).join("、")}`;
+      return `【${sn}${cnt}張牌結果・比較】\n占問：${question}\n\n${grp(0)}\n${grp(1)}`;
+    }
     return `【${sn}${cnt}張牌結果】\n占問：${question}\n\n牌面：${cards.map(c => cardLabel(c, system)).join("、")}`;
   }
   function finish() {
-    onResult({ text: fmt(), system, cards, question });
+    onResult({ text: fmt(), system, cards, question, cmp });
   }
 
   // 每排最多 3 張；4 張排成 2＋2，5 張 3＋2，6 張 3＋3
   const rows = { 1:[[0]], 2:[[0, 1]], 3:[[0, 1, 2]], 4:[[0, 1], [2, 3]], 5:[[0, 1, 2], [3, 4]], 6:[[0, 1, 2], [3, 4, 5]] }[cnt];
-  const slot = i => {
+  // 比較模式：前一半是 A、後一半是 B，各排一排
+  const half = cnt / 2;
+  const groups = cmp ? [[...Array(half).keys()], [...Array(half).keys()].map(k => k + half)] : null;
+  const slot = (i, pk = i, g = null) => {
     const on = open.includes(i);
+    const where = (g === null ? "" : (g ? "B 組" : "A 組")) + `第${POS_CN[pk]}張`;
     return (
       <div key={i} className={"slot" + (on ? " on" : "")}>
         <div className={"tcard" + (sm ? " sm" : "") + (on ? " on" : "")} style={{ animationDelay:`${i * 0.13}s` }}
-          role="img" aria-label={on ? `第${POS_CN[i]}張：${cardLabel(cards[i], system)}` : `第${POS_CN[i]}張（未翻開）`}>
+          role="img" aria-label={on ? `${where}：${cardLabel(cards[i], system)}` : `${where}（未翻開）`}>
           <div className="tc-in">
             <CardBack />
             <div className="side face"><CardFace c={cards[i]} system={system} /></div>
           </div>
         </div>
-        <div className="pos">第{POS_CN[i]}張</div>
+        <div className="pos">第{POS_CN[pk]}張</div>
       </div>
     );
   };
@@ -783,7 +845,18 @@ function PageC({ system, cnt, question, onResult, onBack }) {
           </div>
         </div>
       ) : (<>
-        <div className="spread">{rows.map((r, k) => <div className="row" key={k}>{r.map(slot)}</div>)}</div>
+        {cmp ? (
+          <div className="spread cmpd">
+            {groups.map((r, g) => (
+              <div className="grp" key={g}>
+                <GroupHead g={g} name={g ? cmp.b : cmp.a} />
+                <div className="row">{r.map((i, k) => slot(i, k, g))}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="spread">{rows.map((r, k) => <div className="row" key={k}>{r.map(i => slot(i))}</div>)}</div>
+        )}
         {!done ? (
           <div style={{ textAlign:"center", animation:`fadeIn .6s ease ${cnt * 0.13 + 0.3}s both` }}>
             <div className="hint" style={{ animation:"breathe 1.8s ease-in-out infinite" }}>牌面揭曉中　<span style={{ color:"var(--faint)", fontVariantNumeric:"tabular-nums" }}>{open.length} / {cnt}</span></div>
@@ -928,6 +1001,20 @@ function PageR({ result, onRestart }) {
   }
 
   const hex = result.system === "liuyao" ? result.hex : null;
+  // i：第幾張（決定動畫順序）；pk：顯示的「第幾張」（比較模式在組內重新從一數起）
+  const cardRow = (c, i, pk) => {
+    const m = cardMeta(c, result.system);
+    return (
+      <div key={i} className="crow" style={{ animationDelay:`${i * 0.08}s` }}>
+        <div className={"cmark it" + (m.markIt ? " sm-it" : "")}>{m.mark}</div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div className="cpos">第{POS_CN[pk]}張{m.sub && <>　<span className={m.subIt ? "it" : ""}>{m.sub}</span></>}</div>
+          <div className="cname">{m.name}</div>
+        </div>
+        {m.tag && <span className={"ctag" + (m.rev ? " rev" : "")}>{m.tag}</span>}
+      </div>
+    );
+  };
 
   return (<>
     <TopBar step={3} />
@@ -962,19 +1049,17 @@ function PageR({ result, onRestart }) {
         <div>
           <div className="panel" style={{ padding:"18px 18px 4px", marginBottom:16 }}>
             <QHead q={result.question} />
-            {result.cards.map((c, i) => {
-              const m = cardMeta(c, result.system);
-              return (
-                <div key={i} className="crow" style={{ animationDelay:`${i * 0.08}s` }}>
-                  <div className={"cmark it" + (m.markIt ? " sm-it" : "")}>{m.mark}</div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div className="cpos">第{POS_CN[i]}張{m.sub && <>　<span className={m.subIt ? "it" : ""}>{m.sub}</span></>}</div>
-                    <div className="cname">{m.name}</div>
-                  </div>
-                  {m.tag && <span className={"ctag" + (m.rev ? " rev" : "")}>{m.tag}</span>}
-                </div>
-              );
-            })}
+            {result.cmp
+              ? [0, 1].map(g => {
+                  const half = result.cards.length / 2;
+                  return (
+                    <React.Fragment key={g}>
+                      <GroupHead g={g} name={g ? result.cmp.b : result.cmp.a} cls="rgrp-h" />
+                      {result.cards.slice(g * half, (g + 1) * half).map((c, k) => cardRow(c, g * half + k, k))}
+                    </React.Fragment>
+                  );
+                })
+              : result.cards.map((c, i) => cardRow(c, i, i))}
           </div>
           <p className="note">可複製牌面結果，留存或交由占卜師進一步解讀。</p>
         </div>
@@ -996,6 +1081,7 @@ function App() {
   const [q, setQ] = useState("");
   const [sys, setSys] = useState(null);
   const [cnt, setCnt] = useState(3);
+  const [cmp, setCmp] = useState(null);
   const [res, setRes] = useState(null);
   useEffect(() => { window.__appReady = true; }, []);
   useEffect(() => { window.scrollTo(0, 0); }, [pg]);
@@ -1004,10 +1090,10 @@ function App() {
     <Backdrop />
     <div className="shell"><div className="col">
       {pg === "q" && <PageQ onNext={v => { setQ(v); setPg("s"); }} />}
-      {pg === "s" && <PageS question={q} onNext={(s, c) => { setSys(s); setCnt(c); setPg("d"); }} onBack={() => setPg("q")} />}
+      {pg === "s" && <PageS question={q} onNext={(s, c, m) => { setSys(s); setCnt(c); setCmp(m); setPg("d"); }} onBack={() => setPg("q")} />}
       {pg === "d" && sys === "liuyao" && <PageY question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
-      {pg === "d" && sys !== "liuyao" && <PageC system={sys} cnt={cnt} question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
-      {pg === "r" && res && <PageR result={res} onRestart={() => { setPg("q"); setQ(""); setSys(null); setRes(null); }} />}
+      {pg === "d" && sys !== "liuyao" && <PageC system={sys} cnt={cnt} cmp={cmp} question={q} onResult={r => { setRes(r); setPg("r"); }} onBack={() => setPg("s")} />}
+      {pg === "r" && res && <PageR result={res} onRestart={() => { setPg("q"); setQ(""); setSys(null); setCmp(null); setRes(null); }} />}
     </div></div>
   </>);
 }
